@@ -30,13 +30,27 @@
     .neon-glow {
         filter: drop-shadow(0 0 5px #fef08a) drop-shadow(0 0 10px #fef08a);
     }
+    /* Kaydırma çubuğu stilleri */
+    .modal-scroll::-webkit-scrollbar {
+        width: 8px;
+    }
+    .modal-scroll::-webkit-scrollbar-track {
+        background: #334155; /* slate-700 */
+        border-radius: 10px;
+    }
+    .modal-scroll::-webkit-scrollbar-thumb {
+        background: #64748b; /* slate-500 */
+        border-radius: 10px;
+    }
+    .modal-scroll::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; /* slate-400 */
+    }
   </style>
 </head>
 <body class="bg-slate-900">
 
   <div id="root"></div>
 
-  <!-- Firebase Kütüphaneleri -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
@@ -48,7 +62,6 @@
     };
   </script>
 
-  <!-- React UYGULAMA KODUNUZ (SON HALİ) -->
   <script type="text/babel">
     const { useState, useEffect } = React;
     const { 
@@ -71,7 +84,6 @@
     const appId = firebaseConfig.projectId;
 
     function App() {
-      // State'ler...
       const [db, setDb] = useState(null);
       const [auth, setAuth] = useState(null);
       const [userId, setUserId] = useState(null);
@@ -96,8 +108,8 @@
       const [libraryFilterTerm, setLibraryFilterTerm] = useState('');
       const [editingBook, setEditingBook] = useState(null);
       const [plainTextImportList, setPlainTextImportList] = useState('');
-      const [showManualAddModal, setShowManualAddModal] = useState(false);
-      const [manualBook, setManualBook] = useState({ title: '', authors: '', publisher: '', description: '', notes: '' });
+      const [manualAddTarget, setManualAddTarget] = useState(null);
+      const [manualBook, setManualBook] = useState({ title: '', authors: '', publisher: '', description: '', notes: '', readDate: '' });
       const [selectedAuthorBooks, setSelectedAuthorBooks] = useState([]);
       const [selectedAuthorName, setSelectedAuthorName] = useState('');
       const [selectedPublisherBooks, setSelectedPublisherBooks] = useState([]);
@@ -107,6 +119,23 @@
       const [statsTab, setStatsTab] = useState('authors');
       const [showBackToTop, setShowBackToTop] = useState(false);
       const [confirmation, setConfirmation] = useState(null);
+
+      const getTodayDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const formatDisplayDate = (dateString) => {
+        if (!dateString) return '';
+        const parts = dateString.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}.${parts[1]}.${parts[0]}`;
+        }
+        return dateString;
+      };
 
       useEffect(() => {
         const handleScroll = () => setShowBackToTop(window.scrollY > 300);
@@ -134,11 +163,9 @@
         if (omerSeyfettinVariations.includes(lowerCaseAuthor)) {
           return 'Ömer Seyfettin';
         }
-        
         if (halidZiyaVariations.includes(lowerCaseAuthor)) {
           return 'Halid Ziya Uşaklıgil';
         }
-
         return author;
       };
 
@@ -215,7 +242,7 @@
       const closeEditModal = () => setEditingBook(null);
       
       const resetManualBookForm = () => {
-        setManualBook({ title: '', authors: '', publisher: '', description: '', notes: '' });
+        setManualBook({ title: '', authors: '', publisher: '', description: '', notes: '', readDate: getTodayDate() });
       };
 
       useEffect(() => {
@@ -278,7 +305,7 @@
       
       const exportData = () => {
         if (readBooks.length === 0) return showMessage('Dışa aktarılacak kitap bulunmuyor.', 'info');
-        const textData = readBooks.map(book => `${book.title} - ${book.authors}`).join('\n');
+        const textData = readBooks.map(book => `${book.title} - ${book.authors}${book.readDate ? ` (Okuma: ${formatDisplayDate(book.readDate)})` : ''}`).join('\n');
         const blob = new Blob([textData], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -305,6 +332,7 @@
         const lines = plainTextImportList.split('\n').filter(line => line.trim().length > 0);
         const existingBooks = new Set([...readBooks, ...libraryBooks].map(b => `${b.title.toLocaleLowerCase('tr-TR')}-${b.authors.toLocaleLowerCase('tr-TR')}`));
         const newBooksToAdd = [];
+        
         lines.forEach(line => {
             let title = line.trim(), authors = 'Bilinmiyor';
             const separatorMatch = line.match(/(.*)\s*[-–—]\s*(.*)$/);
@@ -312,7 +340,7 @@
             const formattedTitle = formatTitle(title), formattedAuthors = formatAuthor(authors);
             const bookKey = `${formattedTitle.toLocaleLowerCase('tr-TR')}-${formattedAuthors.toLocaleLowerCase('tr-TR')}`;
             if (!existingBooks.has(bookKey)) {
-                newBooksToAdd.push({ title: formattedTitle, authors: formattedAuthors, publisher: '', notes: '' });
+                newBooksToAdd.push({ title: formattedTitle, authors: formattedAuthors, publisher: '', notes: '', readDate: '' }); 
                 existingBooks.add(bookKey);
             }
         });
@@ -333,20 +361,44 @@
         if (!searchTerm.trim()) return showMessage('Arama terimi girin.', 'error');
         setLoading(true); setError(''); setSearchResults([]);
         try {
-          const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchTerm)}&limit=10`);
-          const data = await response.json();
+          const openLibraryResponse = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(searchTerm)}&limit=10`);
+          const data = await openLibraryResponse.json();
+
           if (data.docs && data.docs.length > 0) {
-            setSearchResults(data.docs.map(item => ({
-              id: self.crypto.randomUUID(), title: formatTitle(item.title || 'Başlık Bilgisi Yok'), authors: formatAuthor(item.author_name ? item.author_name.join(', ') : 'Yazar Bilgisi Yok'), publisher: item.publisher ? item.publisher.join(', ') : 'Yayınevi Bilgisi Yok', description: '', notes: ''
-            })));
-          } else { showMessage('Aradığınız kitap bulunamadı.', 'info'); }
-        } catch (err) { showMessage('Kitap arama sırasında bir hata oluştu.', 'error'); } 
+            const books = data.docs.map(item => {
+              const title = formatTitle(item.title || 'Başlık Bilgisi Yok');
+              const authors = formatAuthor(item.author_name ? item.author_name.join(', ') : 'Yazar Bilgisi Yok');
+              const publisher = item.publisher ? item.publisher.join(', ') : 'Yayınevi Bilgisi Yok';
+              
+              return {
+                id: self.crypto.randomUUID(), 
+                title: title,
+                authors: authors,
+                publisher: publisher,
+                description: '',
+                notes: '' 
+              };
+            });
+            setSearchResults(books);
+          } else { 
+            showMessage('Aradığınız kitap bulunamadı.', 'info'); 
+          }
+        } catch (err) { 
+          showMessage('Kitap arama sırasında bir hata oluştu.', 'error'); 
+        } 
         finally { setLoading(false); }
       };
-      
+
       const addBookToRead = async (book) => {
           if (!db || !userId) return showMessage('Kullanıcı oturumu hazır değil.', 'error');
-          const newBook = { title: formatTitle(book.title), authors: formatAuthor(book.authors), publisher: book.publisher, description: book.description, notes: book.notes };
+          const newBook = { 
+            title: formatTitle(book.title), 
+            authors: formatAuthor(book.authors), 
+            publisher: book.publisher, 
+            description: book.description, 
+            notes: book.notes,
+            readDate: getTodayDate()
+          };
           const q = query(collection(db, `artifacts/${appId}/users/${userId}/readBooks`));
           const querySnapshot = await getDocs(q);
           const exists = querySnapshot.docs.some(doc => doc.data().title.toLocaleLowerCase('tr-TR') === newBook.title.toLocaleLowerCase('tr-TR') && doc.data().authors.toLocaleLowerCase('tr-TR') === newBook.authors.toLocaleLowerCase('tr-TR'));
@@ -357,19 +409,30 @@
           } catch (e) { showMessage('Kitap eklenirken hata oluştu.', 'error'); }
       };
       
-      const handleManualAddBookToLibrary = async () => {
+      const handleManualAddBook = async (target) => {
         if (!manualBook.title.trim() || !manualBook.authors.trim()) return showMessage('Başlık ve Yazar alanları zorunludur.', 'error');
-        const newBook = { title: formatTitle(manualBook.title), authors: formatAuthor(manualBook.authors), publisher: manualBook.publisher || 'Yayınevi Bilgisi Yok', description: manualBook.description || '', notes: '' };
+        const newBook = { 
+            title: formatTitle(manualBook.title), 
+            authors: formatAuthor(manualBook.authors), 
+            publisher: manualBook.publisher || 'Yayınevi Bilgisi Yok', 
+            description: manualBook.description || '', 
+            notes: manualBook.notes || ''
+        };
+        if (target === 'read') {
+            newBook.readDate = manualBook.readDate || '';
+        }
+
         if (!db || !userId) return showMessage('Kullanıcı oturumu hazır değil.', 'error');
-        const q = query(collection(db, `artifacts/${appId}/users/${userId}/libraryBooks`));
+        const collectionName = target === 'read' ? 'readBooks' : 'libraryBooks';
+        const q = query(collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`));
         const querySnapshot = await getDocs(q);
         const exists = querySnapshot.docs.some(doc => doc.data().title.toLocaleLowerCase('tr-TR') === newBook.title.toLocaleLowerCase('tr-TR') && doc.data().authors.toLocaleLowerCase('tr-TR') === newBook.authors.toLocaleLowerCase('tr-TR'));
-        if (exists) return showMessage('Bu kitap zaten kütüphanenizde var.', 'error');
+        if (exists) return showMessage('Bu kitap zaten listenizde var.', 'error');
         try {
-            await addDoc(collection(db, `artifacts/${appId}/users/${userId}/libraryBooks`), newBook);
-            showMessage('Kitap kütüphaneye başarıyla eklendi!', 'success'); 
+            await addDoc(collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`), newBook);
+            showMessage('Kitap başarıyla eklendi!', 'success'); 
             resetManualBookForm(); 
-            setShowManualAddModal(false);
+            setManualAddTarget(null);
         } catch (e) { showMessage('Kitap eklenirken hata oluştu.', 'error'); }
       };
       
@@ -380,7 +443,8 @@
         const formattedBookData = {
             ...bookData,
             title: formatTitle(bookData.title),
-            authors: formatAuthor(bookData.authors)
+            authors: formatAuthor(bookData.authors),
+            readDate: bookData.readDate || ''
         };
 
         try {
@@ -415,7 +479,10 @@
             const querySnapshot = await getDocs(q);
             const exists = querySnapshot.docs.some(doc => doc.data().title.toLocaleLowerCase('tr-TR') === bookData.title.toLocaleLowerCase('tr-TR') && doc.data().authors.toLocaleLowerCase('tr-TR') === bookData.authors.toLocaleLowerCase('tr-TR'));
             if (!exists) {
-                await addDoc(collection(db, `artifacts/${appId}/users/${userId}/readBooks`), bookData);
+                await addDoc(collection(db, `artifacts/${appId}/users/${userId}/readBooks`), {
+                    ...bookData,
+                    readDate: getTodayDate() 
+                });
             }
             showMessage(`${book.title} okundu olarak işaretlendi!`, 'success');
         } catch (e) {
@@ -444,8 +511,18 @@
       };
 
       const filteredReadBooks = readBooks.filter(book => book.title.toLocaleLowerCase('tr-TR').includes(readBooksFilterTerm.toLocaleLowerCase('tr-TR')) || (book.authors && book.authors.toLocaleLowerCase('tr-TR').includes(readBooksFilterTerm.toLocaleLowerCase('tr-TR'))));
-      const filteredLibraryBooks = libraryBooks.filter(book => book.title.toLocaleLowerCase('tr-TR').includes(libraryFilterTerm.toLocaleLowerCase('tr-TR')) || (book.authors && book.authors.toLocaleLowerCase('tr-TR').includes(libraryFilterTerm.toLocaleLowerCase('tr-TR'))));
       
+      const sortedReadBooks = [...filteredReadBooks].sort((a, b) => {
+          const dateA = a.readDate || '';
+          const dateB = b.readDate || '';
+          if (dateA === dateB) return 0;
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+          return dateB.localeCompare(dateA); 
+      });
+
+      const filteredLibraryBooks = libraryBooks.filter(book => book.title.toLocaleLowerCase('tr-TR').includes(libraryFilterTerm.toLocaleLowerCase('tr-TR')) || (book.authors && book.authors.toLocaleLowerCase('tr-TR').includes(libraryFilterTerm.toLocaleLowerCase('tr-TR'))));
+
       if (!isAuthReady) return <div className="min-h-screen flex items-center justify-center text-white text-xl">Yükleniyor...</div>;
 
       if (!userId) {
@@ -489,6 +566,8 @@
               <button onClick={() => setShowSettings(true)} className="w-full sm:w-auto px-4 py-2 bg-rose-800 rounded-lg font-semibold hover:bg-rose-700">Ayarlar</button>
               <button onClick={handleSignOut} className="w-full sm:w-auto px-4 py-2 bg-gray-600 rounded-lg font-semibold hover:bg-gray-700">Çıkış Yap</button>
             </div>
+            
+            {}
             <div className="mb-8 p-6 bg-slate-700 rounded-xl">
               <h2 className="text-2xl font-semibold mb-4 text-slate-200">Okuduğum Kitap Ekle</h2>
               <div className="relative flex flex-col sm:flex-row gap-4">
@@ -497,28 +576,61 @@
                       {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">&times;</button>}
                   </div>
                   <button onClick={searchBooks} className="px-6 py-3 bg-blue-600 rounded-lg font-semibold" disabled={loading}>{loading ? 'Aranıyor...' : 'Ara'}</button>
+                  <button onClick={() => {resetManualBookForm(); setManualAddTarget('read');}} className="px-6 py-3 bg-indigo-600 rounded-lg font-semibold whitespace-nowrap">Manuel Ekle</button>
               </div>
             </div>
+            
             {searchResults.length > 0 && (
               <div className="relative mb-8 p-6 bg-slate-700 rounded-xl">
                 <button onClick={() => setSearchResults([])} className="absolute top-3 right-3 text-slate-400 hover:text-white text-2xl">&times;</button>
                 <h2 className="text-2xl font-semibold mb-4 text-slate-200">Arama Sonuçları</h2>
-                <div className="grid grid-cols-1 gap-4">{searchResults.map(book => (<div key={book.id} className="bg-slate-600 p-4 rounded-lg"><h3 className="text-lg font-bold text-slate-100">{book.title}</h3><p className="text-sm text-emerald-400">{book.authors}</p>{book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-300">Yayınevi: {book.publisher}</p>)}<button onClick={() => addBookToRead(book)} className="mt-3 px-4 py-2 bg-purple-600 rounded-lg text-sm font-semibold">Okuduklarıma Ekle</button></div>))}</div>
+                <div className="grid grid-cols-1 gap-4">
+                  {searchResults.map(book => (
+                    <div key={book.id} className="bg-slate-600 p-4 rounded-lg">
+                      <h3 className="text-lg font-bold text-slate-100">{book.title}</h3>
+                      <p className="text-sm text-emerald-400">{book.authors}</p>
+                      {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-300 mt-1">Yayınevi: {book.publisher}</p>)}
+                      <button onClick={() => addBookToRead(book)} className="mt-3 px-4 py-2 bg-purple-600 rounded-lg text-sm font-semibold self-start hover:bg-purple-700">Okuduklarıma Ekle</button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
             
+            {}
             <div className="p-6 bg-slate-700 rounded-xl border border-blue-500">
               <h2 className="text-2xl font-semibold mb-4 text-slate-200">Okuduğum Kitaplar ({readBooks.length})</h2>
               <div className="relative">
                 <input type="text" className="w-full p-3 pr-10 mb-4 bg-slate-800 rounded-lg text-white" placeholder="Okuduklarımda ara..." value={readBooksFilterTerm} onChange={(e) => setReadBooksFilterTerm(e.target.value)} />
                 {readBooksFilterTerm && <button onClick={() => setReadBooksFilterTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 pb-4 text-slate-400 hover:text-white">&times;</button>}
               </div>
-              {filteredReadBooks.length > 0 ? (<div className="grid grid-cols-1 gap-4">{filteredReadBooks.map(book => (<div key={book.id} className="bg-slate-600 p-4 rounded-lg"><h3 className="text-lg font-bold text-slate-100">{book.title}</h3><p className="text-sm text-emerald-400 mt-1">{book.authors}</p>{book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-300 mt-1">Yayınevi: {book.publisher}</p>)}<div className="flex gap-2 mt-4"><button onClick={() => openEditModal(book, 'read')} className="p-2 rounded-full hover:bg-slate-500" aria-label="Düzenle"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button><button onClick={() => removeBook(book.id, 'read')} className="p-2 rounded-full hover:bg-slate-500" aria-label="Sil"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div></div>))}</div>) : <p className="text-center text-slate-400">Henüz okuduğunuz bir kitap yok.</p>}
+              {sortedReadBooks.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {sortedReadBooks.map(book => (
+                    <div key={book.id} className="bg-slate-600 p-4 rounded-lg">
+                      <h3 className="text-lg font-bold text-slate-100">{book.title}</h3>
+                      <p className="text-sm text-emerald-400 mt-1">{book.authors}</p>
+                      {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-300 mt-1">Yayınevi: {book.publisher}</p>)}
+                      {book.readDate && (
+                          <p className="text-xs text-sky-300 mt-2 font-medium flex items-center gap-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                              {formatDisplayDate(book.readDate)}
+                          </p>
+                      )}
+                      <div className="flex gap-2 mt-4">
+                        <button onClick={() => openEditModal(book, 'read')} className="p-2 rounded-full hover:bg-slate-500" aria-label="Düzenle"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                        <button onClick={() => removeBook(book.id, 'read')} className="p-2 rounded-full hover:bg-slate-500" aria-label="Sil"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="text-center text-slate-400">Henüz okuduğunuz bir kitap yok.</p>}
             </div>
           </div>
           
           {showBackToTop && (<button onClick={scrollToTop} className="fixed bottom-5 right-5 bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all z-50" aria-label="Başa Dön"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg></button>)}
           
+          {}
           {showLibrary && (
             <div className="fixed inset-0 bg-slate-900 flex flex-col z-50 p-4 sm:p-6">
                 <div className="bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg flex-1 flex flex-col min-h-0">
@@ -531,9 +643,9 @@
                             <input type="text" className="w-full p-3 pr-10 bg-slate-700 rounded-lg text-white" placeholder="Kütüphanemde ara..." value={libraryFilterTerm} onChange={(e) => setLibraryFilterTerm(e.target.value)} />
                             {libraryFilterTerm && <button onClick={() => setLibraryFilterTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">&times;</button>}
                         </div>
-                        <button onClick={() => setShowManualAddModal(true)} className="px-6 py-3 bg-indigo-600 rounded-lg font-semibold">Manuel Ekle</button>
+                        <button onClick={() => {resetManualBookForm(); setManualAddTarget('library');}} className="px-6 py-3 bg-indigo-600 rounded-lg font-semibold">Manuel Ekle</button>
                     </div>
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto modal-scroll pr-2">
                         {filteredLibraryBooks.length > 0 ? (<div className="grid grid-cols-1 gap-4">{filteredLibraryBooks.map(book => {
                             const isBookRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
                             return (
@@ -560,10 +672,155 @@
             </div>
           )}
 
-          {showSettings && (<div className="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 p-4"><div className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md relative text-slate-100 max-h-[90vh] overflow-y-auto"><button onClick={() => setShowSettings(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button><h2 className="text-3xl font-bold mb-6 text-center text-slate-100">Ayarlar</h2><div className="mb-4"><label htmlFor="userName" className="block text-sm font-semibold mb-2">Adınız:</label><input type="text" id="userName" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={userName} onChange={(e) => setUserName(e.target.value)} /></div><div className="mb-8"><label htmlFor="userSurname" className="block text-sm font-semibold mb-2">Soyadınız:</label><input type="text" id="userSurname" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={userSurname} onChange={(e) => setUserSurname(e.target.value)} /></div><button onClick={saveUserProfile} className="w-full mb-4 px-6 py-3 bg-blue-600 rounded-lg font-semibold hover:bg-blue-700">Bilgileri Kaydet</button><button onClick={exportData} className="w-full mb-4 px-6 py-3 bg-green-600 rounded-lg font-semibold hover:bg-green-700">Okunanları Dışa Aktar (.txt)</button><button onClick={exportLibraryData} className="w-full mt-4 px-6 py-3 bg-teal-600 rounded-lg font-semibold hover:bg-teal-700">Kütüphaneyi Dışa Aktar (.txt)</button><div className="mt-4 p-4 bg-slate-700 rounded-lg"><h3 className="text-xl font-semibold mb-3 text-slate-200">Okunanlara İçe Aktar</h3><textarea className="w-full p-3 bg-slate-800 rounded-lg text-white min-h-[150px]" value={plainTextImportList} onChange={(e) => setPlainTextImportList(e.target.value)} placeholder="Her satıra bir kitap...&#10;Ör: YABANCI - ALBERT CAMUS"></textarea><button onClick={handlePlainTextImport} className="mt-4 w-full px-6 py-3 bg-purple-600 rounded-lg font-semibold hover:bg-purple-700">Kitapları Okunanlara Ekle</button></div></div></div>)}
-          {editingBook && (<div className="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 p-4"><div className="bg-slate-800 p-8 rounded-xl w-full max-w-md relative max-h-[90vh] overflow-y-auto"><button onClick={closeEditModal} className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button><h2 className="text-3xl font-bold mb-6 text-center text-slate-100">Kitabı Düzenle</h2><input name="title" placeholder="Başlık" className="w-full p-3 mb-4 bg-slate-700 rounded-lg text-white" value={editingBook.title} onChange={(e) => setEditingBook({...editingBook, title: e.target.value})} /><input name="authors" placeholder="Yazar" className="w-full p-3 mb-4 bg-slate-700 rounded-lg text-white" value={editingBook.authors} onChange={(e) => setEditingBook({...editingBook, authors: e.target.value})} /><input name="publisher" placeholder="Yayınevi" className="w-full p-3 mb-4 bg-slate-700 rounded-lg text-white" value={editingBook.publisher} onChange={(e) => setEditingBook({...editingBook, publisher: e.target.value})} /><textarea name="notes" placeholder="Notlar" className="w-full p-3 mb-4 bg-slate-700 rounded-lg text-white min-h-[100px]" value={editingBook.notes} onChange={(e) => setEditingBook({...editingBook, notes: e.target.value})}></textarea><button onClick={saveEditedBook} className="w-full px-6 py-3 bg-blue-600 rounded-lg font-semibold hover:bg-blue-700">Kaydet</button></div></div>)}
-          {showManualAddModal && (<div className="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 p-4"><div className="bg-slate-800 p-8 rounded-xl w-full max-w-md relative max-h-[90vh] overflow-y-auto"><button onClick={() => { setShowManualAddModal(false); resetManualBookForm(); }} className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button><h2 className="text-3xl font-bold mb-6 text-center text-slate-100">Kütüphaneye Manuel Ekle</h2><input name="title" placeholder="Başlık *" className="w-full p-3 mb-4 bg-slate-700 rounded-lg text-white" value={manualBook.title} onChange={(e) => setManualBook({ ...manualBook, title: e.target.value })} /><input name="authors" placeholder="Yazar *" className="w-full p-3 mb-4 bg-slate-700 rounded-lg text-white" value={manualBook.authors} onChange={(e) => setManualBook({ ...manualBook, authors: e.target.value })} /><input name="publisher" placeholder="Yayınevi" className="w-full p-3 mb-4 bg-slate-700 rounded-lg text-white" value={manualBook.publisher} onChange={(e) => setManualBook({ ...manualBook, publisher: e.target.value })} /><textarea name="notes" placeholder="Notlarım..." className="w-full p-3 mb-4 bg-slate-700 rounded-lg text-white min-h-[100px]" value={manualBook.notes} onChange={(e) => setManualBook({ ...manualBook, notes: e.target.value})}></textarea><button onClick={handleManualAddBookToLibrary} className="w-full px-6 py-3 bg-indigo-600 rounded-lg font-semibold hover:bg-indigo-700">Kütüphaneye Ekle</button></div></div>)}
-          {showStats && (<div className="fixed inset-0 bg-slate-900 flex flex-col z-50 p-4 sm:p-6"><div className="bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg flex-1 flex flex-col min-h-0"><div className="flex justify-between items-center mb-4"><h2 className="text-3xl font-bold text-slate-100">İstatistikler</h2><button onClick={() => { setShowStats(false); setSelectedAuthorName(''); setSelectedPublisherName(''); setStatsSearchTerm(''); setSelectedBookDetails(null); }} className="text-slate-400 hover:text-white text-3xl">&times;</button></div>{selectedBookDetails ? (<div className="relative"><button onClick={() => setSelectedBookDetails(null)} className="absolute -top-2 right-0 p-2 text-slate-400 hover:text-white" aria-label="Geri Dön"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg></button><h3 className="text-2xl font-semibold mb-4 text-slate-100 pr-8">Kitap Detayları</h3><div className="space-y-2 text-slate-300"><div className="bg-slate-700 p-3 rounded-lg"><p className="font-bold text-white">{selectedBookDetails.title}</p><p className="text-emerald-400">{selectedBookDetails.authors}</p>{selectedBookDetails.publisher && selectedBookDetails.publisher !== 'Yayınevi Bilgisi Yok' && <p className="text-xs">{selectedBookDetails.publisher}</p>}<div className="flex gap-2 mt-4"><button onClick={() => { openEditModal(selectedBookDetails, 'read'); setShowStats(false); }} className="p-2 rounded-full hover:bg-slate-500" aria-label="Düzenle"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button></div></div></div></div>) : selectedAuthorName ? (<div className="relative"><button onClick={() => {setSelectedAuthorName(''); setSelectedAuthorBooks([]);}} className="absolute -top-2 right-0 p-2 text-slate-400 hover:text-white" aria-label="Geri Dön"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg></button><h3 className="text-2xl font-semibold mb-4 text-slate-100 pr-8">{selectedAuthorName} Kitapları ({selectedAuthorBooks.length})</h3><div className="overflow-y-auto max-h-[60vh]"><ul className="space-y-2 text-slate-300">{selectedAuthorBooks.map((title, i) => <li key={i} onClick={() => handleBookClickInStats(title)} className="bg-slate-700 p-3 rounded-lg cursor-pointer hover:bg-slate-600">{title}</li>)}</ul></div></div>) : selectedPublisherName ? (<div className="relative"><button onClick={() => {setSelectedPublisherName(''); setSelectedPublisherBooks([]);}} className="absolute -top-2 right-0 p-2 text-slate-400 hover:text-white" aria-label="Geri Dön"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg></button><h3 className="text-2xl font-semibold mb-4 text-slate-100 pr-8">{selectedPublisherName} Kitapları ({selectedPublisherBooks.length})</h3><div className="overflow-y-auto max-h-[60vh]"><ul className="space-y-2 text-slate-300">{selectedPublisherBooks.map((title, i) => <li key={i} onClick={() => handleBookClickInStats(title)} className="bg-slate-700 p-3 rounded-lg cursor-pointer hover:bg-slate-600">{title}</li>)}</ul></div></div>) : (<><div className="border-b border-slate-600 mb-4"><nav className="-mb-px flex gap-6"><button onClick={() => setStatsTab('authors')} className={`shrink-0 border-b-2 px-1 pb-4 text-sm font-medium ${statsTab === 'authors' ? 'border-sky-500 text-sky-400' : 'border-transparent text-slate-400 hover:text-slate-300'}`}>Yazarlar</button><button onClick={() => setStatsTab('publishers')} className={`shrink-0 border-b-2 px-1 pb-4 text-sm font-medium ${statsTab === 'publishers' ? 'border-sky-500 text-sky-400' : 'border-transparent text-slate-400 hover:text-slate-300'}`}>Yayınevleri</button></nav></div><div className="flex-1 flex flex-col min-h-0"><div className="relative mb-4"><input type="text" placeholder={`${statsTab === 'authors' ? 'Yazar' : 'Yayınevi'} ara...`} className="w-full p-3 pr-10 bg-slate-700 rounded-lg text-white" value={statsSearchTerm} onChange={(e) => setStatsSearchTerm(e.target.value)} />{statsSearchTerm && <button onClick={() => setStatsSearchTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">&times;</button>}</div><div className="flex-1 overflow-y-auto">{statsTab === 'authors' && (getAuthorStats().length === 0 ? (<p className="text-slate-300 text-center">Yazar istatistiği bulunamadı.</p>) : (<ul className="space-y-3">{getAuthorStats().map(([authorName, data]) => (<li key={authorName} onClick={() => handleAuthorClick(authorName, data.books)} className="bg-slate-700 p-4 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-600"><span className="text-lg font-medium text-slate-100">{authorName}</span><span className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-full">{data.count} Kitap</span></li>))}</ul>))}{statsTab === 'publishers' && (getPublisherStats().length === 0 ? (<p className="text-slate-300 text-center">Yayınevi istatistiği bulunamadı.</p>) : (<ul className="space-y-3">{getPublisherStats().map(([publisherName, data]) => (<li key={publisherName} onClick={() => handlePublisherClick(publisherName, data.books)} className="bg-slate-700 p-4 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-600"><span className="text-lg font-medium text-slate-100">{publisherName}</span><span className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-full">{data.count} Kitap</span></li>))}</ul>))}</div></div></>)}</div></div>)}
+          {showSettings && (<div className="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 p-4"><div className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md relative text-slate-100 max-h-[90vh] overflow-y-auto modal-scroll pr-2"><button onClick={() => setShowSettings(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button><h2 className="text-3xl font-bold mb-6 text-center text-slate-100">Ayarlar</h2><div className="mb-4"><label htmlFor="userName" className="block text-sm font-semibold mb-2">Adınız:</label><input type="text" id="userName" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={userName} onChange={(e) => setUserName(e.target.value)} /></div><div className="mb-8"><label htmlFor="userSurname" className="block text-sm font-semibold mb-2">Soyadınız:</label><input type="text" id="userSurname" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={userSurname} onChange={(e) => setUserSurname(e.target.value)} /></div><button onClick={saveUserProfile} className="w-full mb-4 px-6 py-3 bg-blue-600 rounded-lg font-semibold hover:bg-blue-700">Bilgileri Kaydet</button><button onClick={exportData} className="w-full mb-4 px-6 py-3 bg-green-600 rounded-lg font-semibold hover:bg-green-700">Okunanları Dışa Aktar (.txt)</button><button onClick={exportLibraryData} className="w-full mt-4 px-6 py-3 bg-teal-600 rounded-lg font-semibold hover:bg-teal-700">Kütüphaneyi Dışa Aktar (.txt)</button><div className="mt-4 p-4 bg-slate-700 rounded-lg"><h3 className="text-xl font-semibold mb-3 text-slate-200">Okunanlara İçe Aktar</h3><textarea className="w-full p-3 bg-slate-800 rounded-lg text-white min-h-[150px]" value={plainTextImportList} onChange={(e) => setPlainTextImportList(e.target.value)} placeholder="Her satıra bir kitap...&#10;Ör: YABANCI - ALBERT CAMUS"></textarea><button onClick={handlePlainTextImport} className="mt-4 w-full px-6 py-3 bg-purple-600 rounded-lg font-semibold hover:bg-purple-700">Kitapları Okunanlara Ekle</button></div></div></div>)}
+          
+          {editingBook && (
+            <div className="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 p-4">
+              <div className="bg-slate-800 p-8 rounded-xl w-full max-w-md relative max-h-[90vh] overflow-y-auto modal-scroll pr-2">
+                <button onClick={closeEditModal} className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button>
+                <h2 className="text-3xl font-bold mb-6 text-center text-slate-100">Kitabı Düzenle</h2>
+                <div className="mb-4">
+                  <label htmlFor="editTitle" className="block text-sm font-semibold mb-2">Başlık:</label>
+                  <input type="text" id="editTitle" name="title" placeholder="Başlık" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={editingBook.title} onChange={(e) => setEditingBook({...editingBook, title: e.target.value})} />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="editAuthors" className="block text-sm font-semibold mb-2">Yazar:</label>
+                  <input type="text" id="editAuthors" name="authors" placeholder="Yazar" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={editingBook.authors} onChange={(e) => setEditingBook({...editingBook, authors: e.target.value})} />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="editPublisher" className="block text-sm font-semibold mb-2">Yayınevi:</label>
+                  <input type="text" id="editPublisher" name="publisher" placeholder="Yayınevi" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={editingBook.publisher} onChange={(e) => setEditingBook({...editingBook, publisher: e.target.value})} />
+                </div>
+                {editingBook.source === 'read' && (
+                  <div className="mb-4">
+                    <label htmlFor="editReadDate" className="block text-sm font-semibold mb-2">Okuma Tarihi (İsteğe Bağlı):</label>
+                    <input type="date" id="editReadDate" name="readDate" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={editingBook.readDate || ''} onChange={(e) => setEditingBook({...editingBook, readDate: e.target.value})} />
+                  </div>
+                )}
+                <div className="mb-4">
+                  <label htmlFor="editNotes" className="block text-sm font-semibold mb-2">Notlar:</label>
+                  <textarea id="editNotes" name="notes" placeholder="Notlar" className="w-full p-3 bg-slate-700 rounded-lg text-white min-h-[100px]" value={editingBook.notes || ''} onChange={(e) => setEditingBook({...editingBook, notes: e.target.value})}></textarea>
+                </div>
+                <button onClick={saveEditedBook} className="w-full px-6 py-3 bg-blue-600 rounded-lg font-semibold hover:bg-blue-700">Kaydet</button>
+              </div>
+            </div>
+          )}
+          
+          {manualAddTarget && (
+            <div className="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 p-4">
+              <div className="bg-slate-800 p-8 rounded-xl w-full max-w-md relative max-h-[90vh] overflow-y-auto modal-scroll pr-2">
+                <button onClick={() => { setManualAddTarget(null); resetManualBookForm(); }} className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button>
+                <h2 className="text-3xl font-bold mb-6 text-center text-slate-100">
+                    {manualAddTarget === 'read' ? 'Okuduğum Kitap Ekle' : 'Kütüphaneye Manuel Ekle'}
+                </h2>
+                <div className="mb-4">
+                  <label htmlFor="manualTitle" className="block text-sm font-semibold mb-2">Başlık *</label>
+                  <input type="text" id="manualTitle" name="title" placeholder="Başlık" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={manualBook.title} onChange={(e) => setManualBook({ ...manualBook, title: e.target.value })} />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="manualAuthors" className="block text-sm font-semibold mb-2">Yazar *</label>
+                  <input type="text" id="manualAuthors" name="authors" placeholder="Yazar" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={manualBook.authors} onChange={(e) => setManualBook({ ...manualBook, authors: e.target.value })} />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="manualPublisher" className="block text-sm font-semibold mb-2">Yayınevi:</label>
+                  <input type="text" id="manualPublisher" name="publisher" placeholder="Yayınevi" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={manualBook.publisher} onChange={(e) => setManualBook({ ...manualBook, publisher: e.target.value })} />
+                </div>
+                {manualAddTarget === 'read' && (
+                  <div className="mb-4">
+                    <label htmlFor="manualReadDate" className="block text-sm font-semibold mb-2">Okuma Tarihi (İsteğe Bağlı):</label>
+                    <input type="date" id="manualReadDate" name="readDate" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={manualBook.readDate || ''} onChange={(e) => setManualBook({ ...manualBook, readDate: e.target.value })} />
+                  </div>
+                )}
+                <div className="mb-4">
+                  <label htmlFor="manualNotes" className="block text-sm font-semibold mb-2">Notlar:</label>
+                  <textarea id="manualNotes" name="notes" placeholder="Notlarım..." className="w-full p-3 bg-slate-700 rounded-lg text-white min-h-[100px]" value={manualBook.notes} onChange={(e) => setManualBook({ ...manualBook, notes: e.target.value})}></textarea>
+                </div>
+                <button onClick={() => handleManualAddBook(manualAddTarget)} className="w-full px-6 py-3 bg-indigo-600 rounded-lg font-semibold hover:bg-indigo-700">Listeye Ekle</button>
+              </div>
+            </div>
+          )}
+          
+          {}
+          {showStats && (
+            <div className="fixed inset-0 bg-slate-900 flex flex-col z-50 p-4 sm:p-6">
+              <div className="bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg flex-1 flex flex-col min-h-0">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-3xl font-bold text-slate-100">İstatistikler</h2>
+                  <button onClick={() => { setShowStats(false); setSelectedAuthorName(''); setSelectedPublisherName(''); setStatsSearchTerm(''); setSelectedBookDetails(null); }} className="text-slate-400 hover:text-white text-3xl">&times;</button>
+                </div>
+                
+                {selectedBookDetails ? (
+                  <div className="relative">
+                    <button onClick={() => setSelectedBookDetails(null)} className="absolute -top-2 right-0 p-2 text-slate-400 hover:text-white" aria-label="Geri Dön">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <h3 className="text-2xl font-semibold mb-4 text-slate-100 pr-8">Kitap Detayları</h3>
+                    <div className="space-y-2 text-slate-300">
+                      <div className="bg-slate-700 p-3 rounded-lg">
+                        <p className="font-bold text-white text-lg">{selectedBookDetails.title}</p>
+                        <p className="text-emerald-400 font-medium">{selectedBookDetails.authors}</p>
+                        {selectedBookDetails.publisher && selectedBookDetails.publisher !== 'Yayınevi Bilgisi Yok' && <p className="text-xs text-slate-300 mt-1">Yayınevi: {selectedBookDetails.publisher}</p>}
+                        {selectedBookDetails.readDate && (
+                          <p className="text-xs text-sky-300 mt-2 font-medium flex items-center gap-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                              {formatDisplayDate(selectedBookDetails.readDate)}
+                          </p>
+                        )}
+                        <div className="flex gap-2 mt-4">
+                          <button onClick={() => { openEditModal(selectedBookDetails, 'read'); setShowStats(false); }} className="p-2 rounded-full hover:bg-slate-500" aria-label="Düzenle">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : selectedAuthorName ? (
+                  <div className="relative">
+                    <button onClick={() => {setSelectedAuthorName(''); setSelectedAuthorBooks([]);}} className="absolute -top-2 right-0 p-2 text-slate-400 hover:text-white" aria-label="Geri Dön">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <h3 className="text-2xl font-semibold mb-4 text-slate-100 pr-8">{selectedAuthorName} Kitapları ({selectedAuthorBooks.length})</h3>
+                    <div className="overflow-y-auto max-h-[60vh] modal-scroll pr-2">
+                      <ul className="space-y-2 text-slate-300">
+                        {selectedAuthorBooks.map((title, i) => <li key={i} onClick={() => handleBookClickInStats(title)} className="bg-slate-700 p-3 rounded-lg cursor-pointer hover:bg-slate-600 font-medium">{title}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                ) : selectedPublisherName ? (
+                  <div className="relative">
+                    <button onClick={() => {setSelectedPublisherName(''); setSelectedPublisherBooks([]);}} className="absolute -top-2 right-0 p-2 text-slate-400 hover:text-white" aria-label="Geri Dön">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <h3 className="text-2xl font-semibold mb-4 text-slate-100 pr-8">{selectedPublisherName} Kitapları ({selectedPublisherBooks.length})</h3>
+                    <div className="overflow-y-auto max-h-[60vh] modal-scroll pr-2">
+                      <ul className="space-y-2 text-slate-300">
+                        {selectedPublisherBooks.map((title, i) => <li key={i} onClick={() => handleBookClickInStats(title)} className="bg-slate-700 p-3 rounded-lg cursor-pointer hover:bg-slate-600 font-medium">{title}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="border-b border-slate-600 mb-4">
+                      <nav className="-mb-px flex gap-6">
+                        <button onClick={() => setStatsTab('authors')} className={`shrink-0 border-b-2 px-1 pb-4 text-sm font-medium ${statsTab === 'authors' ? 'border-sky-500 text-sky-400' : 'border-transparent text-slate-400 hover:text-slate-300'}`}>Yazarlar</button>
+                        <button onClick={() => setStatsTab('publishers')} className={`shrink-0 border-b-2 px-1 pb-4 text-sm font-medium ${statsTab === 'publishers' ? 'border-sky-500 text-sky-400' : 'border-transparent text-slate-400 hover:text-slate-300'}`}>Yayınevleri</button>
+                      </nav>
+                    </div>
+                    <div className="flex-1 flex flex-col min-h-0">
+                      <div className="relative mb-4">
+                        <input type="text" placeholder={`${statsTab === 'authors' ? 'Yazar' : 'Yayınevi'} ara...`} className="w-full p-3 pr-10 bg-slate-700 rounded-lg text-white" value={statsSearchTerm} onChange={(e) => setStatsSearchTerm(e.target.value)} />
+                        {statsSearchTerm && <button onClick={() => setStatsSearchTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">&times;</button>}
+                      </div>
+                      <div className="flex-1 overflow-y-auto modal-scroll pr-2">
+                        {statsTab === 'authors' && (getAuthorStats().length === 0 ? (<p className="text-slate-300 text-center">Yazar istatistiği bulunamadı.</p>) : (<ul className="space-y-3">{getAuthorStats().map(([authorName, data]) => (<li key={authorName} onClick={() => handleAuthorClick(authorName, data.books)} className="bg-slate-700 p-4 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-600"><span className="text-lg font-medium text-slate-100">{authorName}</span><span className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-full">{data.count} Kitap</span></li>))}</ul>))}
+                        {statsTab === 'publishers' && (getPublisherStats().length === 0 ? (<p className="text-slate-300 text-center">Yayınevi istatistiği bulunamadı.</p>) : (<ul className="space-y-3">{getPublisherStats().map(([publisherName, data]) => (<li key={publisherName} onClick={() => handlePublisherClick(publisherName, data.books)} className="bg-slate-700 p-4 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-600"><span className="text-lg font-medium text-slate-100">{publisherName}</span><span className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-full">{data.count} Kitap</span></li>))}</ul>))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       );
     }
