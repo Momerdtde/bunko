@@ -35,15 +35,14 @@
         width: 8px;
     }
     .modal-scroll::-webkit-scrollbar-track {
-        background: #334155; /* slate-700 */
-        border-radius: 10px;
+        background: #334155;
     }
     .modal-scroll::-webkit-scrollbar-thumb {
-        background: #64748b; /* slate-500 */
-        border-radius: 10px;
+        background: #64748b;
+        border-radius: 4px;
     }
     .modal-scroll::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8; /* slate-400 */
+        background: #94a3b8;
     }
   </style>
 </head>
@@ -366,15 +365,11 @@
 
           if (data.docs && data.docs.length > 0) {
             const books = data.docs.map(item => {
-              const title = formatTitle(item.title || 'Başlık Bilgisi Yok');
-              const authors = formatAuthor(item.author_name ? item.author_name.join(', ') : 'Yazar Bilgisi Yok');
-              const publisher = item.publisher ? item.publisher.join(', ') : 'Yayınevi Bilgisi Yok';
-              
               return {
                 id: self.crypto.randomUUID(), 
-                title: title,
-                authors: authors,
-                publisher: publisher,
+                title: formatTitle(item.title || 'Başlık Bilgisi Yok'),
+                authors: formatAuthor(item.author_name ? item.author_name.join(', ') : 'Yazar Bilgisi Yok'),
+                publisher: item.publisher ? item.publisher.join(', ') : 'Yayınevi Bilgisi Yok',
                 description: '',
                 notes: '' 
               };
@@ -481,7 +476,7 @@
             if (!exists) {
                 await addDoc(collection(db, `artifacts/${appId}/users/${userId}/readBooks`), {
                     ...bookData,
-                    readDate: getTodayDate() 
+                    readDate: getTodayDate()
                 });
             }
             showMessage(`${book.title} okundu olarak işaretlendi!`, 'success');
@@ -541,6 +536,9 @@
         );
       }
 
+      // ORTAK KART BİLEŞENİ SINIFLARI (Aesthetics & Grid)
+      const cardClass = "bg-slate-700/50 p-5 rounded-xl border border-slate-600 hover:border-blue-500/50 hover:bg-slate-700 transition-all duration-300 flex flex-col justify-between h-full group";
+
       return (
         <div className="min-h-screen bg-slate-900 py-6 px-4 text-slate-100">
           {message && (<div className={`fixed top-4 left-1/2 -translate-x-1/2 p-4 rounded-lg shadow-lg z-[100] ${message.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>{message.content}</div>)}
@@ -557,7 +555,7 @@
             </div>
           )}
 
-          <div className="max-w-4xl mx-auto bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg relative">
+          <div className="max-w-5xl mx-auto bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg relative">
             <h1 className="text-3xl sm:text-4xl font-bold text-center text-slate-100 font-montserrat">Okuduğum Kitaplar</h1>
             {(userName || userSurname) && (<p className="text-lg text-slate-300 text-center mt-2 mb-4">Hoş Geldin, {userName} {userSurname}</p>)}
             <div className="flex flex-col sm:flex-row justify-end gap-2 my-6">
@@ -568,29 +566,33 @@
             </div>
             
             {}
-            <div className="mb-8 p-6 bg-slate-700 rounded-xl">
+            <div className="mb-8 p-6 bg-slate-700/50 rounded-xl border border-slate-600">
               <h2 className="text-2xl font-semibold mb-4 text-slate-200">Okuduğum Kitap Ekle</h2>
               <div className="relative flex flex-col sm:flex-row gap-4">
                   <div className="relative flex-grow">
-                      <input type="text" className="w-full p-3 pr-10 bg-slate-800 rounded-lg text-white" placeholder="Kitap veya yazar adı..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && searchBooks()} />
+                      <input type="text" className="w-full p-3 pr-10 bg-slate-800 rounded-lg text-white border border-slate-600 focus:border-blue-500 focus:outline-none transition-colors" placeholder="Kitap veya yazar adı..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && searchBooks()} />
                       {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">&times;</button>}
                   </div>
-                  <button onClick={searchBooks} className="px-6 py-3 bg-blue-600 rounded-lg font-semibold" disabled={loading}>{loading ? 'Aranıyor...' : 'Ara'}</button>
-                  <button onClick={() => {resetManualBookForm(); setManualAddTarget('read');}} className="px-6 py-3 bg-indigo-600 rounded-lg font-semibold whitespace-nowrap">Manuel Ekle</button>
+                  <button onClick={searchBooks} className="px-6 py-3 bg-blue-600 hover:bg-blue-500 transition-colors rounded-lg font-semibold" disabled={loading}>{loading ? 'Aranıyor...' : 'Ara'}</button>
+                  <button onClick={() => {resetManualBookForm(); setManualAddTarget('read');}} className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-lg font-semibold whitespace-nowrap">Manuel Ekle</button>
               </div>
             </div>
             
             {searchResults.length > 0 && (
-              <div className="relative mb-8 p-6 bg-slate-700 rounded-xl">
+              <div className="relative mb-8 p-6 bg-slate-700/50 rounded-xl border border-slate-600">
                 <button onClick={() => setSearchResults([])} className="absolute top-3 right-3 text-slate-400 hover:text-white text-2xl">&times;</button>
                 <h2 className="text-2xl font-semibold mb-4 text-slate-200">Arama Sonuçları</h2>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {searchResults.map(book => (
-                    <div key={book.id} className="bg-slate-600 p-4 rounded-lg">
-                      <h3 className="text-lg font-bold text-slate-100">{book.title}</h3>
-                      <p className="text-sm text-emerald-400">{book.authors}</p>
-                      {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-300 mt-1">Yayınevi: {book.publisher}</p>)}
-                      <button onClick={() => addBookToRead(book)} className="mt-3 px-4 py-2 bg-purple-600 rounded-lg text-sm font-semibold self-start hover:bg-purple-700">Okuduklarıma Ekle</button>
+                    <div key={book.id} className={cardClass}>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-100 leading-tight mb-2">{book.title}</h3>
+                        <p className="text-sm text-emerald-400 mb-1">{book.authors}</p>
+                        {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-400 mb-3">{book.publisher}</p>)}
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-slate-600/50">
+                        <button onClick={() => addBookToRead(book)} className="w-full py-2 bg-purple-600 hover:bg-purple-500 transition-colors rounded-lg text-sm font-semibold">Okuduklarıma Ekle</button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -598,222 +600,290 @@
             )}
             
             {}
-            <div className="p-6 bg-slate-700 rounded-xl border border-blue-500">
-              <h2 className="text-2xl font-semibold mb-4 text-slate-200">Okuduğum Kitaplar ({readBooks.length})</h2>
-              <div className="relative">
-                <input type="text" className="w-full p-3 pr-10 mb-4 bg-slate-800 rounded-lg text-white" placeholder="Okuduklarımda ara..." value={readBooksFilterTerm} onChange={(e) => setReadBooksFilterTerm(e.target.value)} />
-                {readBooksFilterTerm && <button onClick={() => setReadBooksFilterTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 pb-4 text-slate-400 hover:text-white">&times;</button>}
+            <div className="p-6 bg-slate-700/30 rounded-xl border border-blue-500/50">
+              <h2 className="text-2xl font-semibold mb-4 text-slate-200 flex items-center justify-between">
+                <span>Okuduğum Kitaplar ({readBooks.length})</span>
+              </h2>
+              <div className="relative mb-6">
+                <input type="text" className="w-full p-3 pr-10 bg-slate-800 rounded-lg text-white border border-slate-600 focus:border-blue-500 focus:outline-none transition-colors" placeholder="Okuduklarımda ara..." value={readBooksFilterTerm} onChange={(e) => setReadBooksFilterTerm(e.target.value)} />
+                {readBooksFilterTerm && <button onClick={() => setReadBooksFilterTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">&times;</button>}
               </div>
+              
               {sortedReadBooks.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {sortedReadBooks.map(book => (
-                    <div key={book.id} className="bg-slate-600 p-4 rounded-lg">
-                      <h3 className="text-lg font-bold text-slate-100">{book.title}</h3>
-                      <p className="text-sm text-emerald-400 mt-1">{book.authors}</p>
-                      {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-300 mt-1">Yayınevi: {book.publisher}</p>)}
-                      {book.readDate && (
-                          <p className="text-xs text-sky-300 mt-2 font-medium flex items-center gap-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                              {formatDisplayDate(book.readDate)}
-                          </p>
-                      )}
-                      <div className="flex gap-2 mt-4">
-                        <button onClick={() => openEditModal(book, 'read')} className="p-2 rounded-full hover:bg-slate-500" aria-label="Düzenle"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                        <button onClick={() => removeBook(book.id, 'read')} className="p-2 rounded-full hover:bg-slate-500" aria-label="Sil"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                    <div key={book.id} className={cardClass}>
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-100 leading-tight mb-2">{book.title}</h3>
+                        <p className="text-sm text-emerald-400 mb-1">{book.authors}</p>
+                        {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-400 mb-3">{book.publisher}</p>)}
+                        {book.readDate && (
+                            <p className="text-xs text-sky-300 mt-2 font-medium flex items-center gap-1 bg-slate-800 w-fit px-2 py-1 rounded-md">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                {formatDisplayDate(book.readDate)}
+                            </p>
+                        )}
+                      </div>
+                      <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-600/50 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => openEditModal(book, 'read')} className="p-2 rounded-full hover:bg-blue-600 bg-slate-800 transition-colors" aria-label="Düzenle"><svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                        <button onClick={() => removeBook(book.id, 'read')} className="p-2 rounded-full hover:bg-red-600 bg-slate-800 transition-colors" aria-label="Sil"><svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                       </div>
                     </div>
                   ))}
                 </div>
-              ) : <p className="text-center text-slate-400">Henüz okuduğunuz bir kitap yok.</p>}
+              ) : <p className="text-center text-slate-400 py-8">Henüz okuduğunuz bir kitap yok.</p>}
             </div>
           </div>
           
-          {showBackToTop && (<button onClick={scrollToTop} className="fixed bottom-5 right-5 bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all z-50" aria-label="Başa Dön"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg></button>)}
+          {showBackToTop && (<button onClick={scrollToTop} className="fixed bottom-5 right-5 bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-500 transition-all z-50" aria-label="Başa Dön"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg></button>)}
           
           {}
           {showLibrary && (
-            <div className="fixed inset-0 bg-slate-900 flex flex-col z-50 p-4 sm:p-6">
-                <div className="bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg flex-1 flex flex-col min-h-0">
+            <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-sm flex flex-col z-50 p-4 sm:p-6 md:p-12">
+                <div className="bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-6xl mx-auto border border-slate-700">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-3xl font-bold text-slate-100">Kütüphanem</h2>
-                        <button onClick={() => setShowLibrary(false)} className="text-slate-400 hover:text-white text-3xl">&times;</button>
+                        <h2 className="text-3xl font-bold text-slate-100">Kütüphanem ({filteredLibraryBooks.length})</h2>
+                        <button onClick={() => setShowLibrary(false)} className="text-slate-400 hover:text-white text-3xl bg-slate-700 hover:bg-slate-600 w-10 h-10 rounded-full flex items-center justify-center transition-colors">&times;</button>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 mb-6">
                         <div className="relative flex-grow">
-                            <input type="text" className="w-full p-3 pr-10 bg-slate-700 rounded-lg text-white" placeholder="Kütüphanemde ara..." value={libraryFilterTerm} onChange={(e) => setLibraryFilterTerm(e.target.value)} />
-                            {libraryFilterTerm && <button onClick={() => setLibraryFilterTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">&times;</button>}
+                            <input type="text" className="w-full p-4 pr-10 bg-slate-700 rounded-xl text-white border border-slate-600 focus:border-blue-500 focus:outline-none transition-colors" placeholder="Kütüphanemde ara..." value={libraryFilterTerm} onChange={(e) => setLibraryFilterTerm(e.target.value)} />
+                            {libraryFilterTerm && <button onClick={() => setLibraryFilterTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white">&times;</button>}
                         </div>
-                        <button onClick={() => {resetManualBookForm(); setManualAddTarget('library');}} className="px-6 py-3 bg-indigo-600 rounded-lg font-semibold">Manuel Ekle</button>
+                        <button onClick={() => {resetManualBookForm(); setManualAddTarget('library');}} className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-xl font-bold shadow-lg">Manuel Ekle</button>
                     </div>
-                    <div className="flex-1 overflow-y-auto modal-scroll pr-2">
-                        {filteredLibraryBooks.length > 0 ? (<div className="grid grid-cols-1 gap-4">{filteredLibraryBooks.map(book => {
-                            const isBookRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
-                            return (
-                                <div key={book.id} className="bg-slate-700 p-4 rounded-lg">
-                                    <h3 className="text-lg font-bold text-slate-100">{book.title}</h3>
-                                    <p className="text-sm text-emerald-400 mt-1">{book.authors}</p>
-                                    {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-300 mt-1">Yayınevi: {book.publisher}</p>)}
-                                    <div className="flex gap-4 mt-4 items-center">
-                                        {!isBookRead ? (
-                                            <button onClick={() => markAsRead(book)} className="p-2 rounded-full bg-green-600 hover:bg-green-700" aria-label="Okundu olarak işaretle"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg></button>
-                                        ) : (
-                                            <div className="flex items-center gap-2 text-yellow-400 neon-glow">
-                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    
+                    <div className="flex-1 overflow-y-auto modal-scroll pr-3">
+                        {filteredLibraryBooks.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                                {filteredLibraryBooks.map(book => {
+                                    const isBookRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
+                                    return (
+                                        <div key={book.id} className={cardClass}>
+                                            <div>
+                                                <h3 className="text-lg font-bold text-slate-100 leading-tight mb-2">{book.title}</h3>
+                                                <p className="text-sm text-emerald-400 mb-1">{book.authors}</p>
+                                                {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-slate-400 mb-3">{book.publisher}</p>)}
                                             </div>
-                                        )}
-                                        <button onClick={() => openEditModal(book, 'library')} className="p-2 rounded-full hover:bg-slate-500" aria-label="Düzenle"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                                        <button onClick={() => removeBook(book.id, 'library')} className="p-2 rounded-full hover:bg-slate-500" aria-label="Sil"><svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                                    </div>
-                                </div>
-                            );
-                        })}</div>) : <p className="text-center text-slate-400">Kütüphanenizde kitap bulunmuyor.</p>}
+                                            <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-600/50">
+                                                {!isBookRead ? (
+                                                    <button onClick={() => markAsRead(book)} className="px-3 py-1.5 rounded-lg bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white border border-emerald-600/50 transition-colors text-sm font-medium flex items-center gap-1" aria-label="Okundu olarak işaretle">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Okudum
+                                                    </button>
+                                                ) : (
+                                                    <div className="flex items-center gap-1.5 text-yellow-400 neon-glow text-sm font-bold">
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                        Okundu
+                                                    </div>
+                                                )}
+                                                <div className="flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                    <button onClick={() => openEditModal(book, 'library')} className="p-1.5 rounded-full hover:bg-blue-600 bg-slate-800 transition-colors" aria-label="Düzenle"><svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                                    <button onClick={() => removeBook(book.id, 'library')} className="p-1.5 rounded-full hover:bg-red-600 bg-slate-800 transition-colors" aria-label="Sil"><svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : <p className="text-center text-slate-400 py-12">Kütüphanenizde kitap bulunmuyor.</p>}
                     </div>
                 </div>
             </div>
           )}
 
-          {showSettings && (<div className="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 p-4"><div className="bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md relative text-slate-100 max-h-[90vh] overflow-y-auto modal-scroll pr-2"><button onClick={() => setShowSettings(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button><h2 className="text-3xl font-bold mb-6 text-center text-slate-100">Ayarlar</h2><div className="mb-4"><label htmlFor="userName" className="block text-sm font-semibold mb-2">Adınız:</label><input type="text" id="userName" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={userName} onChange={(e) => setUserName(e.target.value)} /></div><div className="mb-8"><label htmlFor="userSurname" className="block text-sm font-semibold mb-2">Soyadınız:</label><input type="text" id="userSurname" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={userSurname} onChange={(e) => setUserSurname(e.target.value)} /></div><button onClick={saveUserProfile} className="w-full mb-4 px-6 py-3 bg-blue-600 rounded-lg font-semibold hover:bg-blue-700">Bilgileri Kaydet</button><button onClick={exportData} className="w-full mb-4 px-6 py-3 bg-green-600 rounded-lg font-semibold hover:bg-green-700">Okunanları Dışa Aktar (.txt)</button><button onClick={exportLibraryData} className="w-full mt-4 px-6 py-3 bg-teal-600 rounded-lg font-semibold hover:bg-teal-700">Kütüphaneyi Dışa Aktar (.txt)</button><div className="mt-4 p-4 bg-slate-700 rounded-lg"><h3 className="text-xl font-semibold mb-3 text-slate-200">Okunanlara İçe Aktar</h3><textarea className="w-full p-3 bg-slate-800 rounded-lg text-white min-h-[150px]" value={plainTextImportList} onChange={(e) => setPlainTextImportList(e.target.value)} placeholder="Her satıra bir kitap...&#10;Ör: YABANCI - ALBERT CAMUS"></textarea><button onClick={handlePlainTextImport} className="mt-4 w-full px-6 py-3 bg-purple-600 rounded-lg font-semibold hover:bg-purple-700">Kitapları Okunanlara Ekle</button></div></div></div>)}
+          {}
+          {showSettings && (<div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center z-50 p-4"><div className="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md relative border border-slate-700 text-slate-100 max-h-[90vh] overflow-y-auto modal-scroll pr-2"><button onClick={() => setShowSettings(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center transition-colors">&times;</button><h2 className="text-3xl font-bold mb-6 text-center text-slate-100">Ayarlar</h2><div className="mb-4"><label htmlFor="userName" className="block text-sm font-semibold mb-2 text-slate-300">Adınız:</label><input type="text" id="userName" className="w-full p-3 bg-slate-700 rounded-xl text-white border border-slate-600 focus:border-blue-500 outline-none" value={userName} onChange={(e) => setUserName(e.target.value)} /></div><div className="mb-8"><label htmlFor="userSurname" className="block text-sm font-semibold mb-2 text-slate-300">Soyadınız:</label><input type="text" id="userSurname" className="w-full p-3 bg-slate-700 rounded-xl text-white border border-slate-600 focus:border-blue-500 outline-none" value={userSurname} onChange={(e) => setUserSurname(e.target.value)} /></div><button onClick={saveUserProfile} className="w-full mb-4 px-6 py-3 bg-blue-600 rounded-xl font-bold shadow-lg hover:bg-blue-500 transition-colors">Bilgileri Kaydet</button><div className="flex gap-3 mb-4"><button onClick={exportData} className="w-1/2 px-4 py-3 bg-emerald-600 rounded-xl font-bold shadow-lg hover:bg-emerald-500 transition-colors text-sm">Okunanları İndir</button><button onClick={exportLibraryData} className="w-1/2 px-4 py-3 bg-teal-600 rounded-xl font-bold shadow-lg hover:bg-teal-500 transition-colors text-sm">Kütüphaneyi İndir</button></div><div className="mt-6 pt-6 border-t border-slate-700"><h3 className="text-lg font-bold mb-3 text-slate-200">Okunanlara Toplu İçe Aktar</h3><textarea className="w-full p-3 bg-slate-900 rounded-xl text-white min-h-[120px] border border-slate-600 focus:border-purple-500 outline-none" value={plainTextImportList} onChange={(e) => setPlainTextImportList(e.target.value)} placeholder="Her satıra bir kitap...&#10;Ör: YABANCI - ALBERT CAMUS"></textarea><button onClick={handlePlainTextImport} className="mt-4 w-full px-6 py-3 bg-purple-600 rounded-xl font-bold shadow-lg hover:bg-purple-500 transition-colors">Listeyi İçe Aktar</button></div></div></div>)}
           
           {editingBook && (
-            <div className="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 p-4">
-              <div className="bg-slate-800 p-8 rounded-xl w-full max-w-md relative max-h-[90vh] overflow-y-auto modal-scroll pr-2">
-                <button onClick={closeEditModal} className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button>
-                <h2 className="text-3xl font-bold mb-6 text-center text-slate-100">Kitabı Düzenle</h2>
-                <div className="mb-4">
-                  <label htmlFor="editTitle" className="block text-sm font-semibold mb-2">Başlık:</label>
-                  <input type="text" id="editTitle" name="title" placeholder="Başlık" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={editingBook.title} onChange={(e) => setEditingBook({...editingBook, title: e.target.value})} />
+            <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 w-full max-w-md relative max-h-[90vh] overflow-y-auto modal-scroll pr-2">
+                <button onClick={closeEditModal} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition-colors">&times;</button>
+                <h2 className="text-2xl font-bold mb-6 text-center text-slate-100 border-b border-slate-700 pb-4">Kitabı Düzenle</h2>
+                <div className="space-y-4">
+                    <div>
+                    <label htmlFor="editTitle" className="block text-sm font-medium mb-1.5 text-slate-300">Başlık:</label>
+                    <input type="text" id="editTitle" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-blue-500 outline-none" value={editingBook.title} onChange={(e) => setEditingBook({...editingBook, title: e.target.value})} />
+                    </div>
+                    <div>
+                    <label htmlFor="editAuthors" className="block text-sm font-medium mb-1.5 text-slate-300">Yazar:</label>
+                    <input type="text" id="editAuthors" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-blue-500 outline-none" value={editingBook.authors} onChange={(e) => setEditingBook({...editingBook, authors: e.target.value})} />
+                    </div>
+                    <div>
+                    <label htmlFor="editPublisher" className="block text-sm font-medium mb-1.5 text-slate-300">Yayınevi:</label>
+                    <input type="text" id="editPublisher" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-blue-500 outline-none" value={editingBook.publisher} onChange={(e) => setEditingBook({...editingBook, publisher: e.target.value})} />
+                    </div>
+                    {editingBook.source === 'read' && (
+                    <div>
+                        <label htmlFor="editReadDate" className="block text-sm font-medium mb-1.5 text-slate-300">Okuma Tarihi:</label>
+                        <input type="date" id="editReadDate" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-blue-500 outline-none" value={editingBook.readDate || ''} onChange={(e) => setEditingBook({...editingBook, readDate: e.target.value})} />
+                    </div>
+                    )}
+                    <div>
+                    <label htmlFor="editNotes" className="block text-sm font-medium mb-1.5 text-slate-300">Notlar:</label>
+                    <textarea id="editNotes" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white min-h-[100px] focus:border-blue-500 outline-none" value={editingBook.notes || ''} onChange={(e) => setEditingBook({...editingBook, notes: e.target.value})}></textarea>
+                    </div>
+                    <button onClick={saveEditedBook} className="w-full mt-4 px-6 py-3.5 bg-blue-600 rounded-xl font-bold hover:bg-blue-500 transition-colors shadow-lg">Değişiklikleri Kaydet</button>
                 </div>
-                <div className="mb-4">
-                  <label htmlFor="editAuthors" className="block text-sm font-semibold mb-2">Yazar:</label>
-                  <input type="text" id="editAuthors" name="authors" placeholder="Yazar" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={editingBook.authors} onChange={(e) => setEditingBook({...editingBook, authors: e.target.value})} />
-                </div>
-                <div className="mb-4">
-                  <label htmlFor="editPublisher" className="block text-sm font-semibold mb-2">Yayınevi:</label>
-                  <input type="text" id="editPublisher" name="publisher" placeholder="Yayınevi" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={editingBook.publisher} onChange={(e) => setEditingBook({...editingBook, publisher: e.target.value})} />
-                </div>
-                {editingBook.source === 'read' && (
-                  <div className="mb-4">
-                    <label htmlFor="editReadDate" className="block text-sm font-semibold mb-2">Okuma Tarihi (İsteğe Bağlı):</label>
-                    <input type="date" id="editReadDate" name="readDate" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={editingBook.readDate || ''} onChange={(e) => setEditingBook({...editingBook, readDate: e.target.value})} />
-                  </div>
-                )}
-                <div className="mb-4">
-                  <label htmlFor="editNotes" className="block text-sm font-semibold mb-2">Notlar:</label>
-                  <textarea id="editNotes" name="notes" placeholder="Notlar" className="w-full p-3 bg-slate-700 rounded-lg text-white min-h-[100px]" value={editingBook.notes || ''} onChange={(e) => setEditingBook({...editingBook, notes: e.target.value})}></textarea>
-                </div>
-                <button onClick={saveEditedBook} className="w-full px-6 py-3 bg-blue-600 rounded-lg font-semibold hover:bg-blue-700">Kaydet</button>
               </div>
             </div>
           )}
           
           {manualAddTarget && (
-            <div className="fixed inset-0 bg-slate-900 bg-opacity-80 flex items-center justify-center z-50 p-4">
-              <div className="bg-slate-800 p-8 rounded-xl w-full max-w-md relative max-h-[90vh] overflow-y-auto modal-scroll pr-2">
-                <button onClick={() => { setManualAddTarget(null); resetManualBookForm(); }} className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl">&times;</button>
-                <h2 className="text-3xl font-bold mb-6 text-center text-slate-100">
-                    {manualAddTarget === 'read' ? 'Okuduğum Kitap Ekle' : 'Kütüphaneye Manuel Ekle'}
+            <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 w-full max-w-md relative max-h-[90vh] overflow-y-auto modal-scroll pr-2">
+                <button onClick={() => { setManualAddTarget(null); resetManualBookForm(); }} className="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 w-8 h-8 rounded-full flex items-center justify-center transition-colors">&times;</button>
+                <h2 className="text-2xl font-bold mb-6 text-center text-slate-100 border-b border-slate-700 pb-4">
+                    {manualAddTarget === 'read' ? 'Okuduğum Kitap Ekle' : 'Kütüphaneye Ekle'}
                 </h2>
-                <div className="mb-4">
-                  <label htmlFor="manualTitle" className="block text-sm font-semibold mb-2">Başlık *</label>
-                  <input type="text" id="manualTitle" name="title" placeholder="Başlık" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={manualBook.title} onChange={(e) => setManualBook({ ...manualBook, title: e.target.value })} />
+                <div className="space-y-4">
+                    <div>
+                    <label htmlFor="manualTitle" className="block text-sm font-medium mb-1.5 text-slate-300">Başlık *</label>
+                    <input type="text" id="manualTitle" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-indigo-500 outline-none" value={manualBook.title} onChange={(e) => setManualBook({ ...manualBook, title: e.target.value })} />
+                    </div>
+                    <div>
+                    <label htmlFor="manualAuthors" className="block text-sm font-medium mb-1.5 text-slate-300">Yazar *</label>
+                    <input type="text" id="manualAuthors" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-indigo-500 outline-none" value={manualBook.authors} onChange={(e) => setManualBook({ ...manualBook, authors: e.target.value })} />
+                    </div>
+                    <div>
+                    <label htmlFor="manualPublisher" className="block text-sm font-medium mb-1.5 text-slate-300">Yayınevi:</label>
+                    <input type="text" id="manualPublisher" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-indigo-500 outline-none" value={manualBook.publisher} onChange={(e) => setManualBook({ ...manualBook, publisher: e.target.value })} />
+                    </div>
+                    {manualAddTarget === 'read' && (
+                    <div>
+                        <label htmlFor="manualReadDate" className="block text-sm font-medium mb-1.5 text-slate-300">Okuma Tarihi:</label>
+                        <input type="date" id="manualReadDate" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white focus:border-indigo-500 outline-none" value={manualBook.readDate || ''} onChange={(e) => setManualBook({ ...manualBook, readDate: e.target.value })} />
+                    </div>
+                    )}
+                    <div>
+                    <label htmlFor="manualNotes" className="block text-sm font-medium mb-1.5 text-slate-300">Notlar:</label>
+                    <textarea id="manualNotes" className="w-full p-3 bg-slate-900 border border-slate-600 rounded-xl text-white min-h-[100px] focus:border-indigo-500 outline-none" value={manualBook.notes} onChange={(e) => setManualBook({ ...manualBook, notes: e.target.value})}></textarea>
+                    </div>
+                    <button onClick={() => handleManualAddBook(manualAddTarget)} className="w-full mt-4 px-6 py-3.5 bg-indigo-600 rounded-xl font-bold hover:bg-indigo-500 transition-colors shadow-lg">Listeye Ekle</button>
                 </div>
-                <div className="mb-4">
-                  <label htmlFor="manualAuthors" className="block text-sm font-semibold mb-2">Yazar *</label>
-                  <input type="text" id="manualAuthors" name="authors" placeholder="Yazar" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={manualBook.authors} onChange={(e) => setManualBook({ ...manualBook, authors: e.target.value })} />
-                </div>
-                <div className="mb-4">
-                  <label htmlFor="manualPublisher" className="block text-sm font-semibold mb-2">Yayınevi:</label>
-                  <input type="text" id="manualPublisher" name="publisher" placeholder="Yayınevi" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={manualBook.publisher} onChange={(e) => setManualBook({ ...manualBook, publisher: e.target.value })} />
-                </div>
-                {manualAddTarget === 'read' && (
-                  <div className="mb-4">
-                    <label htmlFor="manualReadDate" className="block text-sm font-semibold mb-2">Okuma Tarihi (İsteğe Bağlı):</label>
-                    <input type="date" id="manualReadDate" name="readDate" className="w-full p-3 bg-slate-700 rounded-lg text-white" value={manualBook.readDate || ''} onChange={(e) => setManualBook({ ...manualBook, readDate: e.target.value })} />
-                  </div>
-                )}
-                <div className="mb-4">
-                  <label htmlFor="manualNotes" className="block text-sm font-semibold mb-2">Notlar:</label>
-                  <textarea id="manualNotes" name="notes" placeholder="Notlarım..." className="w-full p-3 bg-slate-700 rounded-lg text-white min-h-[100px]" value={manualBook.notes} onChange={(e) => setManualBook({ ...manualBook, notes: e.target.value})}></textarea>
-                </div>
-                <button onClick={() => handleManualAddBook(manualAddTarget)} className="w-full px-6 py-3 bg-indigo-600 rounded-lg font-semibold hover:bg-indigo-700">Listeye Ekle</button>
               </div>
             </div>
           )}
           
           {}
           {showStats && (
-            <div className="fixed inset-0 bg-slate-900 flex flex-col z-50 p-4 sm:p-6">
-              <div className="bg-slate-800 p-4 sm:p-6 rounded-xl shadow-lg flex-1 flex flex-col min-h-0">
-                <div className="flex justify-between items-center mb-4">
+            <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-sm flex flex-col z-50 p-4 sm:p-6 md:p-12">
+              <div className="bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-5xl mx-auto border border-slate-700">
+                <div className="flex justify-between items-center mb-6">
                   <h2 className="text-3xl font-bold text-slate-100">İstatistikler</h2>
-                  <button onClick={() => { setShowStats(false); setSelectedAuthorName(''); setSelectedPublisherName(''); setStatsSearchTerm(''); setSelectedBookDetails(null); }} className="text-slate-400 hover:text-white text-3xl">&times;</button>
+                  <button onClick={() => { setShowStats(false); setSelectedAuthorName(''); setSelectedPublisherName(''); setStatsSearchTerm(''); setSelectedBookDetails(null); }} className="text-slate-400 hover:text-white text-3xl bg-slate-700 hover:bg-slate-600 w-10 h-10 rounded-full flex items-center justify-center transition-colors">&times;</button>
                 </div>
                 
                 {selectedBookDetails ? (
-                  <div className="relative">
-                    <button onClick={() => setSelectedBookDetails(null)} className="absolute -top-2 right-0 p-2 text-slate-400 hover:text-white" aria-label="Geri Dön">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
-                    </button>
-                    <h3 className="text-2xl font-semibold mb-4 text-slate-100 pr-8">Kitap Detayları</h3>
-                    <div className="space-y-2 text-slate-300">
-                      <div className="bg-slate-700 p-3 rounded-lg">
-                        <p className="font-bold text-white text-lg">{selectedBookDetails.title}</p>
-                        <p className="text-emerald-400 font-medium">{selectedBookDetails.authors}</p>
-                        {selectedBookDetails.publisher && selectedBookDetails.publisher !== 'Yayınevi Bilgisi Yok' && <p className="text-xs text-slate-300 mt-1">Yayınevi: {selectedBookDetails.publisher}</p>}
-                        {selectedBookDetails.readDate && (
-                          <p className="text-xs text-sky-300 mt-2 font-medium flex items-center gap-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                              {formatDisplayDate(selectedBookDetails.readDate)}
-                          </p>
-                        )}
-                        <div className="flex gap-2 mt-4">
-                          <button onClick={() => { openEditModal(selectedBookDetails, 'read'); setShowStats(false); }} className="p-2 rounded-full hover:bg-slate-500" aria-label="Düzenle">
-                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                          </button>
-                        </div>
+                  <div className="flex-1 flex flex-col min-h-0">
+                    <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-700">
+                        <button onClick={() => setSelectedBookDetails(null)} className="p-2 bg-slate-700 rounded-full text-slate-300 hover:text-white hover:bg-slate-600 transition-colors" aria-label="Geri Dön">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        </button>
+                        <h3 className="text-2xl font-bold text-slate-100">Kitap Detayı</h3>
+                    </div>
+                    <div className="max-w-2xl">
+                      <div className="bg-slate-700/50 p-6 rounded-2xl border border-slate-600 flex flex-col gap-4">
+                          <div>
+                            <p className="font-bold text-white text-2xl mb-2">{selectedBookDetails.title}</p>
+                            <p className="text-emerald-400 text-lg mb-4">{selectedBookDetails.authors}</p>
+                            <div className="grid grid-cols-2 gap-4 bg-slate-800/50 p-4 rounded-xl">
+                                <div>
+                                    <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Yayınevi</p>
+                                    <p className="text-sm text-slate-200 font-medium">{selectedBookDetails.publisher && selectedBookDetails.publisher !== 'Yayınevi Bilgisi Yok' ? selectedBookDetails.publisher : '-'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Okuma Tarihi</p>
+                                    <p className="text-sm text-sky-300 font-medium">{selectedBookDetails.readDate ? formatDisplayDate(selectedBookDetails.readDate) : '-'}</p>
+                                </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-3 mt-4 pt-4 border-t border-slate-600/50">
+                            <button onClick={() => { openEditModal(selectedBookDetails, 'read'); setShowStats(false); }} className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors flex items-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                              Düzenle
+                            </button>
+                          </div>
                       </div>
                     </div>
                   </div>
                 ) : selectedAuthorName ? (
-                  <div className="relative">
-                    <button onClick={() => {setSelectedAuthorName(''); setSelectedAuthorBooks([]);}} className="absolute -top-2 right-0 p-2 text-slate-400 hover:text-white" aria-label="Geri Dön">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
-                    </button>
-                    <h3 className="text-2xl font-semibold mb-4 text-slate-100 pr-8">{selectedAuthorName} Kitapları ({selectedAuthorBooks.length})</h3>
-                    <div className="overflow-y-auto max-h-[60vh] modal-scroll pr-2">
-                      <ul className="space-y-2 text-slate-300">
-                        {selectedAuthorBooks.map((title, i) => <li key={i} onClick={() => handleBookClickInStats(title)} className="bg-slate-700 p-3 rounded-lg cursor-pointer hover:bg-slate-600 font-medium">{title}</li>)}
-                      </ul>
+                  <div className="flex-1 flex flex-col min-h-0">
+                    <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-700">
+                        <button onClick={() => {setSelectedAuthorName(''); setSelectedAuthorBooks([]);}} className="p-2 bg-slate-700 rounded-full text-slate-300 hover:text-white hover:bg-slate-600 transition-colors" aria-label="Geri Dön">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        </button>
+                        <h3 className="text-2xl font-bold text-slate-100">{selectedAuthorName} Kitapları <span className="text-slate-400 text-xl font-medium">({selectedAuthorBooks.length})</span></h3>
+                    </div>
+                    <div className="overflow-y-auto modal-scroll pr-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {selectedAuthorBooks.map((title, i) => (
+                            <div key={i} onClick={() => handleBookClickInStats(title)} className="bg-slate-700/50 p-4 rounded-xl border border-slate-600 hover:border-blue-500 hover:bg-slate-700 cursor-pointer transition-all flex items-center justify-between group">
+                                <span className="font-semibold text-slate-200 group-hover:text-white">{title}</span>
+                                <svg className="w-5 h-5 text-slate-500 group-hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                            </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ) : selectedPublisherName ? (
-                  <div className="relative">
-                    <button onClick={() => {setSelectedPublisherName(''); setSelectedPublisherBooks([]);}} className="absolute -top-2 right-0 p-2 text-slate-400 hover:text-white" aria-label="Geri Dön">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
-                    </button>
-                    <h3 className="text-2xl font-semibold mb-4 text-slate-100 pr-8">{selectedPublisherName} Kitapları ({selectedPublisherBooks.length})</h3>
-                    <div className="overflow-y-auto max-h-[60vh] modal-scroll pr-2">
-                      <ul className="space-y-2 text-slate-300">
-                        {selectedPublisherBooks.map((title, i) => <li key={i} onClick={() => handleBookClickInStats(title)} className="bg-slate-700 p-3 rounded-lg cursor-pointer hover:bg-slate-600 font-medium">{title}</li>)}
-                      </ul>
+                  <div className="flex-1 flex flex-col min-h-0">
+                    <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-700">
+                        <button onClick={() => {setSelectedPublisherName(''); setSelectedPublisherBooks([]);}} className="p-2 bg-slate-700 rounded-full text-slate-300 hover:text-white hover:bg-slate-600 transition-colors" aria-label="Geri Dön">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        </button>
+                        <h3 className="text-2xl font-bold text-slate-100">{selectedPublisherName} Kitapları <span className="text-slate-400 text-xl font-medium">({selectedPublisherBooks.length})</span></h3>
+                    </div>
+                    <div className="overflow-y-auto modal-scroll pr-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {selectedPublisherBooks.map((title, i) => (
+                            <div key={i} onClick={() => handleBookClickInStats(title)} className="bg-slate-700/50 p-4 rounded-xl border border-slate-600 hover:border-blue-500 hover:bg-slate-700 cursor-pointer transition-all flex items-center justify-between group">
+                                <span className="font-semibold text-slate-200 group-hover:text-white">{title}</span>
+                                <svg className="w-5 h-5 text-slate-500 group-hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                            </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ) : (
                   <>
-                    <div className="border-b border-slate-600 mb-4">
-                      <nav className="-mb-px flex gap-6">
-                        <button onClick={() => setStatsTab('authors')} className={`shrink-0 border-b-2 px-1 pb-4 text-sm font-medium ${statsTab === 'authors' ? 'border-sky-500 text-sky-400' : 'border-transparent text-slate-400 hover:text-slate-300'}`}>Yazarlar</button>
-                        <button onClick={() => setStatsTab('publishers')} className={`shrink-0 border-b-2 px-1 pb-4 text-sm font-medium ${statsTab === 'publishers' ? 'border-sky-500 text-sky-400' : 'border-transparent text-slate-400 hover:text-slate-300'}`}>Yayınevleri</button>
+                    <div className="mb-6">
+                      <nav className="flex gap-2 p-1 bg-slate-900 rounded-xl w-fit">
+                        <button onClick={() => setStatsTab('authors')} className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${statsTab === 'authors' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`}>Yazarlar</button>
+                        <button onClick={() => setStatsTab('publishers')} className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${statsTab === 'publishers' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'}`}>Yayınevleri</button>
                       </nav>
                     </div>
                     <div className="flex-1 flex flex-col min-h-0">
-                      <div className="relative mb-4">
-                        <input type="text" placeholder={`${statsTab === 'authors' ? 'Yazar' : 'Yayınevi'} ara...`} className="w-full p-3 pr-10 bg-slate-700 rounded-lg text-white" value={statsSearchTerm} onChange={(e) => setStatsSearchTerm(e.target.value)} />
-                        {statsSearchTerm && <button onClick={() => setStatsSearchTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white">&times;</button>}
+                      <div className="relative mb-6">
+                        <input type="text" placeholder={`${statsTab === 'authors' ? 'Yazar' : 'Yayınevi'} ara...`} className="w-full p-4 pr-10 bg-slate-700 rounded-xl text-white border border-slate-600 focus:border-blue-500 outline-none transition-colors" value={statsSearchTerm} onChange={(e) => setStatsSearchTerm(e.target.value)} />
+                        {statsSearchTerm && <button onClick={() => setStatsSearchTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white">&times;</button>}
                       </div>
-                      <div className="flex-1 overflow-y-auto modal-scroll pr-2">
-                        {statsTab === 'authors' && (getAuthorStats().length === 0 ? (<p className="text-slate-300 text-center">Yazar istatistiği bulunamadı.</p>) : (<ul className="space-y-3">{getAuthorStats().map(([authorName, data]) => (<li key={authorName} onClick={() => handleAuthorClick(authorName, data.books)} className="bg-slate-700 p-4 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-600"><span className="text-lg font-medium text-slate-100">{authorName}</span><span className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-full">{data.count} Kitap</span></li>))}</ul>))}
-                        {statsTab === 'publishers' && (getPublisherStats().length === 0 ? (<p className="text-slate-300 text-center">Yayınevi istatistiği bulunamadı.</p>) : (<ul className="space-y-3">{getPublisherStats().map(([publisherName, data]) => (<li key={publisherName} onClick={() => handlePublisherClick(publisherName, data.books)} className="bg-slate-700 p-4 rounded-lg flex justify-between items-center cursor-pointer hover:bg-slate-600"><span className="text-lg font-medium text-slate-100">{publisherName}</span><span className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-full">{data.count} Kitap</span></li>))}</ul>))}
+                      <div className="flex-1 overflow-y-auto modal-scroll pr-3">
+                        {statsTab === 'authors' && (getAuthorStats().length === 0 ? (<p className="text-slate-400 text-center py-10">Yazar istatistiği bulunamadı.</p>) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                {getAuthorStats().map(([authorName, data]) => (
+                                    <div key={authorName} onClick={() => handleAuthorClick(authorName, data.books)} className="bg-slate-700/50 p-5 rounded-xl border border-slate-600 hover:border-emerald-500/50 hover:bg-slate-700 cursor-pointer transition-all flex flex-col justify-between group">
+                                        <span className="text-lg font-bold text-slate-100 mb-4 group-hover:text-emerald-400 transition-colors">{authorName}</span>
+                                        <div className="flex justify-between items-center">
+                                            <span className="px-3 py-1 bg-slate-800 text-emerald-400 text-xs font-bold rounded-lg border border-slate-600">{data.count} Kitap</span>
+                                            <svg className="w-5 h-5 text-slate-500 group-hover:text-emerald-400 opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                        {statsTab === 'publishers' && (getPublisherStats().length === 0 ? (<p className="text-slate-400 text-center py-10">Yayınevi istatistiği bulunamadı.</p>) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                {getPublisherStats().map(([publisherName, data]) => (
+                                    <div key={publisherName} onClick={() => handlePublisherClick(publisherName, data.books)} className="bg-slate-700/50 p-5 rounded-xl border border-slate-600 hover:border-blue-500/50 hover:bg-slate-700 cursor-pointer transition-all flex flex-col justify-between group">
+                                        <span className="text-lg font-bold text-slate-100 mb-4 group-hover:text-blue-400 transition-colors">{publisherName}</span>
+                                        <div className="flex justify-between items-center">
+                                            <span className="px-3 py-1 bg-slate-800 text-blue-400 text-xs font-bold rounded-lg border border-slate-600">{data.count} Kitap</span>
+                                            <svg className="w-5 h-5 text-slate-500 group-hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
                       </div>
                     </div>
                   </>
