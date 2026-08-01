@@ -87,8 +87,9 @@
     const PREDEFINED_GENRES = [
         "Antoloji", "Araştırma", "Bilim Kurgu", "Biyografi", "Çocuk Kitabı",
         "Deneme", "Derleme", "Din / Tasavvuf", "Fantastik", "Felsefe", 
-        "Gezi Yazısı", "Hikâye", "Kişisel Gelişim", "Makale", "Otobiyografi", 
-        "Psikoloji", "Roman", "Siyaset", "Sözlük", "Şiir", "Tarih", "Tiyatro", "Diğer"
+        "Gezi Yazısı", "Hikâye", "Kişisel Gelişim", "Makale", "Mülakat",
+        "Otobiyografi", "Psikoloji", "Roman", "Röportaj", "Siyaset", "Sohbet",
+        "Söyleşi", "Sözlük", "Şiir", "Tarih", "Tiyatro", "Diğer"
     ];
 
     function App() {
@@ -604,7 +605,7 @@
       const availableLibraryGenres = Array.from(new Set(libraryBooks.map(b => b.genre))).filter(g => g && g !== 'Bilinmiyor').sort();
 
       // Ortak Kitap Kartı CSS Sınıfı (Grid Uyumlu)
-      const bookCardClass = "bg-slate-700/50 p-5 rounded-xl border border-slate-600 flex flex-col justify-between h-full hover:border-blue-500/50 hover:bg-slate-700 transition-all duration-300 group shadow-md";
+      const bookCardClass = "bg-gradient-to-br from-slate-700 to-slate-800 p-6 pl-8 rounded-r-2xl rounded-l-sm border-[3px] border-white flex flex-col justify-between h-full hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] hover:-translate-y-1.5 transition-all duration-300 group shadow-2xl relative overflow-hidden before:absolute before:top-0 before:bottom-0 before:left-0 before:w-5 before:bg-gradient-to-r before:from-black/40 before:to-transparent before:border-r before:border-black/20 min-h-[260px]";
 
       if (!isAuthReady) return <div className="min-h-screen flex items-center justify-center text-white text-xl">Yükleniyor...</div>;
 
