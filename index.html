@@ -123,7 +123,6 @@
       const [libraryFilterTerm, setLibraryFilterTerm] = useState('');
       const [libraryGenreFilter, setLibraryGenreFilter] = useState(''); // Yeni: Tür Filtresi
       const [librarySortBy, setLibrarySortBy] = useState('author'); 
-      const [libraryStatusFilter, setLibraryStatusFilter] = useState('all'); // Yeni: Okunma Durumu Filtresi
       
       const [editingBook, setEditingBook] = useState(null);
       const [plainTextImportList, setPlainTextImportList] = useState('');
@@ -567,22 +566,27 @@
 
       // Dinamik Sıralama ve Filtreleme
       const sortBooksList = (books, sortBy) => {
+        let activeSort = sortBy;
+        if (activeSort === 'read' || activeSort === 'unread') {
+           activeSort = 'author'; // Filtre olarak kullanıldığında varsayılan sıralama yazar olsun
+        }
+
         return [...books].sort((a, b) => {
-          if (sortBy === 'dateDesc') {
+          if (activeSort === 'dateDesc') {
             const dateA = a.readDate || '';
             const dateB = b.readDate || '';
             return dateB.localeCompare(dateA); 
           }
-          if (sortBy === 'dateAsc') {
+          if (activeSort === 'dateAsc') {
             const dateA = a.readDate || '';
             const dateB = b.readDate || '';
             if (!dateA) return 1; 
             if (!dateB) return -1;
             return dateA.localeCompare(dateB); 
           }
-          if (sortBy === 'author') return (a.authors || '').localeCompare(b.authors || '');
-          if (sortBy === 'title') return (a.title || '').localeCompare(b.title || '');
-          if (sortBy === 'publisher') return (a.publisher || '').localeCompare(b.publisher || '');
+          if (activeSort === 'author') return (a.authors || '').localeCompare(b.authors || '');
+          if (activeSort === 'title') return (a.title || '').localeCompare(b.title || '');
+          if (activeSort === 'publisher') return (a.publisher || '').localeCompare(b.publisher || '');
           return 0;
         });
       };
@@ -601,8 +605,8 @@
           // Okunma durumu kontrolü
           const isRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
           let matchesStatus = true;
-          if (libraryStatusFilter === 'read') matchesStatus = isRead;
-          if (libraryStatusFilter === 'unread') matchesStatus = !isRead;
+          if (librarySortBy === 'read') matchesStatus = isRead;
+          if (librarySortBy === 'unread') matchesStatus = !isRead;
 
           return matchesSearch && matchesGenre && matchesStatus;
       });
@@ -769,12 +773,6 @@
                         </div>
                         
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto flex-wrap">
-                            <select className="bg-slate-900 text-slate-200 border border-slate-600 rounded-xl p-3.5 text-sm font-medium focus:border-blue-500 outline-none w-full sm:w-auto flex-grow" value={libraryStatusFilter} onChange={(e) => setLibraryStatusFilter(e.target.value)}>
-                                <option value="all">Tüm Durumlar</option>
-                                <option value="read">Okunanlar</option>
-                                <option value="unread">Okunmayanlar</option>
-                            </select>
-
                             <select className="bg-slate-900 text-slate-200 border border-slate-600 rounded-xl p-3.5 text-sm font-medium focus:border-blue-500 outline-none w-full sm:w-auto flex-grow" value={libraryGenreFilter} onChange={(e) => setLibraryGenreFilter(e.target.value)}>
                                 <option value="">Tüm Türler</option>
                                 {availableLibraryGenres.map(g => <option key={g} value={g}>{g}</option>)}
@@ -784,6 +782,9 @@
                                 <option value="author">Yazar (A-Z)</option>
                                 <option value="title">Kitap Adı (A-Z)</option>
                                 <option value="publisher">Yayınevi (A-Z)</option>
+                                <option disabled>──────────</option>
+                                <option value="read">Sadece Okunanlar</option>
+                                <option value="unread">Sadece Okunmayanlar</option>
                             </select>
                             <button onClick={() => {resetManualBookForm(); setManualAddTarget('library');}} className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-xl font-bold shadow-lg whitespace-nowrap">Manuel Ekle</button>
                         </div>
