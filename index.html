@@ -123,6 +123,7 @@
       const [libraryFilterTerm, setLibraryFilterTerm] = useState('');
       const [libraryGenreFilter, setLibraryGenreFilter] = useState(''); // Yeni: Tür Filtresi
       const [librarySortBy, setLibrarySortBy] = useState('author'); 
+      const [libraryStatusFilter, setLibraryStatusFilter] = useState('all'); // Yeni: Okunma Durumu Filtresi
       
       const [editingBook, setEditingBook] = useState(null);
       const [plainTextImportList, setPlainTextImportList] = useState('');
@@ -596,7 +597,14 @@
       const filteredLibraryBooks = libraryBooks.filter(book => {
           const matchesSearch = book.title.toLocaleLowerCase('tr-TR').includes(libraryFilterTerm.toLocaleLowerCase('tr-TR')) || (book.authors && book.authors.toLocaleLowerCase('tr-TR').includes(libraryFilterTerm.toLocaleLowerCase('tr-TR')));
           const matchesGenre = libraryGenreFilter === '' || book.genre === libraryGenreFilter;
-          return matchesSearch && matchesGenre;
+          
+          // Okunma durumu kontrolü
+          const isRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
+          let matchesStatus = true;
+          if (libraryStatusFilter === 'read') matchesStatus = isRead;
+          if (libraryStatusFilter === 'unread') matchesStatus = !isRead;
+
+          return matchesSearch && matchesGenre && matchesStatus;
       });
       const sortedLibraryBooks = sortBooksList(filteredLibraryBooks, librarySortBy);
 
@@ -760,18 +768,24 @@
                             {libraryFilterTerm && <button onClick={() => setLibraryFilterTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-white">&times;</button>}
                         </div>
                         
-                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-                            <select className="bg-slate-900 text-slate-200 border border-slate-600 rounded-xl p-4 text-sm font-medium focus:border-blue-500 outline-none w-full sm:w-auto" value={libraryGenreFilter} onChange={(e) => setLibraryGenreFilter(e.target.value)}>
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto flex-wrap">
+                            <select className="bg-slate-900 text-slate-200 border border-slate-600 rounded-xl p-3.5 text-sm font-medium focus:border-blue-500 outline-none w-full sm:w-auto flex-grow" value={libraryStatusFilter} onChange={(e) => setLibraryStatusFilter(e.target.value)}>
+                                <option value="all">Tüm Durumlar</option>
+                                <option value="read">Okunanlar</option>
+                                <option value="unread">Okunmayanlar</option>
+                            </select>
+
+                            <select className="bg-slate-900 text-slate-200 border border-slate-600 rounded-xl p-3.5 text-sm font-medium focus:border-blue-500 outline-none w-full sm:w-auto flex-grow" value={libraryGenreFilter} onChange={(e) => setLibraryGenreFilter(e.target.value)}>
                                 <option value="">Tüm Türler</option>
                                 {availableLibraryGenres.map(g => <option key={g} value={g}>{g}</option>)}
                             </select>
                             
-                            <select className="bg-slate-900 text-slate-200 border border-slate-600 rounded-xl p-4 text-sm font-medium focus:border-blue-500 outline-none w-full sm:w-auto" value={librarySortBy} onChange={(e) => setLibrarySortBy(e.target.value)}>
+                            <select className="bg-slate-900 text-slate-200 border border-slate-600 rounded-xl p-3.5 text-sm font-medium focus:border-blue-500 outline-none w-full sm:w-auto flex-grow" value={librarySortBy} onChange={(e) => setLibrarySortBy(e.target.value)}>
                                 <option value="author">Yazar (A-Z)</option>
                                 <option value="title">Kitap Adı (A-Z)</option>
                                 <option value="publisher">Yayınevi (A-Z)</option>
                             </select>
-                            <button onClick={() => {resetManualBookForm(); setManualAddTarget('library');}} className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-xl font-bold shadow-lg whitespace-nowrap">Manuel Ekle</button>
+                            <button onClick={() => {resetManualBookForm(); setManualAddTarget('library');}} className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 transition-colors rounded-xl font-bold shadow-lg whitespace-nowrap">Manuel Ekle</button>
                         </div>
                     </div>
                     
