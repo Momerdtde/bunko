@@ -27,7 +27,7 @@
     /* KOYU ÇAM YEŞİLİ TEMA CSS */
     body {
         font-family: 'Inter', sans-serif;
-        background: #0d1b15; /* Ekran görüntüsündeki koyu yeşil arka plan */
+        background: #0d1b15;
         background-attachment: fixed;
         color: #e2e8f0;
         min-height: 100vh;
@@ -48,15 +48,15 @@
             0 0 60px #a16207;
     }
 
-    /* Koyu Neon Pembe Alıntı Efekti */
-    .neon-dark-pink {
+    /* Neon Turkuaz Alıntı Efekti */
+    .neon-turquoise {
         color: #ffffff;
         text-shadow: 
             0 0 2px #ffffff, 
-            0 0 7px #f472b6, 
-            0 0 15px #db2777, 
-            0 0 30px #be185d, 
-            0 0 60px #831843;
+            0 0 8px #5fc2c0, 
+            0 0 16px #1e8689, 
+            0 0 32px #0d5c5f, 
+            0 0 60px #083c3e;
     }
 
     /* Bunko İkon Parlama Efekti */
@@ -271,6 +271,9 @@
       const [customGenres, setCustomGenres] = useState([]);
       const [newGenreInput, setNewGenreInput] = useState('');
       
+      const [readBooksViewMode, setReadBooksViewMode] = useState('grid'); // 'grid' veya 'list'
+      const [libraryViewMode, setLibraryViewMode] = useState('grid'); // 'grid' veya 'list'
+
       const [readBooksFilterTerm, setReadBooksFilterTerm] = useState('');
       const [readBooksGenreFilter, setReadBooksGenreFilter] = useState(''); 
       const [readBooksSortBy, setReadBooksSortBy] = useState('dateDesc'); 
@@ -349,6 +352,12 @@
         [...readBooks, ...libraryBooks]
           .map(b => (b.publisher || '').trim())
           .filter(p => p && p !== 'Yayınevi Bilgisi Yok' && p !== 'Bilinmiyor')
+      )).sort((a, b) => a.localeCompare(b, 'tr-TR'));
+
+      const savedAuthors = Array.from(new Set(
+        [...readBooks, ...libraryBooks]
+          .map(b => (b.authors || '').trim())
+          .filter(a => a && a !== 'Yazar Bilgisi Yok' && a !== 'Bilinmiyor')
       )).sort((a, b) => a.localeCompare(b, 'tr-TR'));
       
       const getAuthorStats = () => {
@@ -568,7 +577,8 @@
       const handleManualAddBook = async (target) => {
         if (!manualBook.title.trim() || !manualBook.authors.trim()) return showMessage('Başlık ve Yazar zorunludur.', 'error');
         const newBook = { 
-            title: formatTitle(manualBook.title), authors: formatAuthor(manualBook.authors), 
+            title: formatTitle(manualBook.title), 
+            authors: manualBook.authors ? formatAuthor(manualBook.authors.trim()) : 'Yazar Bilgisi Yok',
             publisher: manualBook.publisher ? manualBook.publisher.trim() : 'Yayınevi Bilgisi Yok', 
             genre: manualBook.genre || 'Bilinmiyor',
             description: manualBook.description || '', notes: manualBook.notes || ''
@@ -687,7 +697,7 @@
             <div className="glass-panel p-8 rounded-2xl w-full max-w-md text-center">
               <BunkoLogo size="w-24 h-24" />
               <h1 className="text-3xl font-extrabold font-montserrat neon-title-yellow mb-2">Bunko (文庫)</h1>
-              <p className="text-xs italic neon-dark-pink mb-6">"Bir gün bir kitap okudum ve bütün hayatım değişti." - Yeni Hayat, Orhan Pamuk</p>
+              <p className="text-xs italic neon-turquoise mb-6">"Bir gün bir kitap okudum ve bütün hayatım değişti." - Yeni Hayat, Orhan Pamuk</p>
               <h2 className="text-xl font-bold text-gray-200 mb-4">{isLoginMode ? 'Giriş Yap' : 'Kaydol'}</h2>
               {authError && <p className="text-red-400 text-center mb-4 font-medium">{authError}</p>}
               <input type="email" placeholder="E-posta" className="input-dark w-full p-3.5 mb-4 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -705,9 +715,15 @@
 
       return (
         <div className="min-h-screen py-8 px-4 sm:px-6">
+          {/* Otomatik Tamamlama Datalistleri */}
           <datalist id="publishers-datalist">
             {savedPublishers.map(pub => (
               <option key={pub} value={pub} />
+            ))}
+          </datalist>
+          <datalist id="authors-datalist">
+            {savedAuthors.map(author => (
+              <option key={author} value={author} />
             ))}
           </datalist>
 
@@ -727,13 +743,13 @@
 
           <div className="max-w-6xl mx-auto glass-panel p-5 sm:p-8 rounded-2xl relative shadow-2xl">
             
-            {/* BUNKO İKONU, NEON SARI BAŞLIK VE KOYU NEON PEMBE ORHAN PAMUK ALINTISI */}
+            {/* BUNKO İKONU, NEON SARI BAŞLIK VE NEON TURKUAZ ORHAN PAMUK ALINTISI */}
             <div className="pt-2">
               <BunkoLogo size="w-28 h-28 sm:w-32 sm:h-32" />
               <h1 className="text-4xl sm:text-5xl font-extrabold text-center font-montserrat neon-title-yellow tracking-wide mb-3">
                   Bunko (文庫)
               </h1>
-              <p className="text-center mb-8 text-[1.1rem] font-semibold italic tracking-wide neon-dark-pink">
+              <p className="text-center mb-8 text-[1.1rem] font-semibold italic tracking-wide neon-turquoise">
                   "Bir gün bir kitap okudum ve bütün hayatım değişti." - Yeni Hayat, Orhan Pamuk
               </p>
             </div>
@@ -785,10 +801,28 @@
             
             <div className="p-6 sm:p-8">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-emerald-900/40 pb-6">
-                  <h2 className="text-3xl font-extrabold text-white flex items-center gap-3">
-                      Okuduğum Kitaplar
+                  <div className="flex items-center gap-3">
+                      <h2 className="text-3xl font-extrabold text-white">Okuduğum Kitaplar</h2>
                       <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-lg px-3.5 py-1 rounded-full">{readBooks.length}</span>
-                  </h2>
+                  </div>
+                  
+                  {/* GÖRÜNÜM DEĞİŞTİRME BUTONU (IZGARA / LİSTE) */}
+                  <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40">
+                    <button 
+                      onClick={() => setReadBooksViewMode('grid')} 
+                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${readBooksViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                      title="Kart Görünümü"
+                    >
+                      Kartlar
+                    </button>
+                    <button 
+                      onClick={() => setReadBooksViewMode('list')} 
+                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${readBooksViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                      title="Liste Görünümü"
+                    >
+                      Düz Liste
+                    </button>
+                  </div>
               </div>
               
               <div className="flex flex-col md:flex-row gap-3 mb-8">
@@ -813,32 +847,59 @@
               </div>
 
               {sortedReadBooks.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {sortedReadBooks.map(book => (
-                    <div key={book.id} className="book-cover-card p-6 flex flex-col justify-between book-spine min-h-[220px]">
-                      <div>
-                        <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
-                        <p className="text-sm font-semibold text-emerald-400 mb-3 drop-shadow">{book.authors}</p>
-                        <div className="flex flex-wrap gap-2 mb-2">
-                            {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
+                readBooksViewMode === 'grid' ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {sortedReadBooks.map(book => (
+                      <div key={book.id} className="book-cover-card p-6 flex flex-col justify-between book-spine min-h-[220px]">
+                        <div>
+                          <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
+                          <p className="text-sm font-semibold text-emerald-400 mb-3 drop-shadow">{book.authors}</p>
+                          <div className="flex flex-wrap gap-2 mb-2">
+                              {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
+                          </div>
+                        </div>
+                        <div className="mt-auto pt-4 flex flex-col gap-2">
+                          {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
+                          {book.readDate && (
+                              <p className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-900/20 w-fit px-2 py-1 rounded border border-emerald-800/50 mt-1">
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                  {formatDisplayDate(book.readDate)}
+                              </p>
+                          )}
+                          <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-emerald-900/40">
+                            <button onClick={() => openEditModal(book, 'read')} className="btn-black p-2 rounded-full" aria-label="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                            <button onClick={() => removeBook(book.id, 'read')} className="btn-black p-2 rounded-full border-rose-900/50" aria-label="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                          </div>
                         </div>
                       </div>
-                      <div className="mt-auto pt-4 flex flex-col gap-2">
-                        {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
-                        {book.readDate && (
-                            <p className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-900/20 w-fit px-2 py-1 rounded border border-emerald-800/50 mt-1">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                {formatDisplayDate(book.readDate)}
-                            </p>
-                        )}
-                        <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-emerald-900/40">
-                          <button onClick={() => openEditModal(book, 'read')} className="btn-black p-2 rounded-full" aria-label="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                          <button onClick={() => removeBook(book.id, 'read')} className="btn-black p-2 rounded-full border-rose-900/50" aria-label="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-black/40 rounded-2xl border border-emerald-900/30 overflow-hidden">
+                    <div className="divide-y divide-emerald-900/30">
+                      {sortedReadBooks.map(book => (
+                        <div key={book.id} className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-emerald-950/20 transition-colors">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <h3 className="text-lg font-bold text-white">{book.title}</h3>
+                              {book.genre && book.genre !== 'Bilinmiyor' && (
+                                <span className="text-[10px] font-bold bg-black/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/40 uppercase tracking-wider">{book.genre}</span>
+                              )}
+                            </div>
+                            <p className="text-sm font-semibold text-gray-300">{book.authors} {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' ? `• ${book.publisher}` : ''}</p>
+                            {book.readDate && (
+                              <p className="text-xs text-emerald-400 font-medium">Okuma Tarihi: {formatDisplayDate(book.readDate)}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 self-end sm:self-center">
+                            <button onClick={() => openEditModal(book, 'read')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50 flex items-center gap-1.5">Düzenle</button>
+                            <button onClick={() => removeBook(book.id, 'read')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-rose-400 border-rose-900/50 flex items-center gap-1.5">Sil</button>
+                          </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )
               ) : (
                 <div className="text-center py-16 bg-black/20 rounded-2xl border border-dashed border-emerald-900/50">
                     <p className="text-gray-400 text-lg font-medium">Bu arama veya filtreye uygun okuduğunuz bir kitap bulunamadı.</p>
@@ -851,10 +912,29 @@
             <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-4 sm:p-6 lg:p-10">
                 <div className="glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-7xl mx-auto border-t border-emerald-900/50">
                     <div className="flex justify-between items-center mb-8 border-b border-emerald-900/40 pb-5">
-                        <h2 className="text-3xl sm:text-4xl font-extrabold text-white flex items-center gap-3">
-                            Kütüphanem <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xl px-4 py-1 rounded-full">{filteredLibraryBooks.length}</span>
-                        </h2>
-                        <button onClick={() => setShowLibrary(false)} className="btn-black w-12 h-12 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 transition-colors">&times;</button>
+                        <div className="flex items-center gap-4">
+                          <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Kütüphanem</h2>
+                          <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xl px-4 py-1 rounded-full">{filteredLibraryBooks.length}</span>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                          {/* KÜTÜPHANE GÖRÜNÜM DEĞİŞTİRME */}
+                          <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40">
+                            <button 
+                              onClick={() => setLibraryViewMode('grid')} 
+                              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${libraryViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                            >
+                              Kartlar
+                            </button>
+                            <button 
+                              onClick={() => setLibraryViewMode('list')} 
+                              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${libraryViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                            >
+                              Düz Liste
+                            </button>
+                          </div>
+                          <button onClick={() => setShowLibrary(false)} className="btn-black w-12 h-12 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 transition-colors">&times;</button>
+                        </div>
                     </div>
                     
                     <div className="flex flex-col lg:flex-row gap-3 mb-8">
@@ -882,41 +962,74 @@
 
                     <div className="flex-1 overflow-y-auto modal-scroll pr-3 pb-6">
                         {sortedLibraryBooks.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {sortedLibraryBooks.map(book => {
-                                    const isBookRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
-                                    return (
-                                        <div key={book.id} className="book-cover-card p-6 flex flex-col justify-between book-spine min-h-[220px]">
-                                            <div>
-                                                <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
-                                                <p className="text-sm font-semibold text-emerald-400 mb-3 drop-shadow">{book.authors}</p>
-                                                <div className="flex flex-wrap gap-2 mb-2">
-                                                    {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
+                            libraryViewMode === 'grid' ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                    {sortedLibraryBooks.map(book => {
+                                        const isBookRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
+                                        return (
+                                            <div key={book.id} className="book-cover-card p-6 flex flex-col justify-between book-spine min-h-[220px]">
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
+                                                    <p className="text-sm font-semibold text-emerald-400 mb-3 drop-shadow">{book.authors}</p>
+                                                    <div className="flex flex-wrap gap-2 mb-2">
+                                                        {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="mt-auto pt-4 flex flex-col gap-2">
-                                                {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
-                                                
-                                                <div className="flex justify-between items-center mt-3 pt-3 border-t border-emerald-900/40">
-                                                    {!isBookRead ? (
-                                                        <button onClick={() => markAsRead(book)} className="btn-black px-3 py-1.5 rounded-lg text-xs font-bold border-emerald-800 text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5">
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Okudum
-                                                        </button>
-                                                    ) : (
-                                                        <div className="flex items-center gap-1.5 text-yellow-400 text-xs font-bold px-2 py-1.5 bg-yellow-900/20 rounded-lg border border-yellow-700/30">
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Okundu
+                                                <div className="mt-auto pt-4 flex flex-col gap-2">
+                                                    {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
+                                                    
+                                                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-emerald-900/40">
+                                                        {!isBookRead ? (
+                                                            <button onClick={() => markAsRead(book)} className="btn-black px-3 py-1.5 rounded-lg text-xs font-bold border-emerald-800 text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Okudum
+                                                            </button>
+                                                        ) : (
+                                                            <div className="flex items-center gap-1.5 text-yellow-400 text-xs font-bold px-2 py-1.5 bg-yellow-900/20 rounded-lg border border-yellow-700/30">
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Okundu
+                                                            </div>
+                                                        )}
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => openEditModal(book, 'library')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                                            <button onClick={() => removeBook(book.id, 'library')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                                         </div>
-                                                    )}
-                                                    <div className="flex gap-2">
-                                                        <button onClick={() => openEditModal(book, 'library')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                                                        <button onClick={() => removeBook(book.id, 'library')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                                     </div>
                                                 </div>
                                             </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="bg-black/40 rounded-2xl border border-emerald-900/30 overflow-hidden">
+                                  <div className="divide-y divide-emerald-900/30">
+                                    {sortedLibraryBooks.map(book => {
+                                      const isBookRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
+                                      return (
+                                        <div key={book.id} className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-emerald-950/20 transition-colors">
+                                          <div className="space-y-1">
+                                            <div className="flex items-center gap-3 flex-wrap">
+                                              <h3 className="text-lg font-bold text-white">{book.title}</h3>
+                                              {book.genre && book.genre !== 'Bilinmiyor' && (
+                                                <span className="text-[10px] font-bold bg-black/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/40 uppercase tracking-wider">{book.genre}</span>
+                                              )}
+                                              {isBookRead && (
+                                                <span className="text-[10px] font-bold bg-yellow-900/30 text-yellow-400 px-2 py-0.5 rounded border border-yellow-700/40">Okundu</span>
+                                              )}
+                                            </div>
+                                            <p className="text-sm font-semibold text-gray-300">{book.authors} {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' ? `• ${book.publisher}` : ''}</p>
+                                          </div>
+                                          <div className="flex items-center gap-2 self-end sm:self-center">
+                                            {!isBookRead && (
+                                              <button onClick={() => markAsRead(book)} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Okudum</button>
+                                            )}
+                                            <button onClick={() => openEditModal(book, 'library')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Düzenle</button>
+                                            <button onClick={() => removeBook(book.id, 'library')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-rose-400 border-rose-900/50">Sil</button>
+                                          </div>
                                         </div>
-                                    );
-                                })}
-                            </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                            )
                         ) : (
                             <div className="text-center py-20 bg-black/20 rounded-3xl border border-dashed border-emerald-900/50">
                                 <p className="text-gray-400 text-xl font-medium">Bu arama veya filtreye uygun kütüphane kaydı bulunamadı.</p>
@@ -1012,8 +1125,15 @@
                       <input type="text" className="input-dark w-full p-3.5 rounded-xl" value={editingBook.title} onChange={(e) => setEditingBook({...editingBook, title: e.target.value})} />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Yazar:</label>
-                      <input type="text" className="input-dark w-full p-3.5 rounded-xl" value={editingBook.authors} onChange={(e) => setEditingBook({...editingBook, authors: e.target.value})} />
+                      <label className="block text-sm font-semibold mb-2 text-gray-300">Yazar (Öncekilerden seçebilir veya yeni yazabilirsiniz):</label>
+                      <input 
+                        type="text" 
+                        list="authors-datalist"
+                        placeholder="Yazar seçin veya yazın..."
+                        className="input-dark w-full p-3.5 rounded-xl" 
+                        value={editingBook.authors} 
+                        onChange={(e) => setEditingBook({...editingBook, authors: e.target.value})} 
+                      />
                     </div>
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-gray-300">Tür:</label>
@@ -1065,8 +1185,15 @@
                       <input type="text" className="input-dark w-full p-3.5 rounded-xl" value={manualBook.title} onChange={(e) => setManualBook({ ...manualBook, title: e.target.value })} />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Yazar *</label>
-                      <input type="text" className="input-dark w-full p-3.5 rounded-xl" value={manualBook.authors} onChange={(e) => setManualBook({ ...manualBook, authors: e.target.value })} />
+                      <label className="block text-sm font-semibold mb-2 text-gray-300">Yazar * (Öncekilerden seçebilir veya yeni yazabilirsiniz):</label>
+                      <input 
+                        type="text" 
+                        list="authors-datalist"
+                        placeholder="Yazar seçin veya yazın..."
+                        className="input-dark w-full p-3.5 rounded-xl" 
+                        value={manualBook.authors} 
+                        onChange={(e) => setManualBook({ ...manualBook, authors: e.target.value })} 
+                      />
                     </div>
                     <div>
                         <label className="block text-sm font-semibold mb-2 text-gray-300">Tür:</label>
