@@ -271,8 +271,8 @@
       const [customGenres, setCustomGenres] = useState([]);
       const [newGenreInput, setNewGenreInput] = useState('');
       
-      const [readBooksViewMode, setReadBooksViewMode] = useState('grid'); // 'grid' veya 'list'
-      const [libraryViewMode, setLibraryViewMode] = useState('grid'); // 'grid' veya 'list'
+      const [readBooksViewMode, setReadBooksViewMode] = useState('grid');
+      const [libraryViewMode, setLibraryViewMode] = useState('grid');
 
       const [readBooksFilterTerm, setReadBooksFilterTerm] = useState('');
       const [readBooksGenreFilter, setReadBooksGenreFilter] = useState(''); 
@@ -715,7 +715,6 @@
 
       return (
         <div className="min-h-screen py-8 px-4 sm:px-6">
-          {/* Otomatik Tamamlama Datalistleri */}
           <datalist id="publishers-datalist">
             {savedPublishers.map(pub => (
               <option key={pub} value={pub} />
@@ -743,7 +742,6 @@
 
           <div className="max-w-6xl mx-auto glass-panel p-5 sm:p-8 rounded-2xl relative shadow-2xl">
             
-            {/* BUNKO İKONU, NEON SARI BAŞLIK VE NEON TURKUAZ ORHAN PAMUK ALINTISI */}
             <div className="pt-2">
               <BunkoLogo size="w-28 h-28 sm:w-32 sm:h-32" />
               <h1 className="text-4xl sm:text-5xl font-extrabold text-center font-montserrat neon-title-yellow tracking-wide mb-3">
@@ -799,26 +797,24 @@
               </div>
             )}
             
-            <div className="p-6 sm:p-8">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-emerald-900/40 pb-6">
-                  <div className="flex items-center gap-3">
-                      <h2 className="text-3xl font-extrabold text-white">Okuduğum Kitaplar</h2>
-                      <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-lg px-3.5 py-1 rounded-full">{readBooks.length}</span>
+            <div className="p-4 sm:p-8">
+              {/* BAŞLIK VE GÖRÜNÜM BUTONLARI (Mobilde Taşmayı Önleyen Düzen) */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-emerald-900/40 pb-6">
+                  <div className="flex items-center gap-3 flex-wrap">
+                      <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Okuduğum Kitaplar</h2>
+                      <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-sm sm:text-lg px-3 py-0.5 rounded-full">{readBooks.length}</span>
                   </div>
                   
-                  {/* GÖRÜNÜM DEĞİŞTİRME BUTONU (IZGARA / LİSTE) */}
-                  <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40">
+                  <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40 self-stretch sm:self-auto justify-center">
                     <button 
                       onClick={() => setReadBooksViewMode('grid')} 
-                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${readBooksViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
-                      title="Kart Görünümü"
+                      className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${readBooksViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
                     >
                       Kartlar
                     </button>
                     <button 
                       onClick={() => setReadBooksViewMode('list')} 
-                      className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${readBooksViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
-                      title="Liste Görünümü"
+                      className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${readBooksViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
                     >
                       Düz Liste
                     </button>
@@ -909,31 +905,32 @@
           </div>
           
           {showLibrary && (
-            <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-4 sm:p-6 lg:p-10">
-                <div className="glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-7xl mx-auto border-t border-emerald-900/50">
-                    <div className="flex justify-between items-center mb-8 border-b border-emerald-900/40 pb-5">
-                        <div className="flex items-center gap-4">
-                          <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Kütüphanem</h2>
-                          <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xl px-4 py-1 rounded-full">{filteredLibraryBooks.length}</span>
+            <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-3 sm:p-6 lg:p-10">
+                <div className="glass-panel p-4 sm:p-8 rounded-3xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-7xl mx-auto border-t border-emerald-900/50">
+                    
+                    {/* KÜTÜPHANE BAŞLIK VE BUTONLAR (Mobilde Taşmayı Önleyen Düzen) */}
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-emerald-900/40 pb-4">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">Kütüphanem</h2>
+                          <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-sm sm:text-xl px-3 py-0.5 rounded-full">{filteredLibraryBooks.length}</span>
                         </div>
 
-                        <div className="flex items-center gap-4">
-                          {/* KÜTÜPHANE GÖRÜNÜM DEĞİŞTİRME */}
-                          <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40">
+                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                          <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40 flex-1 sm:flex-none justify-center">
                             <button 
                               onClick={() => setLibraryViewMode('grid')} 
-                              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${libraryViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${libraryViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
                             >
                               Kartlar
                             </button>
                             <button 
                               onClick={() => setLibraryViewMode('list')} 
-                              className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${libraryViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${libraryViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
                             >
                               Düz Liste
                             </button>
                           </div>
-                          <button onClick={() => setShowLibrary(false)} className="btn-black w-12 h-12 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 transition-colors">&times;</button>
+                          <button onClick={() => setShowLibrary(false)} className="btn-black w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 transition-colors flex-shrink-0">&times;</button>
                         </div>
                     </div>
                     
@@ -990,7 +987,7 @@
                                                         )}
                                                         <div className="flex gap-2">
                                                             <button onClick={() => openEditModal(book, 'library')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                                                            <button onClick={() => removeBook(book.id, 'library')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                                            <button onClick={() => removeBook(book.id, 'library')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1048,7 +1045,7 @@
                 <div className="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll border-t border-emerald-900/50 my-auto">
                     <div className="sticky top-0 bg-[#0d1f17]/95 backdrop-blur-md z-20 flex justify-between items-center pb-4 mb-6 border-b border-emerald-900/40">
                         <h2 className="text-2xl sm:text-3xl font-bold text-white neon-title-yellow">Ayarlar</h2>
-                        <button onClick={() => setShowSettings(false)} className="btn-black w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400" title="Kapat">&times;</button>
+                        <button onClick={() => setShowSettings(false)} className="btn-black w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 flex-shrink-0" title="Kapat">&times;</button>
                     </div>
                     
                     <div className="space-y-4 mb-8">
@@ -1063,9 +1060,10 @@
                         <button onClick={saveUserProfile} className="btn-black w-full py-3.5 rounded-xl font-bold border-emerald-800 text-emerald-300">Bilgileri Kaydet</button>
                     </div>
 
+                    {/* TÜR YÖNETİMİ (Taşmayı Önleyen Alt Alta Düzen) */}
                     <div className="p-5 bg-black/40 rounded-2xl border border-emerald-900/40 shadow-inner mb-8">
                         <h3 className="text-lg font-bold mb-3 text-emerald-400">Tür Yönetimi (Yeni Tür Ekle)</h3>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <input 
                                 type="text" 
                                 className="input-dark flex-grow p-3 rounded-xl text-sm" 
@@ -1074,7 +1072,7 @@
                                 onChange={(e) => setNewGenreInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleAddCustomGenre()}
                             />
-                            <button onClick={handleAddCustomGenre} className="btn-black px-5 py-3 rounded-xl font-bold text-emerald-400 border-emerald-800 text-sm whitespace-nowrap">
+                            <button onClick={handleAddCustomGenre} className="btn-black px-5 py-3 rounded-xl font-bold text-emerald-400 border-emerald-800 text-sm whitespace-nowrap w-full sm:w-auto">
                                 Tür Ekle
                             </button>
                         </div>
@@ -1117,7 +1115,7 @@
               onClick={(e) => { if (e.target === e.currentTarget) closeEditModal(); }}
             >
               <div className="glass-panel p-8 sm:p-10 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll pr-3 border-t border-emerald-900/50 my-auto">
-                <button onClick={closeEditModal} className="btn-black absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400">&times;</button>
+                <button onClick={closeEditModal} className="btn-black absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 flex-shrink-0">&times;</button>
                 <h2 className="text-3xl font-bold mb-8 text-center text-white neon-title-yellow">Kitabı Düzenle</h2>
                 <div className="space-y-5">
                     <div>
@@ -1175,7 +1173,7 @@
               onClick={(e) => { if (e.target === e.currentTarget) { setManualAddTarget(null); resetManualBookForm(); } }}
             >
               <div className="glass-panel p-8 sm:p-10 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll pr-3 border-t border-emerald-900/50 my-auto">
-                <button onClick={() => { setManualAddTarget(null); resetManualBookForm(); }} className="btn-black absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400">&times;</button>
+                <button onClick={() => { setManualAddTarget(null); resetManualBookForm(); }} className="btn-black absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 flex-shrink-0">&times;</button>
                 <h2 className="text-3xl font-bold mb-8 text-center text-white neon-title-yellow">
                     {manualAddTarget === 'read' ? 'Okuduğum Kitap Ekle' : 'Kütüphaneye Ekle'}
                 </h2>
