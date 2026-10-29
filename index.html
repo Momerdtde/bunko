@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Okuduğum Kitaplar</title>
+  <title>Bunko (文庫)</title>
+  
+  <!-- Bunko Tarayıcı Sekme İkonu (Favicon) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%231e8689'/%3E%3Cg stroke='%230d383c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M25 68 L62 86 L95 68 L95 82 L62 100 L25 82 Z' fill='%235fc2c0'/%3E%3Cpath d='M62 86 L95 68 L95 82 L62 100 Z' fill='%23fef9e7'/%3E%3Cpath d='M38 74 L48 79 L48 93 L38 88 Z' fill='%23f5e6ab'/%3E%3Cpath d='M28 53 L63 70 L93 53 L93 66 L63 83 L28 66 Z' fill='%231b7278'/%3E%3Cpath d='M28 53 L60 39 L93 53 L63 70 Z' fill='%23258c91'/%3E%3Cpath d='M63 70 L93 53 L93 66 L63 83 Z' fill='%23fef9e7'/%3E%3Cpath d='M34 59 L49 66 L49 74 L34 67 Z' fill='%23ffffff'/%3E%3Cpath d='M46 42 C42 32 54 28 66 31 C76 34 80 44 74 51 C68 57 52 56 46 42 Z' fill='%23ffffff'/%3E%3Cpath d='M44 37 L42 28 L50 33 L56 26 L58 35 C54 44 45 44 44 37 Z' fill='%23e5a97c'/%3E%3Cpath d='M82 37 C86 30 92 33 86 41 Z' fill='%237cc576'/%3E%3C/g%3E%3C/svg%3E" />
   
   <!-- Tailwind CSS (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -54,6 +57,16 @@
             0 0 15px #ff1493, 
             0 0 30px #ff1493, 
             0 0 60px #c71585;
+    }
+
+    /* Bunko İkon Parlama Efekti */
+    .bunko-icon-glow {
+        filter: drop-shadow(0 0 15px rgba(30, 134, 137, 0.55));
+        transition: transform 0.3s ease, filter 0.3s ease;
+    }
+    .bunko-icon-glow:hover {
+        transform: scale(1.04);
+        filter: drop-shadow(0 0 22px rgba(14, 165, 233, 0.75));
     }
 
     /* Cam / Metalik Panel Efekti */
@@ -160,6 +173,88 @@
             ? self.crypto.randomUUID() 
             : Math.random().toString(36).substring(2, 15);
     };
+
+    // Bunko Özel İkon Bileşeni (Kitaplar üzerinde uyuyan kedi ve 文庫 etiketi)
+    function BunkoLogo({ size = "w-28 h-28" }) {
+      const [useFallbackSvg, setUseFallbackSvg] = useState(false);
+
+      return (
+        <div className="flex justify-center mb-4">
+          {!useFallbackSvg ? (
+            <img 
+              src="icon.jpeg" 
+              alt="Bunko (文庫) İkonu" 
+              className={`${size} rounded-[26px] object-cover bunko-icon-glow border-2 border-white/20`}
+              onError={() => setUseFallbackSvg(true)}
+            />
+          ) : (
+            <svg className={`${size} bunko-icon-glow`} viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Turkuaz İkon Arka Planı */}
+              <rect x="6" y="6" width="128" height="128" rx="32" fill="#1E8689" stroke="#ffffff" strokeWidth="2" strokeOpacity="0.25" />
+              
+              {/* Sağ Üstteki Küçük Yeşil Yapraklar */}
+              <g stroke="#0D383C" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M93 48 C93 38, 102 36, 100 46 C98 50, 93 48, 93 48 Z" fill="#7CC576" />
+                <path d="M97 49 C103 44, 109 48, 102 53 C98 54, 97 49, 97 49 Z" fill="#7CC576" />
+              </g>
+
+              {/* Alt Kitap */}
+              <g stroke="#0D383C" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                {/* Alt Kitap Üst Yüzey */}
+                <path d="M26 78 L60 62 L112 82 L76 102 Z" fill="#68C3C1" />
+                {/* Alt Kitap Sırtı (Sol Ön) */}
+                <path d="M26 78 C22 83, 22 91, 26 95 L76 117 L76 102 L26 78 Z" fill="#5AB9B7" />
+                {/* Alt Kitap Sırt Bandı (Krem/Sarı) */}
+                <path d="M44 86 L58 92 L58 109 L44 103 C41 98, 41 91, 44 86 Z" fill="#F2DFAC" />
+                {/* Alt Kitap Sayfaları (Sağ Ön) */}
+                <path d="M76 102 L112 82 C110 88, 110 94, 112 98 L76 117 L76 102 Z" fill="#FDF8E4" />
+                <path d="M81 105 L107 91" stroke="#0D383C" strokeWidth="1.8" />
+                <path d="M81 110 L105 97" stroke="#0D383C" strokeWidth="1.8" />
+              </g>
+
+              {/* Üst Kitap */}
+              <g stroke="#0D383C" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                {/* Üst Kitap Kapak Üstü */}
+                <path d="M29 60 L66 43 L110 62 L75 82 Z" fill="#1C777B" />
+                {/* Üst Kitap Sırtı (Sol Ön) */}
+                <path d="M29 60 C25 65, 25 72, 29 76 L75 97 L75 82 L29 60 Z" fill="#25898D" />
+                {/* Üst Kitap Sayfaları (Sağ Ön) */}
+                <path d="M75 82 L110 62 C108 67, 108 73, 110 77 L75 97 L75 82 Z" fill="#FDF8E4" />
+                <path d="M80 85 L105 71" stroke="#0D383C" strokeWidth="1.8" />
+                <path d="M80 90 L103 77" stroke="#0D383C" strokeWidth="1.8" />
+                
+                {/* Beyaz 文庫 Etiketi */}
+                <polygon points="34,66 53,75 53,84 34,75" fill="#FDFBF7" stroke="#0D383C" strokeWidth="2" />
+              </g>
+              {/* Etiket Üzerindeki 文庫 Yazısı */}
+              <text x="43.5" y="77.5" fill="#0D383C" fontSize="8.5" fontWeight="bold" textAnchor="middle" transform="skewY(24)">文庫</text>
+
+              {/* Kitap Üstünde Uyuyan Kedi */}
+              <g stroke="#0D383C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                {/* Kedi Gövdesi */}
+                <path d="M52 52 C52 37, 74 33, 84 43 C92 51, 88 63, 74 64 C63 65, 53 60, 52 52 Z" fill="#FFFDF9" />
+                {/* Kedi Kıvrık Kuyruğu ve Arka Patisi */}
+                <path d="M72 56 C70 48, 78 45, 81 51 C84 57, 75 64, 67 62" fill="none" />
+                {/* Kedi Ön Patisi */}
+                <path d="M58 59 C62 62, 68 62, 69 58" fill="#FFFDF9" />
+                {/* Kedi Başı */}
+                <path d="M43 44 C41 37, 47 32, 55 33 C63 34, 68 41, 66 49 C64 56, 54 58, 47 54 C43 52, 43 47, 43 44 Z" fill="#FFFDF9" />
+                {/* Kedi Turuncu/Tarçın Lekesi (Sol Kulak ve Alın) */}
+                <path d="M43 43 L40 31 L49 35 C52 34, 55 34, 57 35 C54 42, 48 45, 43 43 Z" fill="#E3A87B" />
+                {/* Kedi Sağ Kulağı */}
+                <path d="M56 34 L62 27 L65 39" fill="#FFFDF9" />
+                <path d="M58 34 L61 30 L63 37" fill="#E3A87B" stroke="none" />
+                {/* Kedi Uyuyan Gözler ve Burun */}
+                <path d="M46 47 C48 49, 50 49, 51 47" fill="none" strokeWidth="2" />
+                <path d="M56 47 C58 49, 60 49, 61 47" fill="none" strokeWidth="2" />
+                <path d="M52 51 L54 51 L53 52.5 Z" fill="#0D383C" stroke="none" />
+                <path d="M51 53.5 C52.5 54.5, 53.5 54.5, 55 53.5" fill="none" strokeWidth="1.8" />
+              </g>
+            </svg>
+          )}
+        </div>
+      );
+    }
 
     function App() {
       const { 
@@ -417,7 +512,7 @@
         const textData = readBooks.map(b => `${b.title} - ${b.authors} | Tür: ${b.genre || '-'} ${b.readDate ? `(Okuma: ${formatDisplayDate(b.readDate)})` : ''}`).join('\n');
         const blob = new Blob([textData], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'okudugum_kitaplar.txt';
+        const a = document.createElement('a'); a.href = url; a.download = 'bunko_okudugum_kitaplar.txt';
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         showMessage('Veri başarıyla metin dosyası olarak dışa aktarıldı!', 'success');
       };
@@ -427,7 +522,7 @@
         const textData = libraryBooks.map(b => `${b.title} - ${b.authors} | Tür: ${b.genre || '-'}`).join('\n');
         const blob = new Blob([textData], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'kutuphanem.txt';
+        const a = document.createElement('a'); a.href = url; a.download = 'bunko_kutuphanem.txt';
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         showMessage('Kütüphane verisi başarıyla dışa aktarıldı!', 'success');
       };
@@ -618,8 +713,11 @@
         return (
           <div className="min-h-screen flex items-center justify-center p-4">
             {message && (<div className={`fixed top-4 left-1/2 -translate-x-1/2 p-4 rounded-xl shadow-lg z-50 ${message.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>{message.content}</div>)}
-            <div className="glass-panel p-8 rounded-2xl w-full max-w-md">
-              <h2 className="text-3xl font-bold text-center mb-6 neon-title">{isLoginMode ? 'Giriş Yap' : 'Kaydol'}</h2>
+            <div className="glass-panel p-8 rounded-2xl w-full max-w-md text-center">
+              <BunkoLogo size="w-24 h-24" />
+              <h1 className="text-3xl font-extrabold font-montserrat neon-title mb-2">Bunko (文庫)</h1>
+              <p className="text-xs italic neon-pink mb-6">"Bir gün bir kitap okudum ve bütün hayatım değişti." - Yeni Hayat, Orhan Pamuk</p>
+              <h2 className="text-xl font-bold text-gray-200 mb-4">{isLoginMode ? 'Giriş Yap' : 'Kaydol'}</h2>
               {authError && <p className="text-red-400 text-center mb-4 font-medium">{authError}</p>}
               <input type="email" placeholder="E-posta" className="input-dark w-full p-3.5 mb-4 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} />
               <input type="password" placeholder="Şifre" className="input-dark w-full p-3.5 mb-6 rounded-xl" value={password} onChange={(e) => setPassword(e.target.value)} />
@@ -659,12 +757,16 @@
 
           <div className="max-w-6xl mx-auto glass-panel p-5 sm:p-8 rounded-2xl relative shadow-2xl">
             
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-center font-montserrat neon-title tracking-wide mb-3 uppercase pt-2">
-                Okuduğum Kitaplar
-            </h1>
-            <p className="text-center mb-8 text-[1.1rem] font-semibold italic tracking-wide neon-pink">
-                "Bir gün bir kitap okudum ve bütün hayatım değişti." - Yeni Hayat, Orhan Pamuk
-            </p>
+            {/* BUNKO İKONU, BAŞLIK VE ORHAN PAMUK ALINTISI */}
+            <div className="pt-2">
+              <BunkoLogo size="w-28 h-28 sm:w-32 sm:h-32" />
+              <h1 className="text-4xl sm:text-5xl font-extrabold text-center font-montserrat neon-title tracking-wide mb-3">
+                  Bunko (文庫)
+              </h1>
+              <p className="text-center mb-8 text-[1.1rem] font-semibold italic tracking-wide neon-pink">
+                  "Bir gün bir kitap okudum ve bütün hayatım değişti." - Yeni Hayat, Orhan Pamuk
+              </p>
+            </div>
 
             {(userName || userSurname) && (<p className="text-lg text-gray-400 text-center mb-8 font-medium">Hoş Geldin, <span className="text-white">{userName} {userSurname}</span></p>)}
             
@@ -855,7 +957,7 @@
             </div>
           )}
 
-          {/* AYARLAR MODALI - Kaydırılabilir ve Sabit Kapatma Butonlu */}
+          {/* AYARLAR MODALI */}
           {showSettings && (
             <div 
               className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto"
