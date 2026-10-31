@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -478,13 +479,19 @@
       };
 
       const handleRemoveCustomGenre = async (genreToRemove) => {
-        const updatedGenres = customGenres.filter(g => g !== genreToRemove);
-        try {
-          await setDoc(doc(db, `artifacts/${appId}/users/${userId}/profile/info`), { customGenres: updatedGenres }, { merge: true });
-          showMessage(`"${genreToRemove}" türü listeden kaldırıldı.`, 'info');
-        } catch (e) {
-          showMessage('Tür silinirken hata oluştu.', 'error');
-        }
+        setConfirmation({
+          message: `"${genreToRemove}" türünü silmek istediğinizden emin misiniz?`,
+          danger: true,
+          onConfirm: async () => {
+            const updatedGenres = customGenres.filter(g => g !== genreToRemove);
+            try {
+              await setDoc(doc(db, `artifacts/${appId}/users/${userId}/profile/info`), { customGenres: updatedGenres }, { merge: true });
+              showMessage(`"${genreToRemove}" türü listeden kaldırıldı.`, 'info');
+            } catch (e) {
+              showMessage('Tür silinirken hata oluştu.', 'error');
+            }
+          }
+        });
       };
       
       const exportData = () => {
@@ -798,7 +805,6 @@
             )}
             
             <div className="p-4 sm:p-8">
-              {/* BAŞLIK VE GÖRÜNÜM BUTONLARI (Mobilde Taşmayı Önleyen Düzen) */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-emerald-900/40 pb-6">
                   <div className="flex items-center gap-3 flex-wrap">
                       <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Okuduğum Kitaplar</h2>
@@ -908,7 +914,6 @@
             <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-3 sm:p-6 lg:p-10">
                 <div className="glass-panel p-4 sm:p-8 rounded-3xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-7xl mx-auto border-t border-emerald-900/50">
                     
-                    {/* KÜTÜPHANE BAŞLIK VE BUTONLAR (Mobilde Taşmayı Önleyen Düzen) */}
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-emerald-900/40 pb-4">
                         <div className="flex items-center gap-3 flex-wrap">
                           <h2 className="text-2xl sm:text-4xl font-extrabold text-white">Kütüphanem</h2>
@@ -987,7 +992,7 @@
                                                         )}
                                                         <div className="flex gap-2">
                                                             <button onClick={() => openEditModal(book, 'library')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                                                            <button onClick={() => removeBook(book.id, 'library')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>
+                                                            <button onClick={() => removeBook(book.id, 'library')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1060,7 +1065,6 @@
                         <button onClick={saveUserProfile} className="btn-black w-full py-3.5 rounded-xl font-bold border-emerald-800 text-emerald-300">Bilgileri Kaydet</button>
                     </div>
 
-                    {/* TÜR YÖNETİMİ (Taşmayı Önleyen Alt Alta Düzen) */}
                     <div className="p-5 bg-black/40 rounded-2xl border border-emerald-900/40 shadow-inner mb-8">
                         <h3 className="text-lg font-bold mb-3 text-emerald-400">Tür Yönetimi (Yeni Tür Ekle)</h3>
                         <div className="flex flex-col sm:flex-row gap-2">
