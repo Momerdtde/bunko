@@ -284,6 +284,9 @@
       const [librarySortBy, setLibrarySortBy] = useState('author'); 
       
       const [editingBook, setEditingBook] = useState(null);
+      const [candidateCovers, setCandidateCovers] = useState([]);
+      const [loadingCandidates, setLoadingCandidates] = useState(false);
+
       const [plainTextImportList, setPlainTextImportList] = useState('');
       const [manualAddTarget, setManualAddTarget] = useState(null); 
       const [manualBook, setManualBook] = useState({ title: '', authors: '', publisher: '', genre: 'Bilinmiyor', coverUrl: '', description: '', notes: '', readDate: '' });
@@ -368,93 +371,32 @@
       )).sort((a, b) => a.localeCompare(b, 'tr-TR'));
 
       // ============================================================================
-      // TÜRK KİTAP SİTELERİ (KİTAPYURDU) + APPLE BOOKS TR + GOOGLE BOOKS TR MOTORU
+      // YENİ NESİL ENGELSİZ KAPAK & KİTAP MOTORU (OpenLibrary Cover + Wiki TR + Google)
       // ============================================================================
 
-      const scrapeKitapyurdu = async (queryText) => {
-        const targetUrl = `https://www.kitapyurdu.com/index.php?route=product/search&filter_name=${encodeURIComponent(queryText)}`;
-        const proxyUrls = [
-          `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
-          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
-        ];
-
-        for (const proxy of proxyUrls) {
-          try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 4500);
-            const res = await fetch(proxy, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (!res.ok) continue;
-
-            let html = '';
-            if (proxy.includes('allorigins')) {
-              const json = await res.json();
-              html = json.contents || '';
-            } else {
-              html = await res.text();
-            }
-
-            if (!html || html.length < 500) continue;
-
-            const parser = new DOMParser();
-            const docDom = parser.parseFromString(html, 'text/html');
-            const productNodes = docDom.querySelectorAll('.product-cr');
-            const results = [];
-
-            productNodes.forEach(node => {
-              const titleEl = node.querySelector('.name span') || node.querySelector('.name a');
-              const authorEl = node.querySelector('.author span') || node.querySelector('.author a');
-              const publisherEl = node.querySelector('.publisher span') || node.querySelector('.publisher a');
-              const imgEl = node.querySelector('.image img');
-
-              const rawTitle = titleEl ? titleEl.textContent.trim() : '';
-              let cover = imgEl ? (imgEl.getAttribute('data-src') || imgEl.getAttribute('src') || '') : '';
-              if (cover) {
-                cover = cover.replace('http://', 'https://');
-                cover = cover.replace(/\/wi:\d+/, '/wi:400').replace(/width=\d+/, 'width=400');
-              }
-
-              if (rawTitle) {
-                results.push({
-                  id: generateId(),
-                  title: formatTitle(rawTitle),
-                  authors: formatAuthor(authorEl ? authorEl.textContent.trim() : 'Yazar Bilgisi Yok'),
-                  publisher: publisherEl ? formatTitle(publisherEl.textContent.trim()) : 'Yayınevi Bilgisi Yok',
-                  coverUrl: cover,
-                  sourceBadge: 'Kitapyurdu',
-                  genre: 'Bilinmiyor',
-                  description: '',
-                  notes: ''
-                });
-              }
-            });
-
-            if (results.length > 0) return results;
-          } catch (e) {
-            // Proxy zaman aşımı
-          }
-        }
-        return [];
-      };
-
-      const searchAppleBooksTR = async (queryText) => {
+      const searchOpenLibraryWithCovers = async (queryText) => {
         try {
-          const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(queryText)}&country=tr&entity=ebook&limit=12`);
+          const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(queryText)}&limit=15`);
           if (!res.ok) return [];
           const data = await res.json();
-          if (!data.results || data.results.length === 0) return [];
+          if (!data.docs || data.docs.length === 0) return [];
 
-          return data.results.map(item => {
-            let highResCover = item.artworkUrl100 ? item.artworkUrl100.replace('100x100bb', '600x600bb') : '';
+          return data.docs.map(item => {
+            let cover = '';
+            if (item.cover_i) {
+              cover = `https://covers.openlibrary.org/b/id/${item.cover_i}-L.jpg`;
+            } else if (item.isbn && item.isbn.length > 0) {
+              cover = `https://covers.openlibrary.org/b/isbn/${item.isbn[0]}-L.jpg?default=false`;
+            }
             return {
               id: generateId(),
-              title: formatTitle(item.trackName || 'Başlık Bilgisi Yok'),
-              authors: formatAuthor(item.artistName || 'Yazar Bilgisi Yok'),
-              publisher: item.sellerName ? formatTitle(item.sellerName) : 'Yayınevi Bilgisi Yok',
-              coverUrl: highResCover,
-              sourceBadge: 'TR Mağaza',
+              title: formatTitle(item.title || 'Başlık Bilgisi Yok'),
+              authors: formatAuthor(item.author_name ? item.author_name.join(', ') : 'Yazar Bilgisi Yok'),
+              publisher: item.publisher && item.publisher.length > 0 ? formatTitle(item.publisher[0]) : 'Yayınevi Bilgisi Yok',
+              coverUrl: cover,
+              sourceBadge: 'OpenLibrary',
               genre: 'Bilinmiyor',
-              description: item.description ? item.description.replace(/<[^>]*>?/gm, '') : '',
+              description: '',
               notes: ''
             };
           });
@@ -463,18 +405,49 @@
         }
       };
 
-      const searchGoogleBooksTR = async (queryText) => {
+      const searchWikipediaTRCover = async (queryText) => {
         try {
-          const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(queryText)}&maxResults=20&printType=books`);
+          const url = `https://tr.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(queryText + ' kitap')}&gsrlimit=6&prop=pageimages&piprop=original|thumbnail&pithumbsize=500&format=json&origin=*`;
+          const res = await fetch(url);
+          if (!res.ok) return [];
+          const data = await res.json();
+          if (!data.query || !data.query.pages) return [];
+
+          const results = [];
+          Object.values(data.query.pages).forEach(page => {
+            const img = page.original?.source || page.thumbnail?.source || '';
+            if (img && !img.endsWith('.svg')) {
+              results.push({
+                id: generateId(),
+                title: formatTitle(page.title.replace(/\s*\(.*?\)\s*/g, '')),
+                authors: 'Bilinmiyor',
+                publisher: 'Yayınevi Bilgisi Yok',
+                coverUrl: img,
+                sourceBadge: 'Wikipedia TR',
+                genre: 'Bilinmiyor',
+                description: '',
+                notes: ''
+              });
+            }
+          });
+          return results;
+        } catch (e) {
+          return [];
+        }
+      };
+
+      const searchGoogleBooksSafe = async (queryText) => {
+        try {
+          const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(queryText)}&maxResults=15`);
           if (!res.ok) return [];
           const data = await res.json();
           if (!data.items || data.items.length === 0) return [];
 
           return data.items.map(item => {
             const info = item.volumeInfo || {};
-            let cover = info.imageLinks?.extraLarge || info.imageLinks?.large || info.imageLinks?.medium || info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || '';
+            let cover = info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || '';
             if (cover) {
-              cover = cover.replace('http://', 'https://').replace('&edge=curl', '').replace('zoom=1', 'zoom=2');
+              cover = cover.replace('http://', 'https://').replace('&edge=curl', '');
             }
             return {
               id: generateId(),
@@ -482,7 +455,7 @@
               authors: formatAuthor(info.authors ? info.authors.join(', ') : 'Yazar Bilgisi Yok'),
               publisher: info.publisher ? formatTitle(info.publisher) : 'Yayınevi Bilgisi Yok',
               coverUrl: cover,
-              sourceBadge: 'Google TR',
+              sourceBadge: 'Google Books',
               genre: 'Bilinmiyor',
               description: info.description || '',
               notes: ''
@@ -494,28 +467,19 @@
       };
 
       const fetchTurkishBooksCombined = async (queryText) => {
-        const [kyResults, appleResults, googleResults] = await Promise.all([
-          scrapeKitapyurdu(queryText),
-          searchAppleBooksTR(queryText),
-          searchGoogleBooksTR(queryText)
+        const [googleResults, olResults, wikiResults] = await Promise.all([
+          searchGoogleBooksSafe(queryText),
+          searchOpenLibraryWithCovers(queryText),
+          searchWikipediaTRCover(queryText)
         ]);
 
-        const combined = [...kyResults, ...appleResults, ...googleResults];
+        const combined = [...googleResults, ...olResults, ...wikiResults];
         const uniqueMap = new Map();
 
         combined.forEach(item => {
-          const key = `${item.title.toLocaleLowerCase('tr-TR')}_${item.authors.toLocaleLowerCase('tr-TR')}`;
+          const key = `${item.title.toLocaleLowerCase('tr-TR')}_${item.coverUrl || item.authors.toLocaleLowerCase('tr-TR')}`;
           if (!uniqueMap.has(key)) {
             uniqueMap.set(key, item);
-          } else {
-            const existing = uniqueMap.get(key);
-            if (!existing.coverUrl && item.coverUrl) {
-              existing.coverUrl = item.coverUrl;
-              existing.sourceBadge = item.sourceBadge;
-            }
-            if ((existing.publisher === 'Yayınevi Bilgisi Yok' || !existing.publisher) && item.publisher !== 'Yayınevi Bilgisi Yok') {
-              existing.publisher = item.publisher;
-            }
           }
         });
 
@@ -526,17 +490,47 @@
 
       const findBestCoverForBook = async (title, authors) => {
         const cleanAuthor = authors && authors !== 'Bilinmiyor' && authors !== 'Yazar Bilgisi Yok' ? authors.split(',')[0].trim() : '';
+        
+        // 1. Önce intitle + inauthor ile Google ve OpenLibrary'de ara
         const queryFull = `${title} ${cleanAuthor}`.trim();
-
         let results = await fetchTurkishBooksCombined(queryFull);
         let withCover = results.find(r => r.coverUrl && r.coverUrl.trim() !== '');
 
+        // 2. Bulunamazsa sadece kitap başlığıyla ara
         if (!withCover && cleanAuthor) {
           results = await fetchTurkishBooksCombined(title.trim());
           withCover = results.find(r => r.coverUrl && r.coverUrl.trim() !== '');
         }
 
         return withCover || null;
+      };
+
+      const loadCandidateCoversForModal = async (title, authors) => {
+        setLoadingCandidates(true);
+        setCandidateCovers([]);
+        try {
+          const cleanAuthor = authors && authors !== 'Bilinmiyor' && authors !== 'Yazar Bilgisi Yok' ? authors.split(',')[0].trim() : '';
+          const res1 = await fetchTurkishBooksCombined(`${title} ${cleanAuthor}`.trim());
+          const res2 = cleanAuthor ? await fetchTurkishBooksCombined(title.trim()) : [];
+          const all = [...res1, ...res2].filter(r => r.coverUrl && r.coverUrl.trim() !== '');
+          
+          const seenUrls = new Set();
+          const uniqueCovers = [];
+          all.forEach(item => {
+            if (!seenUrls.has(item.coverUrl)) {
+              seenUrls.add(item.coverUrl);
+              uniqueCovers.push(item);
+            }
+          });
+          setCandidateCovers(uniqueCovers.slice(0, 12));
+          if (uniqueCovers.length === 0) {
+            showMessage('Otomatik galeride kapak bulunamadı. Sağdaki Google Görseller butonunu kullanabilirsiniz.', 'info');
+          }
+        } catch (e) {
+          showMessage('Kapak adayları yüklenirken hata oluştu.', 'error');
+        } finally {
+          setLoadingCandidates(false);
+        }
       };
 
       const handleRefreshSingleBookCover = async (book, source) => {
@@ -551,9 +545,9 @@
               updatedData.publisher = bestMatch.publisher;
             }
             await updateDoc(doc(db, `artifacts/${appId}/users/${userId}/${colName}`, book.id), updatedData);
-            showMessage(`"${book.title}" için kapak bulundu ve eklendi!`, 'success');
+            showMessage(`"${book.title}" için kapak eklendi!`, 'success');
           } else {
-            showMessage(`"${book.title}" için uygun bir kapak bulunamadı.`, 'info');
+            showMessage(`"${book.title}" için otomatik kapak bulunamadı. Düzenle menüsünden ekleyebilirsiniz.`, 'info');
           }
         } catch (err) {
           showMessage('Kapak aranırken hata oluştu.', 'error');
@@ -611,7 +605,8 @@
             console.error('Kitap tarama hatası:', item.title, e);
           }
 
-          await new Promise(r => setTimeout(r, 350));
+          // Google Books IP engelini (429) önlemek için 1.1 saniye güvenli bekleme
+          await new Promise(r => setTimeout(r, 1100));
         }
 
         setIsAutoScanning(false);
@@ -667,8 +662,14 @@
         if(book) setSelectedBookDetails(book);
       };
 
-      const openEditModal = (book, source) => setEditingBook({ ...book, source });
-      const closeEditModal = () => setEditingBook(null);
+      const openEditModal = (book, source) => {
+        setCandidateCovers([]);
+        setEditingBook({ ...book, source });
+      };
+      const closeEditModal = () => {
+        setCandidateCovers([]);
+        setEditingBook(null);
+      };
       const resetManualBookForm = () => setManualBook({ title: '', authors: '', publisher: '', genre: 'Bilinmiyor', coverUrl: '', description: '', notes: '', readDate: getTodayDate() });
 
       useEffect(() => {
@@ -1056,7 +1057,7 @@
             <div className="mb-10 bg-black/40 p-6 sm:p-8 rounded-2xl border border-emerald-900/30 shadow-inner">
               <h2 className="text-2xl font-bold mb-5 text-white flex items-center gap-2">
                   <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
-                  Yeni Kitap Ekle (Kitapyurdu & TR Kaynaklar)
+                  Yeni Kitap Ekle
               </h2>
               <div className="flex flex-col md:flex-row gap-3">
                   <div className="relative flex-grow">
@@ -1434,7 +1435,7 @@
                           Otomatik Kapak & Yayınevi Tarayıcı
                         </h3>
                         <p className="text-xs text-gray-300 mb-4 leading-relaxed">
-                          Mevcut kitaplarınızı Kitapyurdu ve Türkiye kitap veritabanlarından tarayarak eksik kapak resimlerini ve yayınevlerini otomatik tamamlar.
+                          Mevcut kitaplarınızı OpenLibrary, Wikipedia TR ve Google Books arşivlerinden kota engeline takılmadan sırayla tarar.
                           <br/>
                           <span className="text-amber-300 font-semibold">
                             Eksik Kapak: Okunanlar ({missingReadCoversCount}) • Kütüphanem ({missingLibraryCoversCount})
@@ -1552,7 +1553,7 @@
               className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto"
               onClick={(e) => { if (e.target === e.currentTarget) closeEditModal(); }}
             >
-              <div className="glass-panel p-8 sm:p-10 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll pr-3 border-t border-emerald-900/50 my-auto">
+              <div className="glass-panel p-6 sm:p-10 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll pr-3 border-t border-emerald-900/50 my-auto">
                 <button onClick={closeEditModal} className="btn-black absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 flex-shrink-0">&times;</button>
                 <h2 className="text-3xl font-bold mb-8 text-center text-white neon-title-yellow">Kitabı Düzenle</h2>
                 <div className="space-y-5">
@@ -1590,35 +1591,55 @@
                       />
                     </div>
                     <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <label className="block text-sm font-semibold text-gray-300">Kapak Resmi URL:</label>
-                        <button 
-                          type="button"
-                          onClick={async () => {
-                            const found = await findBestCoverForBook(editingBook.title, editingBook.authors);
-                            if (found && found.coverUrl) {
-                              setEditingBook({
-                                ...editingBook, 
-                                coverUrl: found.coverUrl,
-                                publisher: (!editingBook.publisher || editingBook.publisher === 'Yayınevi Bilgisi Yok') && found.publisher ? found.publisher : editingBook.publisher
-                              });
-                              showMessage('Kapak resmi bulundu!', 'success');
-                            } else {
-                              showMessage('Otomatik kapak bulunamadı.', 'info');
-                            }
-                          }}
-                          className="text-xs font-bold text-amber-400 hover:underline"
-                        >
-                          🔄 Oto Kapak Bul
-                        </button>
+                      <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
+                        <label className="block text-sm font-semibold text-gray-300">Kapak Resmi:</label>
+                        <div className="flex items-center gap-3">
+                          <button 
+                            type="button"
+                            onClick={() => loadCandidateCoversForModal(editingBook.title, editingBook.authors)}
+                            className="text-xs font-bold text-amber-400 hover:underline"
+                          >
+                            {loadingCandidates ? 'Aranıyor...' : '🖼️ Alternatif Kapakları Göster'}
+                          </button>
+                          <a 
+                            href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(editingBook.title + ' ' + editingBook.authors + ' kitap kapağı')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-bold text-sky-400 hover:underline"
+                          >
+                            🔍 Google Görseller'de Aç
+                          </a>
+                        </div>
                       </div>
                       <input 
                         type="text" 
-                        placeholder="https://..."
+                        placeholder="Resim adresini (URL) buraya yapıştırın..."
                         className="input-dark w-full p-3.5 rounded-xl text-sm" 
                         value={editingBook.coverUrl || ''} 
                         onChange={(e) => setEditingBook({...editingBook, coverUrl: e.target.value})} 
                       />
+
+                      {candidateCovers.length > 0 && (
+                        <div className="mt-3 p-3 bg-black/60 rounded-xl border border-emerald-900/50">
+                          <p className="text-xs text-gray-400 mb-2">Seçmek istediğiniz kapağa tıklayın:</p>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto modal-scroll p-1">
+                            {candidateCovers.map((c, idx) => (
+                              <div 
+                                key={idx} 
+                                onClick={() => setEditingBook({
+                                  ...editingBook, 
+                                  coverUrl: c.coverUrl,
+                                  publisher: (!editingBook.publisher || editingBook.publisher === 'Yayınevi Bilgisi Yok') && c.publisher !== 'Yayınevi Bilgisi Yok' ? c.publisher : editingBook.publisher
+                                })}
+                                className={`cursor-pointer p-1 rounded border-2 transition-all flex flex-col items-center bg-black/40 ${editingBook.coverUrl === c.coverUrl ? 'border-amber-400 scale-105' : 'border-transparent hover:border-emerald-500'}`}
+                              >
+                                <img src={c.coverUrl} alt="" className="h-20 object-contain rounded" />
+                                <span className="text-[9px] text-gray-400 mt-1 truncate w-full text-center">{c.sourceBadge}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     {editingBook.source === 'read' && (
                       <div>
