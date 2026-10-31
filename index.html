@@ -411,7 +411,6 @@
               let cover = imgEl ? (imgEl.getAttribute('data-src') || imgEl.getAttribute('src') || '') : '';
               if (cover) {
                 cover = cover.replace('http://', 'https://');
-                // Kitapyurdu küçük resmi yüksek çözünürlüğe çevir
                 cover = cover.replace(/\/wi:\d+/, '/wi:400').replace(/width=\d+/, 'width=400');
               }
 
@@ -432,7 +431,7 @@
 
             if (results.length > 0) return results;
           } catch (e) {
-            // Proxy zaman aşımına uğrarsa diğer kaynağa geç
+            // Proxy zaman aşımı
           }
         }
         return [];
@@ -494,7 +493,6 @@
         }
       };
 
-      // Tüm Türkçe kaynakları paralel tarayıp birleştiren ana fonksiyon
       const fetchTurkishBooksCombined = async (queryText) => {
         const [kyResults, appleResults, googleResults] = await Promise.all([
           scrapeKitapyurdu(queryText),
@@ -522,21 +520,17 @@
         });
 
         const finalResults = Array.from(uniqueMap.values());
-        // Kapağı olanları en üste sırala
         finalResults.sort((a, b) => (b.coverUrl ? 1 : 0) - (a.coverUrl ? 1 : 0));
         return finalResults;
       };
 
-      // Tek bir kitap için en uygun kapağı ve yayınevini bulan yardımcı fonksiyon
       const findBestCoverForBook = async (title, authors) => {
         const cleanAuthor = authors && authors !== 'Bilinmiyor' && authors !== 'Yazar Bilgisi Yok' ? authors.split(',')[0].trim() : '';
         const queryFull = `${title} ${cleanAuthor}`.trim();
 
-        // 1. Önce Başlık + Yazar ile ara
         let results = await fetchTurkishBooksCombined(queryFull);
         let withCover = results.find(r => r.coverUrl && r.coverUrl.trim() !== '');
 
-        // 2. Bulunamazsa sadece Başlık ile ara
         if (!withCover && cleanAuthor) {
           results = await fetchTurkishBooksCombined(title.trim());
           withCover = results.find(r => r.coverUrl && r.coverUrl.trim() !== '');
@@ -545,7 +539,6 @@
         return withCover || null;
       };
 
-      // Mevcut tek bir kitabın kapağını yenileme
       const handleRefreshSingleBookCover = async (book, source) => {
         if (!db || !userId) return;
         setSingleScanningId(book.id);
@@ -569,7 +562,6 @@
         }
       };
 
-      // MEVCUT KİTAPLARI OTOMATİK TOPLU TARAMA (KÜTÜPHANEM & OKUDUKLARIM)
       const handleBatchAutoScanCovers = async (scope = 'all', forceAll = false) => {
         if (!db || !userId || isAutoScanning) return;
 
@@ -590,7 +582,7 @@
         }
 
         if (targetList.length === 0) {
-          return showMessage('Taranacak eksik kapaklı kitap bulunamadı! Tüm kitaplarınızın kapağı mevcut.', 'info');
+          return showMessage('Taranacak eksik kapaklı kitap bulunamadı!', 'info');
         }
 
         setIsAutoScanning(true);
@@ -619,12 +611,11 @@
             console.error('Kitap tarama hatası:', item.title, e);
           }
 
-          // API limitlerine takılmamak için kısa bekleme
           await new Promise(r => setTimeout(r, 350));
         }
 
         setIsAutoScanning(false);
-        showMessage(`Tarama tamamlandı! Toplam ${updatedCount} kitabın kapağı otomatik olarak güncellendi.`, 'success');
+        showMessage(`Tarama tamamlandı! Toplam ${updatedCount} kitabın kapağı güncellendi.`, 'success');
       };
 
       const getAuthorStats = () => {
@@ -804,7 +795,7 @@
                 batch.set(newDocRef, book);
             });
             await batch.commit();
-            showMessage(`${newBooksToAdd.length} kitap başarıyla eklendi! Ayarlar'dan kapaklarını otomatik taratabilirsiniz.`, 'success');
+            showMessage(`${newBooksToAdd.length} kitap başarıyla eklendi!`, 'success');
             setPlainTextImportList(''); setShowSettings(false);
         } catch (e) { showMessage('İçe aktarılırken hata oluştu.', 'error'); }
       };
@@ -856,7 +847,6 @@
         let finalCoverUrl = manualBook.coverUrl ? manualBook.coverUrl.trim() : '';
         let finalPublisher = manualBook.publisher ? manualBook.publisher.trim() : 'Yayınevi Bilgisi Yok';
 
-        // Eğer kullanıcı kapak URL'si girmediyse otomatik olarak Türk kaynaklarından bulmayı dene
         if (!finalCoverUrl) {
           const autoMatch = await findBestCoverForBook(manualBook.title, manualBook.authors);
           if (autoMatch) {
@@ -1189,7 +1179,7 @@
                         )}
                         <div className="p-5 pl-6 flex-1 flex flex-col justify-between">
                           <div>
-                            <h3 className="text-lg font-bold text-white mb-1.5 leading-tight drop-shadow-md">{book.title}</h3>
+                            <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
                             <p className="text-sm font-semibold text-emerald-400 mb-2.5 drop-shadow">{book.authors}</p>
                             <div className="flex flex-wrap gap-2 mb-2">
                                 {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
@@ -1337,7 +1327,7 @@
                                                 )}
                                                 <div className="p-5 pl-6 flex-1 flex flex-col justify-between">
                                                     <div>
-                                                        <h3 className="text-lg font-bold text-white mb-1.5 leading-tight drop-shadow-md">{book.title}</h3>
+                                                        <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
                                                         <p className="text-sm font-semibold text-emerald-400 mb-2.5 drop-shadow">{book.authors}</p>
                                                         <div className="flex flex-wrap gap-2 mb-2">
                                                             {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
@@ -1438,7 +1428,6 @@
                         <button onClick={() => setShowSettings(false)} className="btn-black w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 flex-shrink-0" title="Kapat">&times;</button>
                     </div>
 
-                    {/* OTOMATİK KAPAK TARAMA PANELİ */}
                     <div className="p-5 bg-black/50 rounded-2xl border border-amber-500/40 shadow-inner mb-8">
                         <h3 className="text-lg font-bold mb-2 text-amber-400 flex items-center gap-2">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -1625,7 +1614,7 @@
                       </div>
                       <input 
                         type="text" 
-                        placeholder="https://... (Boş bırakabilir veya Oto Kapak Bul'a tıklayabilirsiniz)"
+                        placeholder="https://..."
                         className="input-dark w-full p-3.5 rounded-xl text-sm" 
                         value={editingBook.coverUrl || ''} 
                         onChange={(e) => setEditingBook({...editingBook, coverUrl: e.target.value})} 
