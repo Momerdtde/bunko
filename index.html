@@ -261,12 +261,15 @@
       const [searchResults, setSearchResults] = useState([]);
       const [readBooks, setReadBooks] = useState([]);
       const [libraryBooks, setLibraryBooks] = useState([]);
+      const [readingListBooks, setReadingListBooks] = useState([]);
       const [loading, setLoading] = useState(false);
       const [message, setMessage] = useState(null); 
       
       const [showSettings, setShowSettings] = useState(false);
       const [showStats, setShowStats] = useState(false); 
       const [showLibrary, setShowLibrary] = useState(false); 
+      const [showReadingList, setShowReadingList] = useState(false);
+
       const [userName, setUserName] = useState('');
       const [userSurname, setUserSurname] = useState('');
       const [customGenres, setCustomGenres] = useState([]);
@@ -274,6 +277,7 @@
       
       const [readBooksViewMode, setReadBooksViewMode] = useState('grid');
       const [libraryViewMode, setLibraryViewMode] = useState('grid');
+      const [readingListViewMode, setReadingListViewMode] = useState('grid');
 
       const [readBooksFilterTerm, setReadBooksFilterTerm] = useState('');
       const [readBooksGenreFilter, setReadBooksGenreFilter] = useState(''); 
@@ -282,13 +286,17 @@
       const [libraryFilterTerm, setLibraryFilterTerm] = useState('');
       const [libraryGenreFilter, setLibraryGenreFilter] = useState(''); 
       const [librarySortBy, setLibrarySortBy] = useState('author'); 
+
+      const [readingListFilterTerm, setReadingListFilterTerm] = useState('');
+      const [readingListGenreFilter, setReadingListGenreFilter] = useState('');
+      const [readingListSortBy, setReadingListSortBy] = useState('author');
       
       const [editingBook, setEditingBook] = useState(null);
       const [candidateCovers, setCandidateCovers] = useState([]);
       const [loadingCandidates, setLoadingCandidates] = useState(false);
 
       const [plainTextImportList, setPlainTextImportList] = useState('');
-      const [manualAddTarget, setManualAddTarget] = useState(null); 
+      const [manualAddTarget, setManualAddTarget] = useState(null); // 'read', 'library', 'readingList'
       const [manualBook, setManualBook] = useState({ title: '', authors: '', publisher: '', genre: 'Bilinmiyor', coverUrl: '', description: '', notes: '', readDate: '' });
       
       const [selectedAuthorBooks, setSelectedAuthorBooks] = useState([]);
@@ -352,6 +360,22 @@
         }).join(' ');
       };
 
+      // Metin karşılaştırma için Türkçe duyarlı sadeleştirici
+      const normalizeText = (str) => {
+        if (!str) return '';
+        return str
+          .toLocaleLowerCase('tr-TR')
+          .replace(/[âîû]/g, c => ({ 'â': 'a', 'î': 'i', 'û': 'u' }[c] || c))
+          .replace(/[^\w\sğüşıöç]/gi, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+
+      const isSameBookIdentity = (b1, b2) => {
+        return normalizeText(b1.title) === normalizeText(b2.title) &&
+               normalizeText(b1.authors) === normalizeText(b2.authors);
+      };
+
       const allGenres = Array.from(new Set([...PREDEFINED_GENRES, ...customGenres])).sort((a, b) => {
         if (a === 'Diğer') return 1;
         if (b === 'Diğer') return -1;
@@ -359,24 +383,109 @@
       });
 
       const savedPublishers = Array.from(new Set(
-        [...readBooks, ...libraryBooks]
+        [...readBooks, ...libraryBooks, ...readingListBooks]
           .map(b => (b.publisher || '').trim())
           .filter(p => p && p !== 'Yayınevi Bilgisi Yok' && p !== 'Bilinmiyor')
       )).sort((a, b) => a.localeCompare(b, 'tr-TR'));
 
       const savedAuthors = Array.from(new Set(
-        [...readBooks, ...libraryBooks]
+        [...readBooks, ...libraryBooks, ...readingListBooks]
           .map(b => (b.authors || '').trim())
           .filter(a => a && a !== 'Yazar Bilgisi Yok' && a !== 'Bilinmiyor')
       )).sort((a, b) => a.localeCompare(b, 'tr-TR'));
 
       // ============================================================================
-      // YENİ NESİL ENGELSİZ KAPAK & KİTAP MOTORU (OpenLibrary Cover + Wiki TR + Google)
+      // PUANLAMALI AKILLI KİTAP & KAPAK ARAMA MOTORU (Yüksek Doğruluk + Yüksek Bulma Oranı)
       // ============================================================================
 
-      const searchOpenLibraryWithCovers = async (queryText) => {
+      const computeRelevanceScore = (candidate, targetTitle, targetAuthor) => {
+        const cTitle = normalizeText(candidate.title);
+        const tTitle = normalizeText(targetTitle);
+        const cAuthor = normalizeText(candidate.authors);
+        const tAuthor = normalizeText(targetAuthor);
+
+        if (!cTitle || !tTitle) return -100;
+
+        let score = 0;
+
+        // 1. Başlık Uyumu
+        if (cTitle === tTitle) {
+          score += 65;
+        } else if (cTitle.startsWith(tTitle) || tTitle.startsWith(cTitle)) {
+          score += 45;
+        } else if (cTitle.includes(tTitle) || tTitle.includes(cTitle)) {
+          score += 30;
+        } else {
+          const tWords = tTitle.split(' ').filter(w => w.length > 2);
+          if (tWords.length > 0) {
+            const matched = tWords.filter(w => cTitle.includes(w)).length;
+            if (matched === tWords.length) score += 35;
+            else if (matched > 0) score += (matched / tWords.length) * 20;
+            else score -= 35;
+          } else {
+            score -= 25;
+          }
+        }
+
+        // 2. Yazar Uyumu
+        if (tAuthor && tAuthor !== 'bilinmiyor' && tAuthor !== 'yazar bilgisi yok') {
+          const authorWords = tAuthor.split(' ').filter(w => w.length > 2);
+          const lastWord = authorWords[authorWords.length - 1] || tAuthor;
+          if (cAuthor.includes(lastWord)) {
+            score += 45;
+          } else if (authorWords.some(w => cAuthor.includes(w))) {
+            score += 25;
+          } else if (cAuthor === 'yazar bilgisi yok' || cAuthor === 'bilinmiyor') {
+            score -= 5;
+          } else {
+            // Farklı bir yazarın aynı isimli kitabıysa puan kır
+            score -= 25;
+          }
+        }
+
+        // 3. Dil ve Kapak Kalitesi Bonusları
+        if (candidate.language === 'tr') score += 20;
+        if (candidate.coverUrl) score += 15;
+        if (candidate.publisher && candidate.publisher !== 'Yayınevi Bilgisi Yok') score += 5;
+
+        return score;
+      };
+
+      const fetchGoogleBooksQuery = async (qParam, langRestrict = '') => {
         try {
-          const res = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(queryText)}&limit=15`);
+          const langPart = langRestrict ? `&langRestrict=${langRestrict}` : '';
+          const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(qParam)}&maxResults=15&printType=books${langPart}`);
+          if (!res.ok) return [];
+          const data = await res.json();
+          if (!data.items || data.items.length === 0) return [];
+
+          return data.items.map(item => {
+            const info = item.volumeInfo || {};
+            let cover = info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || '';
+            if (cover) {
+              cover = cover.replace('http://', 'https://').replace('&edge=curl', '');
+            }
+            return {
+              id: generateId(),
+              title: formatTitle(info.title || 'Başlık Bilgisi Yok'),
+              authors: formatAuthor(info.authors ? info.authors.join(', ') : 'Yazar Bilgisi Yok'),
+              publisher: info.publisher ? formatTitle(info.publisher) : 'Yayınevi Bilgisi Yok',
+              coverUrl: cover,
+              language: info.language || '',
+              sourceBadge: info.language === 'tr' ? 'Google TR' : 'Google Books',
+              genre: 'Bilinmiyor',
+              description: info.description || '',
+              notes: ''
+            };
+          });
+        } catch (e) {
+          return [];
+        }
+      };
+
+      const fetchOpenLibraryQuery = async (queryUrl) => {
+        try {
+          const res = await fetch(queryUrl);
           if (!res.ok) return [];
           const data = await res.json();
           if (!data.docs || data.docs.length === 0) return [];
@@ -394,6 +503,7 @@
               authors: formatAuthor(item.author_name ? item.author_name.join(', ') : 'Yazar Bilgisi Yok'),
               publisher: item.publisher && item.publisher.length > 0 ? formatTitle(item.publisher[0]) : 'Yayınevi Bilgisi Yok',
               coverUrl: cover,
+              language: item.language && item.language.includes('tur') ? 'tr' : '',
               sourceBadge: 'OpenLibrary',
               genre: 'Bilinmiyor',
               description: '',
@@ -405,113 +515,88 @@
         }
       };
 
-      const searchWikipediaTRCover = async (queryText) => {
-        try {
-          const url = `https://tr.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(queryText + ' kitap')}&gsrlimit=6&prop=pageimages&piprop=original|thumbnail&pithumbsize=500&format=json&origin=*`;
-          const res = await fetch(url);
-          if (!res.ok) return [];
-          const data = await res.json();
-          if (!data.query || !data.query.pages) return [];
-
-          const results = [];
-          Object.values(data.query.pages).forEach(page => {
-            const img = page.original?.source || page.thumbnail?.source || '';
-            if (img && !img.endsWith('.svg')) {
-              results.push({
-                id: generateId(),
-                title: formatTitle(page.title.replace(/\s*\(.*?\)\s*/g, '')),
-                authors: 'Bilinmiyor',
-                publisher: 'Yayınevi Bilgisi Yok',
-                coverUrl: img,
-                sourceBadge: 'Wikipedia TR',
-                genre: 'Bilinmiyor',
-                description: '',
-                notes: ''
-              });
-            }
-          });
-          return results;
-        } catch (e) {
-          return [];
-        }
-      };
-
-      const searchGoogleBooksSafe = async (queryText) => {
-        try {
-          const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(queryText)}&maxResults=15`);
-          if (!res.ok) return [];
-          const data = await res.json();
-          if (!data.items || data.items.length === 0) return [];
-
-          return data.items.map(item => {
-            const info = item.volumeInfo || {};
-            let cover = info.imageLinks?.thumbnail || info.imageLinks?.smallThumbnail || '';
-            if (cover) {
-              cover = cover.replace('http://', 'https://').replace('&edge=curl', '');
-            }
-            return {
-              id: generateId(),
-              title: formatTitle(info.title || 'Başlık Bilgisi Yok'),
-              authors: formatAuthor(info.authors ? info.authors.join(', ') : 'Yazar Bilgisi Yok'),
-              publisher: info.publisher ? formatTitle(info.publisher) : 'Yayınevi Bilgisi Yok',
-              coverUrl: cover,
-              sourceBadge: 'Google Books',
-              genre: 'Bilinmiyor',
-              description: info.description || '',
-              notes: ''
-            };
-          });
-        } catch (e) {
-          return [];
-        }
-      };
-
+      // Genel Arama Kutusu İçin Birleştirilmiş Arama
       const fetchTurkishBooksCombined = async (queryText) => {
-        const [googleResults, olResults, wikiResults] = await Promise.all([
-          searchGoogleBooksSafe(queryText),
-          searchOpenLibraryWithCovers(queryText),
-          searchWikipediaTRCover(queryText)
+        const [gTr, gAll, olRes] = await Promise.all([
+          fetchGoogleBooksQuery(queryText, 'tr'),
+          fetchGoogleBooksQuery(queryText, ''),
+          fetchOpenLibraryQuery(`https://openlibrary.org/search.json?q=${encodeURIComponent(queryText)}&limit=15`)
         ]);
 
-        const combined = [...googleResults, ...olResults, ...wikiResults];
+        const combined = [...gTr, ...gAll, ...olRes];
         const uniqueMap = new Map();
 
         combined.forEach(item => {
-          const key = `${item.title.toLocaleLowerCase('tr-TR')}_${item.coverUrl || item.authors.toLocaleLowerCase('tr-TR')}`;
+          const key = `${normalizeText(item.title)}_${item.coverUrl || normalizeText(item.authors)}`;
           if (!uniqueMap.has(key)) {
             uniqueMap.set(key, item);
           }
         });
 
         const finalResults = Array.from(uniqueMap.values());
-        finalResults.sort((a, b) => (b.coverUrl ? 1 : 0) - (a.coverUrl ? 1 : 0));
+        finalResults.sort((a, b) => {
+          const aHasCover = a.coverUrl ? 1 : 0;
+          const bHasCover = b.coverUrl ? 1 : 0;
+          if (bHasCover !== aHasCover) return bHasCover - aHasCover;
+          const aTr = a.language === 'tr' ? 1 : 0;
+          const bTr = b.language === 'tr' ? 1 : 0;
+          return bTr - aTr;
+        });
         return finalResults;
       };
 
+      // Tekil Kitap İçin En Doğru Kapağı Bulan Puanlamalı Fonksiyon
       const findBestCoverForBook = async (title, authors) => {
+        const cleanTitle = (title || '').trim();
         const cleanAuthor = authors && authors !== 'Bilinmiyor' && authors !== 'Yazar Bilgisi Yok' ? authors.split(',')[0].trim() : '';
-        
-        // 1. Önce intitle + inauthor ile Google ve OpenLibrary'de ara
-        const queryFull = `${title} ${cleanAuthor}`.trim();
-        let results = await fetchTurkishBooksCombined(queryFull);
-        let withCover = results.find(r => r.coverUrl && r.coverUrl.trim() !== '');
 
-        // 2. Bulunamazsa sadece kitap başlığıyla ara
-        if (!withCover && cleanAuthor) {
-          results = await fetchTurkishBooksCombined(title.trim());
-          withCover = results.find(r => r.coverUrl && r.coverUrl.trim() !== '');
+        const structuredQuery = cleanAuthor ? `intitle:${cleanTitle} inauthor:${cleanAuthor}` : `intitle:${cleanTitle}`;
+        const plainQuery = `${cleanTitle} ${cleanAuthor}`.trim();
+
+        const [gStructuredTr, gPlain, olStructured] = await Promise.all([
+          fetchGoogleBooksQuery(structuredQuery, 'tr'),
+          fetchGoogleBooksQuery(plainQuery, ''),
+          fetchOpenLibraryQuery(
+            cleanAuthor 
+              ? `https://openlibrary.org/search.json?title=${encodeURIComponent(cleanTitle)}&author=${encodeURIComponent(cleanAuthor)}&limit=10`
+              : `https://openlibrary.org/search.json?title=${encodeURIComponent(cleanTitle)}&limit=10`
+          )
+        ]);
+
+        let candidates = [...gStructuredTr, ...gPlain, ...olStructured].filter(c => c.coverUrl && c.coverUrl.trim() !== '');
+
+        // Eğer ilk aşamada kapaklı sonuç çıkmadıysa sadece başlıkla yedek arama yap
+        if (candidates.length === 0 && cleanAuthor) {
+          const [gTitleTr, olTitle] = await Promise.all([
+            fetchGoogleBooksQuery(`intitle:${cleanTitle}`, 'tr'),
+            fetchOpenLibraryQuery(`https://openlibrary.org/search.json?q=${encodeURIComponent(cleanTitle)}&limit=10`)
+          ]);
+          candidates = [...gTitleTr, ...olTitle].filter(c => c.coverUrl && c.coverUrl.trim() !== '');
         }
 
-        return withCover || null;
+        if (candidates.length === 0) return null;
+
+        // Tüm adayları puanla ve en yüksek puanlıyı seç
+        const scored = candidates.map(c => ({
+          ...c,
+          _score: computeRelevanceScore(c, cleanTitle, cleanAuthor)
+        })).sort((a, b) => b._score - a._score);
+
+        // En iyi aday makul bir eşik puanının (25) üzerindeyse döndür
+        if (scored[0]._score >= 25) {
+          return scored[0];
+        }
+        return null;
       };
 
       const loadCandidateCoversForModal = async (title, authors) => {
         setLoadingCandidates(true);
         setCandidateCovers([]);
         try {
+          const cleanTitle = (title || '').trim();
           const cleanAuthor = authors && authors !== 'Bilinmiyor' && authors !== 'Yazar Bilgisi Yok' ? authors.split(',')[0].trim() : '';
-          const res1 = await fetchTurkishBooksCombined(`${title} ${cleanAuthor}`.trim());
-          const res2 = cleanAuthor ? await fetchTurkishBooksCombined(title.trim()) : [];
+          const res1 = await fetchTurkishBooksCombined(`${cleanTitle} ${cleanAuthor}`.trim());
+          const res2 = cleanAuthor ? await fetchTurkishBooksCombined(cleanTitle) : [];
           const all = [...res1, ...res2].filter(r => r.coverUrl && r.coverUrl.trim() !== '');
           
           const seenUrls = new Set();
@@ -519,12 +604,16 @@
           all.forEach(item => {
             if (!seenUrls.has(item.coverUrl)) {
               seenUrls.add(item.coverUrl);
-              uniqueCovers.push(item);
+              uniqueCovers.push({
+                ...item,
+                _score: computeRelevanceScore(item, cleanTitle, cleanAuthor)
+              });
             }
           });
+          uniqueCovers.sort((a, b) => b._score - a._score);
           setCandidateCovers(uniqueCovers.slice(0, 12));
           if (uniqueCovers.length === 0) {
-            showMessage('Otomatik galeride kapak bulunamadı. Sağdaki Google Görseller butonunu kullanabilirsiniz.', 'info');
+            showMessage('Alternatif kapak bulunamadı. Sağdaki Google Görseller butonunu kullanabilirsiniz.', 'info');
           }
         } catch (e) {
           showMessage('Kapak adayları yüklenirken hata oluştu.', 'error');
@@ -533,21 +622,64 @@
         }
       };
 
+      // ============================================================================
+      // ÇAPRAZ SENKRONİZASYON (Okuduklarım ↔ Kütüphanem ↔ Okuma Listem)
+      // ============================================================================
+      const syncBookAcrossAllCollections = async (originalBook, updatedFields, sourceColName) => {
+        if (!db || !userId) return 0;
+        const collectionsMap = [
+          { name: 'readBooks', items: readBooks },
+          { name: 'libraryBooks', items: libraryBooks },
+          { name: 'readingListBooks', items: readingListBooks }
+        ];
+
+        let syncedCount = 0;
+        for (const col of collectionsMap) {
+          if (col.name === sourceColName) continue;
+          const matchingDocs = col.items.filter(item => isSameBookIdentity(item, originalBook));
+          for (const matchDoc of matchingDocs) {
+            const payload = {
+              title: updatedFields.title ?? matchDoc.title,
+              authors: updatedFields.authors ?? matchDoc.authors,
+              publisher: updatedFields.publisher ?? matchDoc.publisher,
+              genre: updatedFields.genre ?? matchDoc.genre,
+              coverUrl: updatedFields.coverUrl !== undefined ? updatedFields.coverUrl : (matchDoc.coverUrl || ''),
+              notes: updatedFields.notes !== undefined ? updatedFields.notes : (matchDoc.notes || '')
+            };
+            await updateDoc(doc(db, `artifacts/${appId}/users/${userId}/${col.name}`, matchDoc.id), payload);
+            syncedCount++;
+          }
+        }
+        return syncedCount;
+      };
+
+      const getCollectionNameFromSource = (source) => {
+        if (source === 'read') return 'readBooks';
+        if (source === 'library') return 'libraryBooks';
+        if (source === 'readingList') return 'readingListBooks';
+        return 'readBooks';
+      };
+
       const handleRefreshSingleBookCover = async (book, source) => {
         if (!db || !userId) return;
         setSingleScanningId(book.id);
         try {
           const bestMatch = await findBestCoverForBook(book.title, book.authors);
           if (bestMatch && bestMatch.coverUrl) {
-            const colName = source === 'read' ? 'readBooks' : 'libraryBooks';
-            const updatedData = { coverUrl: bestMatch.coverUrl };
-            if ((!book.publisher || book.publisher === 'Yayınevi Bilgisi Yok') && bestMatch.publisher && bestMatch.publisher !== 'Yayınevi Bilgisi Yok') {
-              updatedData.publisher = bestMatch.publisher;
-            }
+            const colName = getCollectionNameFromSource(source);
+            const newPub = (!book.publisher || book.publisher === 'Yayınevi Bilgisi Yok') && bestMatch.publisher && bestMatch.publisher !== 'Yayınevi Bilgisi Yok'
+              ? bestMatch.publisher
+              : book.publisher;
+
+            const updatedData = { coverUrl: bestMatch.coverUrl, publisher: newPub };
             await updateDoc(doc(db, `artifacts/${appId}/users/${userId}/${colName}`, book.id), updatedData);
-            showMessage(`"${book.title}" için kapak eklendi!`, 'success');
+
+            // Diğer listelerde de aynı kitap varsa kapağını ve yayınevini otomatik eşitle
+            await syncBookAcrossAllCollections(book, updatedData, colName);
+
+            showMessage(`"${book.title}" için doğru kapak bulundu ve tüm listelerinizde güncellendi!`, 'success');
           } else {
-            showMessage(`"${book.title}" için otomatik kapak bulunamadı. Düzenle menüsünden ekleyebilirsiniz.`, 'info');
+            showMessage(`"${book.title}" için yüksek doğruluklu kapak bulunamadı. Düzenle menüsünden seçebilirsiniz.`, 'info');
           }
         } catch (err) {
           showMessage('Kapak aranırken hata oluştu.', 'error');
@@ -574,9 +706,16 @@
             }
           });
         }
+        if (scope === 'readingList' || scope === 'all') {
+          readingListBooks.forEach(b => {
+            if (forceAll || !b.coverUrl || b.coverUrl.trim() === '') {
+              targetList.push({ ...b, _col: 'readingListBooks' });
+            }
+          });
+        }
 
         if (targetList.length === 0) {
-          return showMessage('Taranacak eksik kapaklı kitap bulunamadı!', 'info');
+          return showMessage('Taranacak kitap bulunamadı!', 'info');
         }
 
         setIsAutoScanning(true);
@@ -593,11 +732,12 @@
           try {
             const match = await findBestCoverForBook(item.title, item.authors);
             if (match && match.coverUrl) {
-              const updatePayload = { coverUrl: match.coverUrl };
-              if ((!item.publisher || item.publisher === 'Yayınevi Bilgisi Yok') && match.publisher && match.publisher !== 'Yayınevi Bilgisi Yok') {
-                updatePayload.publisher = match.publisher;
-              }
+              const newPub = (!item.publisher || item.publisher === 'Yayınevi Bilgisi Yok') && match.publisher && match.publisher !== 'Yayınevi Bilgisi Yok'
+                ? match.publisher
+                : item.publisher;
+              const updatePayload = { coverUrl: match.coverUrl, publisher: newPub };
               await updateDoc(doc(db, `artifacts/${appId}/users/${userId}/${item._col}`, item.id), updatePayload);
+              await syncBookAcrossAllCollections(item, updatePayload, item._col);
               updatedCount++;
               setScanProgress(prev => ({ ...prev, updated: updatedCount }));
             }
@@ -605,12 +745,11 @@
             console.error('Kitap tarama hatası:', item.title, e);
           }
 
-          // Google Books IP engelini (429) önlemek için 1.1 saniye güvenli bekleme
-          await new Promise(r => setTimeout(r, 1100));
+          await new Promise(r => setTimeout(r, 950));
         }
 
         setIsAutoScanning(false);
-        showMessage(`Tarama tamamlandı! Toplam ${updatedCount} kitabın kapağı güncellendi.`, 'success');
+        showMessage(`Tarama tamamlandı! Toplam ${updatedCount} kitabın kapağı yüksek doğrulukla güncellendi.`, 'success');
       };
 
       const getAuthorStats = () => {
@@ -664,7 +803,12 @@
 
       const openEditModal = (book, source) => {
         setCandidateCovers([]);
-        setEditingBook({ ...book, source });
+        setEditingBook({ 
+          ...book, 
+          source, 
+          _originalTitle: book.title, 
+          _originalAuthors: book.authors 
+        });
       };
       const closeEditModal = () => {
         setCandidateCovers([]);
@@ -695,6 +839,9 @@
         const libraryUnsubscribe = onSnapshot(collection(db, `artifacts/${appId}/users/${userId}/libraryBooks`), snapshot => {
           setLibraryBooks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
+        const readingListUnsubscribe = onSnapshot(collection(db, `artifacts/${appId}/users/${userId}/readingListBooks`), snapshot => {
+          setReadingListBooks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
         const profileUnsubscribe = onSnapshot(doc(db, `artifacts/${appId}/users/${userId}/profile/info`), docSnap => {
           if (docSnap.exists()) {
             const data = docSnap.data();
@@ -705,7 +852,7 @@
             setUserName(''); setUserSurname(''); setCustomGenres([]);
           }
         });
-        return () => { booksUnsubscribe(); libraryUnsubscribe(); profileUnsubscribe(); };
+        return () => { booksUnsubscribe(); libraryUnsubscribe(); readingListUnsubscribe(); profileUnsubscribe(); };
       }, [isAuthReady, db, userId]);
 
       const showMessage = (content, type) => {
@@ -772,6 +919,16 @@
         showMessage('Kütüphane verisi başarıyla dışa aktarıldı!', 'success');
       };
 
+      const exportReadingListData = () => {
+        if (readingListBooks.length === 0) return showMessage('Okuma listesinde dışa aktarılacak kitap bulunmuyor.', 'info');
+        const textData = readingListBooks.map(b => `${b.title} - ${b.authors} | Tür: ${b.genre || '-'}`).join('\n');
+        const blob = new Blob([textData], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'bunko_okuma_listem.txt';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        showMessage('Okuma listesi başarıyla dışa aktarıldı!', 'success');
+      };
+
       const handlePlainTextImport = async () => {
         if (!plainTextImportList.trim() || !db || !userId) return showMessage('Liste boş.', 'error');
         const lines = plainTextImportList.split('\n').filter(line => line.trim().length > 0);
@@ -833,12 +990,13 @@
           }
           const q = query(collection(db, `artifacts/${appId}/users/${userId}/${targetCol}`));
           const snap = await getDocs(q);
-          if (snap.docs.some(d => d.data().title.toLocaleLowerCase('tr-TR') === newBook.title.toLocaleLowerCase('tr-TR') && d.data().authors.toLocaleLowerCase('tr-TR') === newBook.authors.toLocaleLowerCase('tr-TR'))) {
+          if (snap.docs.some(d => isSameBookIdentity(d.data(), newBook))) {
               return showMessage('Bu kitap zaten seçili listenizde var.', 'error');
           }
           try {
               await addDoc(collection(db, `artifacts/${appId}/users/${userId}/${targetCol}`), newBook);
-              showMessage(targetCol === 'readBooks' ? 'Kitap Okuduklarıma eklendi!' : 'Kitap Kütüphaneme eklendi!', 'success'); 
+              const label = targetCol === 'readBooks' ? 'Okuduklarıma' : targetCol === 'libraryBooks' ? 'Kütüphaneme' : 'Okuma Listeme';
+              showMessage(`Kitap ${label} eklendi!`, 'success'); 
           } catch (e) { showMessage('Kitap eklenirken hata oluştu.', 'error'); }
       };
       
@@ -867,10 +1025,10 @@
         };
         if (target === 'read') newBook.readDate = manualBook.readDate || '';
 
-        const colName = target === 'read' ? 'readBooks' : 'libraryBooks';
+        const colName = getCollectionNameFromSource(target);
         const q = query(collection(db, `artifacts/${appId}/users/${userId}/${colName}`));
         const snap = await getDocs(q);
-        if (snap.docs.some(d => d.data().title.toLocaleLowerCase('tr-TR') === newBook.title.toLocaleLowerCase('tr-TR') && d.data().authors.toLocaleLowerCase('tr-TR') === newBook.authors.toLocaleLowerCase('tr-TR'))) {
+        if (snap.docs.some(d => isSameBookIdentity(d.data(), newBook))) {
             return showMessage('Bu kitap zaten listenizde var.', 'error');
         }
         try {
@@ -881,7 +1039,7 @@
       };
       
       const saveEditedBook = async () => {
-        const { id, source, ...bookData } = editingBook;
+        const { id, source, _originalTitle, _originalAuthors, ...bookData } = editingBook;
         const formatted = {
             ...bookData, 
             title: formatTitle(bookData.title), 
@@ -892,14 +1050,27 @@
             readDate: bookData.readDate || ''
         };
         try {
-            const colName = source === 'read' ? 'readBooks' : 'libraryBooks';
+            const colName = getCollectionNameFromSource(source);
             await setDoc(doc(db, `artifacts/${appId}/users/${userId}/${colName}`, id), formatted);
-            showMessage('Kitap güncellendi!', 'success'); closeEditModal();
+
+            // Otomatik Çapraz Senkronizasyon: Diğer sekmelerdeki (Kütüphanem / Okuma Listem / Okuduklarım) eşleşen kitabı da güncelle
+            const originalIdentity = { 
+              title: _originalTitle || formatted.title, 
+              authors: _originalAuthors || formatted.authors 
+            };
+            const syncedCount = await syncBookAcrossAllCollections(originalIdentity, formatted, colName);
+
+            if (syncedCount > 0) {
+              showMessage('Kitap güncellendi ve diğer listelerinizle otomatik eşitlendi!', 'success');
+            } else {
+              showMessage('Kitap güncellendi!', 'success');
+            }
+            closeEditModal();
         } catch (e) { showMessage('Güncellenirken hata oluştu.', 'error'); }
       };
 
       const removeBook = async (id, from) => {
-        const colName = from === 'read' ? 'readBooks' : 'libraryBooks';
+        const colName = getCollectionNameFromSource(from);
         setConfirmation({
             message: 'Bu kitabı silmek istediğinizden emin misiniz?',
             danger: true,
@@ -912,19 +1083,25 @@
         });
       };
       
-      const markAsRead = async (book) => {
+      const markAsRead = async (book, fromSource = 'library') => {
         const { id, source, ...bookData } = book;
         const q = query(collection(db, `artifacts/${appId}/users/${userId}/readBooks`));
         const snap = await getDocs(q);
-        if (!snap.docs.some(d => d.data().title.toLocaleLowerCase('tr-TR') === bookData.title.toLocaleLowerCase('tr-TR') && d.data().authors.toLocaleLowerCase('tr-TR') === bookData.authors.toLocaleLowerCase('tr-TR'))) {
+        if (!snap.docs.some(d => isSameBookIdentity(d.data(), bookData))) {
             await addDoc(collection(db, `artifacts/${appId}/users/${userId}/readBooks`), { ...bookData, readDate: getTodayDate() });
         }
-        showMessage(`${book.title} okundu olarak işaretlendi!`, 'success');
+        // Eğer Okuma Listesinden "Okudum" denildiyse Okuma Listesinden otomatik çıkar
+        if (fromSource === 'readingList' && id) {
+            await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/readingListBooks`, id));
+            showMessage(`${book.title} okuduklarınıza eklendi ve okuma listesinden tamamlandı olarak kaldırıldı!`, 'success');
+        } else {
+            showMessage(`${book.title} okundu olarak işaretlendi!`, 'success');
+        }
       };
 
       const handleLogin = async () => { try { await signInWithEmailAndPassword(auth, email, password); } catch(e) { setAuthError('Hatalı giriş.'); } };
       const handleRegister = async () => { try { await createUserWithEmailAndPassword(auth, email, password); } catch(e) { setAuthError('Kayıt başarısız.'); } };
-      const handleSignOut = async () => { try { await signOut(auth); setReadBooks([]); setLibraryBooks([]); } catch(e){} };
+      const handleSignOut = async () => { try { await signOut(auth); setReadBooks([]); setLibraryBooks([]); setReadingListBooks([]); } catch(e){} };
 
       const sortBooksList = (books, sortBy) => {
         let activeSort = sortBy;
@@ -959,7 +1136,7 @@
           const matchesSearch = book.title.toLocaleLowerCase('tr-TR').includes(libraryFilterTerm.toLocaleLowerCase('tr-TR')) || (book.authors && book.authors.toLocaleLowerCase('tr-TR').includes(libraryFilterTerm.toLocaleLowerCase('tr-TR')));
           const matchesGenre = libraryGenreFilter === '' || book.genre === libraryGenreFilter;
           
-          const isRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
+          const isRead = readBooks.some(rb => isSameBookIdentity(rb, book));
           let matchesStatus = true;
           if (librarySortBy === 'onlyRead') matchesStatus = isRead;
           if (librarySortBy === 'onlyUnread') matchesStatus = !isRead;
@@ -968,11 +1145,21 @@
       });
       const sortedLibraryBooks = sortBooksList(filteredLibraryBooks, librarySortBy);
 
+      const filteredReadingListBooks = readingListBooks.filter(book => {
+          const matchesSearch = book.title.toLocaleLowerCase('tr-TR').includes(readingListFilterTerm.toLocaleLowerCase('tr-TR')) || (book.authors && book.authors.toLocaleLowerCase('tr-TR').includes(readingListFilterTerm.toLocaleLowerCase('tr-TR')));
+          const matchesGenre = readingListGenreFilter === '' || book.genre === readingListGenreFilter;
+          return matchesSearch && matchesGenre;
+      });
+      const sortedReadingListBooks = sortBooksList(filteredReadingListBooks, readingListSortBy);
+
       const availableReadGenres = Array.from(new Set(readBooks.map(b => b.genre))).filter(g => g && g !== 'Bilinmiyor').sort((a, b) => a.localeCompare(b, 'tr-TR'));
       const availableLibraryGenres = Array.from(new Set(libraryBooks.map(b => b.genre))).filter(g => g && g !== 'Bilinmiyor').sort((a, b) => a.localeCompare(b, 'tr-TR'));
+      const availableReadingListGenres = Array.from(new Set(readingListBooks.map(b => b.genre))).filter(g => g && g !== 'Bilinmiyor').sort((a, b) => a.localeCompare(b, 'tr-TR'));
 
       const missingReadCoversCount = readBooks.filter(b => !b.coverUrl || b.coverUrl.trim() === '').length;
       const missingLibraryCoversCount = libraryBooks.filter(b => !b.coverUrl || b.coverUrl.trim() === '').length;
+      const missingReadingListCoversCount = readingListBooks.filter(b => !b.coverUrl || b.coverUrl.trim() === '').length;
+      const totalMissingCovers = missingReadCoversCount + missingLibraryCoversCount + missingReadingListCoversCount;
 
       if (!isAuthReady) return <div className="min-h-screen flex items-center justify-center text-white text-xl">Yükleniyor...</div>;
 
@@ -1041,17 +1228,26 @@
             {(userName || userSurname) && (<p className="text-lg text-gray-400 text-center mb-8 font-medium">Hoş Geldin, <span className="text-white">{userName} {userSurname}</span></p>)}
             
             <div className="flex flex-wrap justify-center gap-3 my-8 border-b border-emerald-900/40 pb-8">
-              <button onClick={() => setShowLibrary(true)} className="btn-black px-6 py-3 rounded-xl font-bold">Kütüphanem ({libraryBooks.length})</button>
-              <button onClick={() => {setShowStats(true); setStatsTab('authors');}} className="btn-black px-6 py-3 rounded-xl font-bold">İstatistikler</button>
+              <button onClick={() => setShowLibrary(true)} className="btn-black px-6 py-3 rounded-xl font-bold">
+                Kütüphanem ({libraryBooks.length})
+              </button>
+              <button onClick={() => setShowReadingList(true)} className="btn-black px-6 py-3 rounded-xl font-bold border-amber-800/60 text-amber-300">
+                Okuma Listem ({readingListBooks.length})
+              </button>
+              <button onClick={() => {setShowStats(true); setStatsTab('authors');}} className="btn-black px-6 py-3 rounded-xl font-bold">
+                İstatistikler
+              </button>
               <button onClick={() => setShowSettings(true)} className="btn-black px-6 py-3 rounded-xl font-bold relative">
                 Ayarlar & Kapak Tarayıcı
-                {(missingReadCoversCount + missingLibraryCoversCount) > 0 && (
+                {totalMissingCovers > 0 && (
                   <span className="ml-2 bg-amber-500 text-black text-xs font-extrabold px-2 py-0.5 rounded-full">
-                    {missingReadCoversCount + missingLibraryCoversCount}
+                    {totalMissingCovers}
                   </span>
                 )}
               </button>
-              <button onClick={handleSignOut} className="btn-black px-6 py-3 rounded-xl font-bold text-gray-400 hover:text-white">Çıkış Yap</button>
+              <button onClick={handleSignOut} className="btn-black px-6 py-3 rounded-xl font-bold text-gray-400 hover:text-white">
+                Çıkış Yap
+              </button>
             </div>
             
             <div className="mb-10 bg-black/40 p-6 sm:p-8 rounded-2xl border border-emerald-900/30 shadow-inner">
@@ -1065,7 +1261,7 @@
                       {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-white text-xl">&times;</button>}
                   </div>
                   <button onClick={searchBooks} className="btn-black w-full md:w-auto px-8 py-4 rounded-xl font-extrabold text-lg" disabled={loading}>{loading ? 'Taranıyor...' : 'Kitap Ara'}</button>
-                  <button onClick={() => {resetManualBookForm(); setManualAddTarget('read');}} className="btn-black w-full md:w-auto px-8 py-4 rounded-xl font-extrabold text-lg border-emerald-900 text-emerald-400 hover:text-emerald-300 whitespace-nowrap">Manuel Ekle</button>
+                  <button onClick={() => {resetManualBookForm(); setManualAddTarget('read');}} className="btn-black w-full md:w-auto px-6 py-4 rounded-xl font-extrabold text-base border-emerald-900 text-emerald-400 hover:text-emerald-300 whitespace-nowrap">Manuel Ekle</button>
               </div>
             </div>
             
@@ -1075,7 +1271,7 @@
                 <h2 className="text-2xl font-bold mb-6 text-emerald-400">Arama Sonuçları ({searchResults.length})</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {searchResults.map(book => (
-                    <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[340px]">
+                    <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[360px]">
                         {book.coverUrl ? (
                           <div className="w-full h-48 bg-black/60 flex items-center justify-center p-2 pl-5 border-b border-emerald-900/40 relative">
                             <img 
@@ -1103,12 +1299,15 @@
                                 <p className="text-[11px] text-gray-400 mb-2">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>
                               )}
                           </div>
-                          <div className="mt-3 flex flex-col gap-2">
+                          <div className="mt-3 flex flex-col gap-1.5">
                               <button onClick={() => addBookToCollection(book, 'readBooks')} className="btn-black w-full py-2 rounded-lg text-xs font-bold border-emerald-800 text-emerald-300">
                                 + Okuduklarıma Ekle
                               </button>
                               <button onClick={() => addBookToCollection(book, 'libraryBooks')} className="btn-black w-full py-2 rounded-lg text-xs font-bold border-sky-900 text-sky-300">
                                 + Kütüphaneme Ekle
+                              </button>
+                              <button onClick={() => addBookToCollection(book, 'readingListBooks')} className="btn-black w-full py-2 rounded-lg text-xs font-bold border-amber-800 text-amber-300">
+                                + Okuma Listeme Ekle
                               </button>
                           </div>
                         </div>
@@ -1255,6 +1454,7 @@
             </div>
           </div>
           
+          {/* KÜTÜPHANEM SEKMESİ / MODALI */}
           {showLibrary && (
             <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-3 sm:p-6 lg:p-10">
                 <div className="glass-panel p-4 sm:p-8 rounded-3xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-7xl mx-auto border-t border-emerald-900/50">
@@ -1312,7 +1512,7 @@
                             libraryViewMode === 'grid' ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                     {sortedLibraryBooks.map(book => {
-                                        const isBookRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
+                                        const isBookRead = readBooks.some(rb => isSameBookIdentity(rb, book));
                                         return (
                                             <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[280px]">
                                                 {book.coverUrl && (
@@ -1339,7 +1539,7 @@
                                                         
                                                         <div className="flex justify-between items-center mt-3 pt-3 border-t border-emerald-900/40">
                                                             {!isBookRead ? (
-                                                                <button onClick={() => markAsRead(book)} className="btn-black px-3 py-1.5 rounded-lg text-xs font-bold border-emerald-800 text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5">
+                                                                <button onClick={() => markAsRead(book, 'library')} className="btn-black px-3 py-1.5 rounded-lg text-xs font-bold border-emerald-800 text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5">
                                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Okudum
                                                                 </button>
                                                             ) : (
@@ -1370,7 +1570,7 @@
                                 <div className="bg-black/40 rounded-2xl border border-emerald-900/30 overflow-hidden">
                                   <div className="divide-y divide-emerald-900/30">
                                     {sortedLibraryBooks.map(book => {
-                                      const isBookRead = readBooks.some(rb => rb.title === book.title && rb.authors === book.authors);
+                                      const isBookRead = readBooks.some(rb => isSameBookIdentity(rb, book));
                                       return (
                                         <div key={book.id} className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-emerald-950/20 transition-colors">
                                           <div className="flex items-center gap-4">
@@ -1394,7 +1594,7 @@
                                           </div>
                                           <div className="flex items-center gap-2 self-end sm:self-center">
                                             {!isBookRead && (
-                                              <button onClick={() => markAsRead(book)} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Okudum</button>
+                                              <button onClick={() => markAsRead(book, 'library')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Okudum</button>
                                             )}
                                             <button onClick={() => handleRefreshSingleBookCover(book, 'library')} className="btn-black px-3 py-2 rounded-xl text-xs font-bold text-amber-400 border-amber-800/50">
                                               {singleScanningId === book.id ? 'Aranıyor...' : 'Kapak Bul'}
@@ -1418,6 +1618,151 @@
             </div>
           )}
 
+          {/* YENİ: OKUMA LİSTEM SEKMESİ / MODALI */}
+          {showReadingList && (
+            <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-3 sm:p-6 lg:p-10">
+                <div className="glass-panel p-4 sm:p-8 rounded-3xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-7xl mx-auto border-t border-amber-700/50">
+                    
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-emerald-900/40 pb-4">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h2 className="text-2xl sm:text-4xl font-extrabold text-white neon-title-yellow">Okuma Listem</h2>
+                          <span className="bg-amber-500/20 border border-amber-500/50 text-amber-300 text-sm sm:text-xl px-3 py-0.5 rounded-full">{filteredReadingListBooks.length}</span>
+                        </div>
+
+                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                          <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40 flex-1 sm:flex-none justify-center">
+                            <button 
+                              onClick={() => setReadingListViewMode('grid')} 
+                              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${readingListViewMode === 'grid' ? 'bg-amber-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                            >
+                              Kartlar
+                            </button>
+                            <button 
+                              onClick={() => setReadingListViewMode('list')} 
+                              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${readingListViewMode === 'list' ? 'bg-amber-600 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                            >
+                              Düz Liste
+                            </button>
+                          </div>
+                          <button onClick={() => setShowReadingList(false)} className="btn-black w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 transition-colors flex-shrink-0">&times;</button>
+                        </div>
+                    </div>
+                    
+                    <div className="flex flex-col lg:flex-row gap-3 mb-8">
+                        <div className="relative flex-grow">
+                            <input type="text" className="input-dark w-full p-4 pr-12 rounded-xl text-lg" placeholder="Okuma listemde ara..." value={readingListFilterTerm} onChange={(e) => setReadingListFilterTerm(e.target.value)} />
+                            {readingListFilterTerm && <button onClick={() => setReadingListFilterTerm('')} className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-white text-xl">&times;</button>}
+                        </div>
+                        
+                        <select className="input-dark rounded-xl p-4 font-medium w-full lg:w-48 appearance-none" value={readingListGenreFilter} onChange={(e) => setReadingListGenreFilter(e.target.value)}>
+                            <option value="">Tüm Türler</option>
+                            {availableReadingListGenres.map(g => <option key={g} value={g}>{g}</option>)}
+                        </select>
+                        
+                        <select className="input-dark rounded-xl p-4 font-medium w-full lg:w-64 appearance-none" value={readingListSortBy} onChange={(e) => setReadingListSortBy(e.target.value)}>
+                            <option value="author">Sırala: Yazar (A-Z)</option>
+                            <option value="title">Sırala: Kitap Adı (A-Z)</option>
+                            <option value="publisher">Sırala: Yayınevi (A-Z)</option>
+                            <option value="genre">Sırala: Tür (A-Z)</option>
+                        </select>
+                        
+                        <button onClick={() => {resetManualBookForm(); setManualAddTarget('readingList');}} className="btn-black px-8 py-4 rounded-xl font-bold text-lg border-amber-800 text-amber-300 whitespace-nowrap">Listeye Kitap Ekle</button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto modal-scroll pr-3 pb-6">
+                        {sortedReadingListBooks.length > 0 ? (
+                            readingListViewMode === 'grid' ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                    {sortedReadingListBooks.map(book => (
+                                        <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[280px]">
+                                            {book.coverUrl && (
+                                              <div className="w-full h-52 bg-black/60 flex items-center justify-center p-2 pl-5 border-b border-emerald-900/40">
+                                                <img 
+                                                  src={book.coverUrl} 
+                                                  alt={book.title} 
+                                                  className="max-h-full max-w-full object-contain rounded shadow-lg"
+                                                  loading="lazy"
+                                                  onError={(e) => { e.target.parentElement.style.display = 'none'; }}
+                                                />
+                                              </div>
+                                            )}
+                                            <div className="p-5 pl-6 flex-1 flex flex-col justify-between">
+                                                <div>
+                                                    <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
+                                                    <p className="text-sm font-semibold text-amber-300 mb-2.5 drop-shadow">{book.authors}</p>
+                                                    <div className="flex flex-wrap gap-2 mb-2">
+                                                        {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
+                                                    </div>
+                                                </div>
+                                                <div className="mt-auto pt-3 flex flex-col gap-2">
+                                                    {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
+                                                    
+                                                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-emerald-900/40">
+                                                        <button onClick={() => markAsRead(book, 'readingList')} className="btn-black px-3 py-1.5 rounded-lg text-xs font-bold border-emerald-800 text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Okudum
+                                                        </button>
+                                                        <div className="flex gap-1.5">
+                                                            <button 
+                                                              onClick={() => handleRefreshSingleBookCover(book, 'readingList')} 
+                                                              disabled={singleScanningId === book.id}
+                                                              className="btn-black p-1.5 rounded-full border-amber-800/60" 
+                                                              title="Kapağı Otomatik Bul / Yenile"
+                                                            >
+                                                              <svg className={`w-4 h-4 text-amber-400 ${singleScanningId === book.id ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                                            </button>
+                                                            <button onClick={() => openEditModal(book, 'readingList')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                                            <button onClick={() => removeBook(book.id, 'readingList')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="bg-black/40 rounded-2xl border border-emerald-900/30 overflow-hidden">
+                                  <div className="divide-y divide-emerald-900/30">
+                                    {sortedReadingListBooks.map(book => (
+                                        <div key={book.id} className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-emerald-950/20 transition-colors">
+                                          <div className="flex items-center gap-4">
+                                            {book.coverUrl ? (
+                                              <img src={book.coverUrl} alt={book.title} className="w-12 h-16 object-cover rounded border border-white/40 flex-shrink-0" />
+                                            ) : (
+                                              <div className="w-12 h-16 bg-black/50 rounded border border-gray-700 flex items-center justify-center text-[9px] text-gray-500 text-center p-1 flex-shrink-0">Kapak Yok</div>
+                                            )}
+                                            <div className="space-y-1">
+                                              <div className="flex items-center gap-3 flex-wrap">
+                                                <h3 className="text-lg font-bold text-white">{book.title}</h3>
+                                                {book.genre && book.genre !== 'Bilinmiyor' && (
+                                                  <span className="text-[10px] font-bold bg-black/60 text-amber-300 px-2 py-0.5 rounded border border-amber-800/40 uppercase tracking-wider">{book.genre}</span>
+                                                )}
+                                              </div>
+                                              <p className="text-sm font-semibold text-gray-300">{book.authors} {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' ? `• ${book.publisher}` : ''}</p>
+                                            </div>
+                                          </div>
+                                          <div className="flex items-center gap-2 self-end sm:self-center">
+                                            <button onClick={() => markAsRead(book, 'readingList')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Okudum</button>
+                                            <button onClick={() => handleRefreshSingleBookCover(book, 'readingList')} className="btn-black px-3 py-2 rounded-xl text-xs font-bold text-amber-400 border-amber-800/50">
+                                              {singleScanningId === book.id ? 'Aranıyor...' : 'Kapak Bul'}
+                                            </button>
+                                            <button onClick={() => openEditModal(book, 'readingList')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Düzenle</button>
+                                            <button onClick={() => removeBook(book.id, 'readingList')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-rose-400 border-rose-900/50">Sil</button>
+                                          </div>
+                                        </div>
+                                    ))}
+                                  </div>
+                                </div>
+                            )
+                        ) : (
+                            <div className="text-center py-20 bg-black/20 rounded-3xl border border-dashed border-amber-900/50">
+                                <p className="text-gray-400 text-xl font-medium">Okuma listenizde henüz kitap bulunmuyor.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+          )}
+
           {showSettings && (
             <div 
               className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto"
@@ -1432,13 +1777,13 @@
                     <div className="p-5 bg-black/50 rounded-2xl border border-amber-500/40 shadow-inner mb-8">
                         <h3 className="text-lg font-bold mb-2 text-amber-400 flex items-center gap-2">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                          Otomatik Kapak & Yayınevi Tarayıcı
+                          Akıllı Kapak & Yayınevi Tarayıcı
                         </h3>
                         <p className="text-xs text-gray-300 mb-4 leading-relaxed">
-                          Mevcut kitaplarınızı OpenLibrary, Wikipedia TR ve Google Books arşivlerinden kota engeline takılmadan sırayla tarar.
+                          Kitap adı ve yazar soyadı eşleşmesini puanlayarak alakasız görselleri eler ve en doğru Türkçe baskı kapağını bulur.
                           <br/>
                           <span className="text-amber-300 font-semibold">
-                            Eksik Kapak: Okunanlar ({missingReadCoversCount}) • Kütüphanem ({missingLibraryCoversCount})
+                            Eksik Kapak: Okunanlar ({missingReadCoversCount}) • Kütüphanem ({missingLibraryCoversCount}) • Okuma Listem ({missingReadingListCoversCount})
                           </span>
                         </p>
 
@@ -1446,7 +1791,7 @@
                           <div className="space-y-3 bg-black/60 p-4 rounded-xl border border-emerald-800/50">
                             <div className="flex justify-between text-xs font-bold text-emerald-400">
                               <span>Taranıyor: {scanProgress.current} / {scanProgress.total}</span>
-                              <span>Bulunan: {scanProgress.updated}</span>
+                              <span>Güncellenen: {scanProgress.updated}</span>
                             </div>
                             <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
                               <div 
@@ -1468,22 +1813,15 @@
                               onClick={() => handleBatchAutoScanCovers('all', false)} 
                               className="btn-black w-full py-3.5 rounded-xl font-bold text-amber-300 border-amber-700/70 text-sm"
                             >
-                              Eksik Kapakları Otomatik Tara (Tümü)
+                              Eksik Kapakları Otomatik Tara ({totalMissingCovers})
                             </button>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              <button 
-                                onClick={() => handleBatchAutoScanCovers('read', false)} 
-                                className="btn-black py-2.5 px-3 rounded-xl font-bold text-emerald-300 border-emerald-800/60 text-xs"
-                              >
-                                Sadece Okunanları Tara ({missingReadCoversCount})
-                              </button>
-                              <button 
-                                onClick={() => handleBatchAutoScanCovers('library', false)} 
-                                className="btn-black py-2.5 px-3 rounded-xl font-bold text-sky-300 border-sky-800/60 text-xs"
-                              >
-                                Sadece Kütüphaneyi Tara ({missingLibraryCoversCount})
-                              </button>
-                            </div>
+                            <button 
+                              onClick={() => handleBatchAutoScanCovers('all', true)} 
+                              className="btn-black w-full py-2.5 rounded-xl font-bold text-emerald-300 border-emerald-800/70 text-xs"
+                              title="Önceki yanlış kapakları da doğru eşleşmelerle değiştirir"
+                            >
+                              🔄 Tüm Kapakları Baştan Doğruca Yenile (Yanlışları Düzelt)
+                            </button>
                           </div>
                         )}
                     </div>
@@ -1533,6 +1871,7 @@
                     <div className="space-y-3 pt-4 border-t border-emerald-900/40 mb-8">
                         <button onClick={exportData} className="btn-black w-full py-3.5 rounded-xl font-bold text-emerald-400 border-emerald-900/50">Okunanları Dışa Aktar (.txt)</button>
                         <button onClick={exportLibraryData} className="btn-black w-full py-3.5 rounded-xl font-bold text-teal-400 border-teal-900/50">Kütüphaneyi Dışa Aktar (.txt)</button>
+                        <button onClick={exportReadingListData} className="btn-black w-full py-3.5 rounded-xl font-bold text-amber-400 border-amber-900/50">Okuma Listemi Dışa Aktar (.txt)</button>
                     </div>
                     
                     <div className="p-5 bg-black/40 rounded-2xl border border-emerald-900/40 shadow-inner">
@@ -1555,7 +1894,8 @@
             >
               <div className="glass-panel p-6 sm:p-10 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll pr-3 border-t border-emerald-900/50 my-auto">
                 <button onClick={closeEditModal} className="btn-black absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 flex-shrink-0">&times;</button>
-                <h2 className="text-3xl font-bold mb-8 text-center text-white neon-title-yellow">Kitabı Düzenle</h2>
+                <h2 className="text-3xl font-bold mb-2 text-center text-white neon-title-yellow">Kitabı Düzenle</h2>
+                <p className="text-xs text-center text-emerald-400 mb-6">Burada yaptığınız değişiklikler Kütüphanem ve Okuma Listem ile otomatik eşitlenir.</p>
                 <div className="space-y-5">
                     <div>
                       <label className="block text-sm font-semibold mb-2 text-gray-300">Başlık:</label>
@@ -1665,7 +2005,7 @@
               <div className="glass-panel p-8 sm:p-10 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll pr-3 border-t border-emerald-900/50 my-auto">
                 <button onClick={() => { setManualAddTarget(null); resetManualBookForm(); }} className="btn-black absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 hover:text-rose-400 flex-shrink-0">&times;</button>
                 <h2 className="text-3xl font-bold mb-8 text-center text-white neon-title-yellow">
-                    {manualAddTarget === 'read' ? 'Okuduğum Kitap Ekle' : 'Kütüphaneye Ekle'}
+                    {manualAddTarget === 'read' ? 'Okuduğum Kitap Ekle' : manualAddTarget === 'library' ? 'Kütüphaneye Ekle' : 'Okuma Listeme Ekle'}
                 </h2>
                 <div className="space-y-5">
                     <div>
