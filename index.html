@@ -14,7 +14,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
   
   <!-- React Kütüphaneleri -->
   <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
@@ -24,49 +24,57 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
-    /* KOYU ÇAM YEŞİLİ TEMA CSS */
+    /* KOYU ÇAM YEŞİLİ ZARİF TEMA CSS */
     body {
         font-family: 'Inter', sans-serif;
         background: #0d1b15;
         background-attachment: fixed;
         color: #e2e8f0;
         min-height: 100vh;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
     }
     
     h1, h2, h3.font-montserrat {
         font-family: 'Montserrat', sans-serif;
     }
 
-    /* Neon Sarı Başlık Efekti */
+    /* Zarif Neon Sarı Başlık Efekti */
     .neon-title-yellow {
-        color: #ffffff;
+        color: #fefce8;
         text-shadow: 
-            0 0 2px #ffffff, 
-            0 0 7px #fef08a, 
-            0 0 15px #eab308, 
-            0 0 30px #ca8a04, 
-            0 0 60px #a16207;
+            0 0 1px #ffffff, 
+            0 0 5px rgba(254, 240, 138, 0.75), 
+            0 0 12px rgba(234, 179, 8, 0.65), 
+            0 0 24px rgba(202, 138, 4, 0.45);
     }
 
-    /* Neon Turkuaz Alıntı Efekti */
+    /* Zarif Neon Turkuaz Alıntı Efekti */
     .neon-turquoise {
-        color: #ffffff;
+        color: #ecfeff;
         text-shadow: 
-            0 0 2px #ffffff, 
-            0 0 8px #5fc2c0, 
-            0 0 16px #1e8689, 
-            0 0 32px #0d5c5f, 
-            0 0 60px #083c3e;
+            0 0 1px #ffffff, 
+            0 0 6px rgba(95, 194, 192, 0.8), 
+            0 0 14px rgba(30, 134, 137, 0.65);
+    }
+
+    /* Eser ve Yazar Adı İçin Ayrı Sıcak Altın/Kehribar Tonu */
+    .neon-attribution {
+        color: #fde68a;
+        text-shadow: 
+            0 0 1px rgba(255, 255, 255, 0.6),
+            0 0 8px rgba(245, 158, 11, 0.55),
+            0 0 16px rgba(180, 83, 9, 0.35);
     }
 
     /* Bunko İkon Parlama Efekti */
     .bunko-icon-glow {
-        filter: drop-shadow(0 0 15px rgba(30, 134, 137, 0.55));
+        filter: drop-shadow(0 0 12px rgba(30, 134, 137, 0.5));
         transition: transform 0.3s ease, filter 0.3s ease;
     }
     .bunko-icon-glow:hover {
-        transform: scale(1.04);
-        filter: drop-shadow(0 0 22px rgba(234, 179, 8, 0.65));
+        transform: scale(1.03);
+        filter: drop-shadow(0 0 18px rgba(234, 179, 8, 0.6));
     }
 
     /* Cam / Koyu Yeşil Panel Efekti */
@@ -74,24 +82,24 @@
         background: rgba(13, 31, 23, 0.90);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(52, 211, 153, 0.15);
-        box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.85);
+        border: 1px solid rgba(52, 211, 153, 0.14);
+        box-shadow: 0 10px 35px 0 rgba(0, 0, 0, 0.85);
     }
 
-    /* Siyah / Koyu Yeşil Butonlar - Üzerine Gelince (Hover) Sarı Olur */
+    /* Kibar Siyah / Koyu Yeşil Butonlar - Üzerine Gelince (Hover) Sarı Olur */
     .btn-black {
         background-color: #08100d;
-        color: #ffffff;
+        color: #e2e8f0;
         border: 1px solid #1c3529;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 6px rgba(0,0,0,0.4);
-        transition: all 0.25s ease;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 5px rgba(0,0,0,0.35);
+        transition: all 0.22s ease;
     }
     .btn-black:hover:not(:disabled) {
         background-color: #12261d;
         color: #facc15 !important;
         border-color: #eab308 !important;
-        box-shadow: 0 0 14px rgba(234, 179, 8, 0.45), inset 0 1px 0 rgba(255,255,255,0.15);
-        transform: translateY(-2px);
+        box-shadow: 0 0 10px rgba(234, 179, 8, 0.35), inset 0 1px 0 rgba(255,255,255,0.12);
+        transform: translateY(-1px);
     }
     .btn-black:active:not(:disabled) {
         transform: translateY(0px);
@@ -101,14 +109,19 @@
         cursor: not-allowed;
     }
 
-    /* Kitap Kapağı Görünümlü Kartlar */
+    /* Kitap Kapağı Görünümlü Zarif Kartlar */
     .book-cover-card {
         background: linear-gradient(145deg, #132d22, #08100d);
-        border: 3px solid #ffffff;
-        border-radius: 4px 16px 16px 4px;
-        box-shadow: 5px 5px 15px rgba(0,0,0,0.7), inset -2px 0 5px rgba(255,255,255,0.1);
+        border: 2px solid rgba(255, 255, 255, 0.88);
+        border-radius: 4px 14px 14px 4px;
+        box-shadow: 4px 4px 12px rgba(0,0,0,0.65), inset -1px 0 4px rgba(255,255,255,0.08);
         position: relative;
         overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .book-cover-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 6px 8px 18px rgba(0,0,0,0.75);
     }
     
     /* Kitap Cilt/Sırt Efekti (Spine) */
@@ -116,9 +129,9 @@
         content: '';
         position: absolute;
         top: 0; left: 0; bottom: 0;
-        width: 16px;
-        background: linear-gradient(to right, rgba(255,255,255,0.22) 0%, rgba(0,0,0,0.55) 100%);
-        border-right: 1px solid rgba(0,0,0,0.6);
+        width: 13px;
+        background: linear-gradient(to right, rgba(255,255,255,0.18) 0%, rgba(0,0,0,0.5) 100%);
+        border-right: 1px solid rgba(0,0,0,0.55);
         z-index: 20;
         pointer-events: none;
         border-top-left-radius: 2px;
@@ -129,18 +142,18 @@
     .input-dark {
         background-color: rgba(6, 15, 11, 0.75);
         border: 1px solid #234233;
-        color: #ffffff;
-        transition: all 0.3s ease;
+        color: #f1f5f9;
+        transition: all 0.25s ease;
     }
     .input-dark:focus {
         border-color: #eab308;
-        box-shadow: 0 0 8px rgba(234, 179, 8, 0.4);
+        box-shadow: 0 0 6px rgba(234, 179, 8, 0.35);
         outline: none;
     }
 
     /* Kaydırma çubuğu stilleri */
-    .modal-scroll::-webkit-scrollbar { width: 8px; }
-    .modal-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 10px; }
+    .modal-scroll::-webkit-scrollbar { width: 6px; }
+    .modal-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.25); border-radius: 10px; }
     .modal-scroll::-webkit-scrollbar-thumb { background: #234233; border-radius: 10px; }
     .modal-scroll::-webkit-scrollbar-thumb:hover { background: #325e49; }
   </style>
@@ -197,12 +210,11 @@
         const osc = sharedAudioCtx.createOscillator();
         const gain = sharedAudioCtx.createGain();
 
-        // Tok ve zarif ahşap/mekanik tık sesi zarfı
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(520, now);
         osc.frequency.exponentialRampToValueAtTime(110, now + 0.038);
 
-        gain.gain.setValueAtTime(0.16, now);
+        gain.gain.setValueAtTime(0.15, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.038);
 
         osc.connect(gain);
@@ -210,21 +222,19 @@
 
         osc.start(now);
         osc.stop(now + 0.04);
-      } catch (err) {
-        // Ses çalma hatası olursa sessizce devam et
-      }
+      } catch (err) {}
     };
 
-    function BunkoLogo({ size = "w-28 h-28" }) {
+    function BunkoLogo({ size = "w-20 h-20" }) {
       const [useFallbackSvg, setUseFallbackSvg] = useState(false);
 
       return (
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-3">
           {!useFallbackSvg ? (
             <img 
               src="icon.jpeg" 
               alt="Bunko (文庫) İkonu" 
-              className={`${size} rounded-[26px] object-cover bunko-icon-glow border-2 border-white/20`}
+              className={`${size} rounded-[22px] object-cover bunko-icon-glow border border-white/20`}
               onError={() => setUseFallbackSvg(true)}
             />
           ) : (
@@ -357,12 +367,10 @@
       const [showBackToTop, setShowBackToTop] = useState(false);
       const [confirmation, setConfirmation] = useState(null);
 
-      // Sadece eksik kapaklar için isteğe bağlı tarama state'leri
       const [isAutoScanning, setIsAutoScanning] = useState(false);
       const [scanProgress, setScanProgress] = useState({ current: 0, total: 0, currentTitle: '', updated: 0 });
       const stopScanRef = useRef(false);
 
-      // Tüm buton ve etkileşimli öğelere tıklandığında hoş klik sesi çal
       useEffect(() => {
         const handleGlobalClick = (e) => {
           const interactive = e.target.closest('button, a, select, input[type="checkbox"]');
@@ -456,7 +464,7 @@
       )).sort((a, b) => a.localeCompare(b, 'tr-TR'));
 
       // ============================================================================
-      // KİTAP & KAPAK ARAMA MOTORU (Mevcut kapakları asla kendiliğinden değiştirmez)
+      // KİTAP & KAPAK ARAMA MOTORU
       // ============================================================================
 
       const computeRelevanceScore = (candidate, targetTitle, targetAuthor) => {
@@ -675,7 +683,7 @@
       };
 
       // ============================================================================
-      // ÇAPRAZ SENKRONİZASYON (Mevcut kapakları korur, sadece kullanıcı düzenlerse eşitler)
+      // ÇAPRAZ SENKRONİZASYON
       // ============================================================================
       const syncBookAcrossAllCollections = async (originalBook, updatedFields, sourceColName) => {
         if (!db || !userId) return 0;
@@ -695,7 +703,6 @@
               authors: updatedFields.authors ?? matchDoc.authors,
               publisher: updatedFields.publisher ?? matchDoc.publisher,
               genre: updatedFields.genre ?? matchDoc.genre,
-              // Kullanıcı yeni bir kapak belirlediyse onu eşitle, boşsa diğer listedeki mevcut kapağı silme
               coverUrl: (updatedFields.coverUrl && updatedFields.coverUrl.trim() !== '') 
                 ? updatedFields.coverUrl 
                 : (matchDoc.coverUrl || ''),
@@ -726,17 +733,27 @@
         return true;
       };
 
-      const handleQuickAddToLibrary = async (book) => {
-        try {
-          const added = await ensureBookInLibrary(book);
-          if (added) {
-            showMessage(`"${book.title}" Kütüphanenize de eklendi!`, 'success');
-          } else {
-            showMessage('Bu kitap zaten Kütüphanenizde bulunuyor.', 'info');
-          }
-        } catch (e) {
-          showMessage('Kütüphaneye eklenirken hata oluştu.', 'error');
+      // Kütüphaneme Hızlı Ekle (Onay Sormalı)
+      const handleQuickAddToLibrary = (book) => {
+        const alreadyInLib = libraryBooks.some(lb => isSameBookIdentity(lb, book));
+        if (alreadyInLib) {
+          return showMessage('Bu kitap zaten Kütüphanenizde bulunuyor.', 'info');
         }
+        setConfirmation({
+          message: `"${book.title}" adlı kitabı Kütüphanenize eklemek istediğinizden emin misiniz?`,
+          danger: false,
+          confirmText: 'Evet, Ekle',
+          onConfirm: async () => {
+            try {
+              const added = await ensureBookInLibrary(book);
+              if (added) {
+                showMessage(`"${book.title}" Kütüphanenize eklendi!`, 'success');
+              }
+            } catch (e) {
+              showMessage('Kütüphaneye eklenirken hata oluştu.', 'error');
+            }
+          }
+        });
       };
 
       const getCollectionNameFromSource = (source) => {
@@ -746,7 +763,6 @@
         return 'readBooks';
       };
 
-      // Sadece kapağı HİÇ OLMAYAN kitaplar için çalışır, kapağı olanlara asla dokunmaz
       const handleBatchAutoScanMissingCovers = async () => {
         if (!db || !userId || isAutoScanning) return;
 
@@ -918,26 +934,36 @@
         } catch (e) { showMessage("Profil kaydedilirken hata oluştu.", "error"); }
       };
 
-      const handleAddCustomGenre = async () => {
+      // Yeni Tür Ekleme (Onay Sormalı)
+      const handleAddCustomGenre = () => {
         const formattedGenre = formatTitle(newGenreInput.trim());
         if (!formattedGenre) return showMessage('Lütfen eklenecek tür adını yazın.', 'error');
         if (allGenres.some(g => g.toLocaleLowerCase('tr-TR') === formattedGenre.toLocaleLowerCase('tr-TR'))) {
           return showMessage('Bu tür zaten listede mevcut.', 'error');
         }
-        const updatedGenres = [...customGenres, formattedGenre];
-        try {
-          await setDoc(doc(db, `artifacts/${appId}/users/${userId}/profile/info`), { customGenres: updatedGenres }, { merge: true });
-          setNewGenreInput('');
-          showMessage(`"${formattedGenre}" türü başarıyla eklendi!`, 'success');
-        } catch (e) {
-          showMessage('Tür kaydedilirken hata oluştu.', 'error');
-        }
+        setConfirmation({
+          message: `"${formattedGenre}" türünü listeye eklemek istediğinizden emin misiniz?`,
+          danger: false,
+          confirmText: 'Evet, Ekle',
+          onConfirm: async () => {
+            const updatedGenres = [...customGenres, formattedGenre];
+            try {
+              await setDoc(doc(db, `artifacts/${appId}/users/${userId}/profile/info`), { customGenres: updatedGenres }, { merge: true });
+              setNewGenreInput('');
+              showMessage(`"${formattedGenre}" türü başarıyla eklendi!`, 'success');
+            } catch (e) {
+              showMessage('Tür kaydedilirken hata oluştu.', 'error');
+            }
+          }
+        });
       };
 
-      const handleRemoveCustomGenre = async (genreToRemove) => {
+      // Tür Çıkarma (Onay Sormalı)
+      const handleRemoveCustomGenre = (genreToRemove) => {
         setConfirmation({
           message: `"${genreToRemove}" türünü silmek istediğinizden emin misiniz?`,
           danger: true,
+          confirmText: 'Evet, Sil',
           onConfirm: async () => {
             const updatedGenres = customGenres.filter(g => g !== genreToRemove);
             try {
@@ -980,7 +1006,8 @@
         showMessage('Okuma listesi başarıyla dışa aktarıldı!', 'success');
       };
 
-      const handlePlainTextImport = async () => {
+      // Toplu Kitap Ekleme (Onay Sormalı)
+      const handlePlainTextImport = () => {
         if (!plainTextImportList.trim() || !db || !userId) return showMessage('Liste boş.', 'error');
         const lines = plainTextImportList.split('\n').filter(line => line.trim().length > 0);
         const existingBooks = new Set([...readBooks, ...libraryBooks].map(b => `${b.title.toLocaleLowerCase('tr-TR')}-${b.authors.toLocaleLowerCase('tr-TR')}`));
@@ -996,17 +1023,25 @@
                 existingBooks.add(bookKey);
             }
         });
-        if (newBooksToAdd.length === 0) return showMessage('Yeni kitap bulunamadı.', 'info');
-        try {
-            const batch = writeBatch(db);
-            newBooksToAdd.forEach(book => {
-                const newDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/readBooks`));
-                batch.set(newDocRef, book);
-            });
-            await batch.commit();
-            showMessage(`${newBooksToAdd.length} kitap başarıyla eklendi!`, 'success');
-            setPlainTextImportList(''); setShowSettings(false);
-        } catch (e) { showMessage('İçe aktarılırken hata oluştu.', 'error'); }
+        if (newBooksToAdd.length === 0) return showMessage('Listede eklenecek yeni kitap bulunamadı.', 'info');
+
+        setConfirmation({
+          message: `Toplam ${newBooksToAdd.length} yeni kitabı Okuduğum Kitaplar listesine eklemek istediğinizden emin misiniz?`,
+          danger: false,
+          confirmText: 'Evet, İçe Aktar',
+          onConfirm: async () => {
+            try {
+                const batch = writeBatch(db);
+                newBooksToAdd.forEach(book => {
+                    const newDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/readBooks`));
+                    batch.set(newDocRef, book);
+                });
+                await batch.commit();
+                showMessage(`${newBooksToAdd.length} kitap başarıyla eklendi!`, 'success');
+                setPlainTextImportList(''); setShowSettings(false);
+            } catch (e) { showMessage('İçe aktarılırken hata oluştu.', 'error'); }
+          }
+        });
       };
 
       const searchBooks = async () => {
@@ -1026,7 +1061,8 @@
         }
       };
 
-      const addBookToCollection = async (book, targetCol = 'readBooks') => {
+      // Arama Sonuçlarından Kitap Ekleme (Onay Sormalı)
+      const addBookToCollection = (book, targetCol = 'readBooks') => {
           const newBook = { 
             title: formatTitle(book.title), 
             authors: formatAuthor(book.authors), 
@@ -1039,31 +1075,39 @@
           if (targetCol === 'readBooks') {
             newBook.readDate = getTodayDate();
           }
-          const q = query(collection(db, `artifacts/${appId}/users/${userId}/${targetCol}`));
-          const snap = await getDocs(q);
-          if (snap.docs.some(d => isSameBookIdentity(d.data(), newBook))) {
+
+          const targetArray = targetCol === 'readBooks' ? readBooks : targetCol === 'libraryBooks' ? libraryBooks : readingListBooks;
+          if (targetArray.some(d => isSameBookIdentity(d, newBook))) {
               return showMessage('Bu kitap zaten seçili listenizde var.', 'error');
           }
-          try {
-              await addDoc(collection(db, `artifacts/${appId}/users/${userId}/${targetCol}`), newBook);
-              
-              let addedToLib = false;
-              if (searchAlsoAddToLibrary && targetCol !== 'libraryBooks') {
-                addedToLib = await ensureBookInLibrary(newBook);
-              }
 
-              const label = targetCol === 'readBooks' ? 'Okuduklarıma' : targetCol === 'libraryBooks' ? 'Kütüphaneme' : 'Okuma Listeme';
-              showMessage(
-                addedToLib 
-                  ? `Kitap hem ${label} hem de Kütüphaneme eklendi!` 
-                  : `Kitap ${label} eklendi!`, 
-                'success'
-              ); 
-          } catch (e) { showMessage('Kitap eklenirken hata oluştu.', 'error'); }
+          const label = targetCol === 'readBooks' ? 'Okuduklarıma' : targetCol === 'libraryBooks' ? 'Kütüphaneme' : 'Okuma Listeme';
+          const extraLibNote = (searchAlsoAddToLibrary && targetCol !== 'libraryBooks') ? ' (ve Kütüphaneme)' : '';
+
+          setConfirmation({
+            message: `"${newBook.title}" adlı kitabı ${label}${extraLibNote} eklemek istediğinizden emin misiniz?`,
+            danger: false,
+            confirmText: 'Evet, Ekle',
+            onConfirm: async () => {
+              try {
+                  await addDoc(collection(db, `artifacts/${appId}/users/${userId}/${targetCol}`), newBook);
+                  let addedToLib = false;
+                  if (searchAlsoAddToLibrary && targetCol !== 'libraryBooks') {
+                    addedToLib = await ensureBookInLibrary(newBook);
+                  }
+                  showMessage(
+                    addedToLib 
+                      ? `Kitap hem ${label} hem de Kütüphaneme eklendi!` 
+                      : `Kitap ${label} eklendi!`, 
+                    'success'
+                  ); 
+              } catch (e) { showMessage('Kitap eklenirken hata oluştu.', 'error'); }
+            }
+          });
       };
       
-      // MANUEL EKLEME: Kullanıcının girdiği kapak resmini olduğu gibi kaydeder, arka planda kendi kendine kapak değiştirmez
-      const handleManualAddBook = async (target) => {
+      // Manuel Kitap Ekleme (Onay Sormalı)
+      const handleManualAddBook = (target) => {
         if (!manualBook.title.trim() || !manualBook.authors.trim()) return showMessage('Başlık ve Yazar zorunludur.', 'error');
         
         const finalCoverUrl = manualBook.coverUrl ? manualBook.coverUrl.trim() : '';
@@ -1081,27 +1125,35 @@
         if (target === 'read') newBook.readDate = manualBook.readDate || '';
 
         const colName = getCollectionNameFromSource(target);
-        const q = query(collection(db, `artifacts/${appId}/users/${userId}/${colName}`));
-        const snap = await getDocs(q);
-        if (snap.docs.some(d => isSameBookIdentity(d.data(), newBook))) {
+        const targetArray = colName === 'readBooks' ? readBooks : colName === 'libraryBooks' ? libraryBooks : readingListBooks;
+        if (targetArray.some(d => isSameBookIdentity(d, newBook))) {
             return showMessage('Bu kitap zaten listenizde var.', 'error');
         }
-        try {
-            await addDoc(collection(db, `artifacts/${appId}/users/${userId}/${colName}`), newBook);
-            
-            let addedToLib = false;
-            if (manualAlsoAddToLibrary && target !== 'library') {
-              addedToLib = await ensureBookInLibrary(newBook);
-            }
 
-            showMessage(
-              addedToLib 
-                ? 'Kitap hem seçili listeye hem de Kütüphanenize eklendi!' 
-                : 'Kitap başarıyla eklendi!', 
-              'success'
-            ); 
-            resetManualBookForm(); setManualAddTarget(null);
-        } catch (e) { showMessage('Kitap eklenirken hata oluştu.', 'error'); }
+        const targetLabel = target === 'read' ? 'Okuduğum Kitaplar' : target === 'library' ? 'Kütüphanem' : 'Okuma Listem';
+        const extraLibText = (manualAlsoAddToLibrary && target !== 'library') ? ' ve Kütüphanem' : '';
+
+        setConfirmation({
+          message: `"${newBook.title}" adlı kitabı ${targetLabel}${extraLibText} listesine eklemek istediğinizden emin misiniz?`,
+          danger: false,
+          confirmText: 'Evet, Ekle',
+          onConfirm: async () => {
+            try {
+                await addDoc(collection(db, `artifacts/${appId}/users/${userId}/${colName}`), newBook);
+                let addedToLib = false;
+                if (manualAlsoAddToLibrary && target !== 'library') {
+                  addedToLib = await ensureBookInLibrary(newBook);
+                }
+                showMessage(
+                  addedToLib 
+                    ? 'Kitap hem seçili listeye hem de Kütüphanenize eklendi!' 
+                    : 'Kitap başarıyla eklendi!', 
+                  'success'
+                ); 
+                resetManualBookForm(); setManualAddTarget(null);
+            } catch (e) { showMessage('Kitap eklenirken hata oluştu.', 'error'); }
+          }
+        });
       };
       
       const saveEditedBook = async () => {
@@ -1141,11 +1193,13 @@
         } catch (e) { showMessage('Güncellenirken hata oluştu.', 'error'); }
       };
 
-      const removeBook = async (id, from) => {
+      // Kitap Silme / Çıkarma (Onay Sormalı)
+      const removeBook = (id, from) => {
         const colName = getCollectionNameFromSource(from);
         setConfirmation({
-            message: 'Bu kitabı silmek istediğinizden emin misiniz?',
+            message: 'Bu kitabı listeden çıkarmak / silmek istediğinizden emin misiniz?',
             danger: true,
+            confirmText: 'Evet, Sil',
             onConfirm: async () => {
                 try { 
                     await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/${colName}`, id)); 
@@ -1155,19 +1209,35 @@
         });
       };
       
-      const markAsRead = async (book, fromSource = 'library') => {
+      // Okundu Olarak İşaretleme / Okuma Listesinden Çıkarma (Onay Sormalı)
+      const markAsRead = (book, fromSource = 'library') => {
         const { id, source, ...bookData } = book;
-        const q = query(collection(db, `artifacts/${appId}/users/${userId}/readBooks`));
-        const snap = await getDocs(q);
-        if (!snap.docs.some(d => isSameBookIdentity(d.data(), bookData))) {
-            await addDoc(collection(db, `artifacts/${appId}/users/${userId}/readBooks`), { ...bookData, readDate: getTodayDate() });
-        }
-        if (fromSource === 'readingList' && id) {
-            await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/readingListBooks`, id));
-            showMessage(`${book.title} okuduklarınıza eklendi ve okuma listesinden tamamlandı olarak kaldırıldı!`, 'success');
-        } else {
-            showMessage(`${book.title} okundu olarak işaretlendi!`, 'success');
-        }
+        const confirmMsg = fromSource === 'readingList'
+          ? `"${book.title}" adlı kitabı Okuduğum Kitaplar'a ekleyip Okuma Listem'den çıkarmak istediğinizden emin misiniz?`
+          : `"${book.title}" adlı kitabı Okuduğum Kitaplar listesine eklemek istediğinizden emin misiniz?`;
+
+        setConfirmation({
+          message: confirmMsg,
+          danger: false,
+          confirmText: 'Evet, Onayla',
+          onConfirm: async () => {
+            try {
+              const q = query(collection(db, `artifacts/${appId}/users/${userId}/readBooks`));
+              const snap = await getDocs(q);
+              if (!snap.docs.some(d => isSameBookIdentity(d.data(), bookData))) {
+                  await addDoc(collection(db, `artifacts/${appId}/users/${userId}/readBooks`), { ...bookData, readDate: getTodayDate() });
+              }
+              if (fromSource === 'readingList' && id) {
+                  await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/readingListBooks`, id));
+                  showMessage(`${book.title} okuduklarınıza eklendi ve okuma listesinden çıkarıldı!`, 'success');
+              } else {
+                  showMessage(`${book.title} okundu olarak işaretlendi!`, 'success');
+              }
+            } catch (e) {
+              showMessage('İşlem sırasında hata oluştu.', 'error');
+            }
+          }
+        });
       };
 
       const handleLogin = async () => { try { await signInWithEmailAndPassword(auth, email, password); } catch(e) { setAuthError('Hatalı giriş.'); } };
@@ -1232,23 +1302,26 @@
       const missingReadingListCoversCount = readingListBooks.filter(b => !b.coverUrl || b.coverUrl.trim() === '').length;
       const totalMissingCovers = missingReadCoversCount + missingLibraryCoversCount + missingReadingListCoversCount;
 
-      if (!isAuthReady) return <div className="min-h-screen flex items-center justify-center text-white text-xl">Yükleniyor...</div>;
+      if (!isAuthReady) return <div className="min-h-screen flex items-center justify-center text-white text-base">Yükleniyor...</div>;
 
       if (!userId) {
         return (
           <div className="min-h-screen flex items-center justify-center p-4">
-            {message && (<div className={`fixed top-4 left-1/2 -translate-x-1/2 p-4 rounded-xl shadow-lg z-50 ${message.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>{message.content}</div>)}
-            <div className="glass-panel p-8 rounded-2xl w-full max-w-md text-center">
-              <BunkoLogo size="w-24 h-24" />
-              <h1 className="text-3xl font-extrabold font-montserrat neon-title-yellow mb-2">Bunko (文庫)</h1>
-              <p className="text-xs italic neon-turquoise mb-6">"Bir gün bir kitap okudum ve bütün hayatım değişti." - Yeni Hayat, Orhan Pamuk</p>
-              <h2 className="text-xl font-bold text-gray-200 mb-4">{isLoginMode ? 'Giriş Yap' : 'Kaydol'}</h2>
-              {authError && <p className="text-red-400 text-center mb-4 font-medium">{authError}</p>}
-              <input type="email" placeholder="E-posta" className="input-dark w-full p-3.5 mb-4 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} />
-              <input type="password" placeholder="Şifre" className="input-dark w-full p-3.5 mb-6 rounded-xl" value={password} onChange={(e) => setPassword(e.target.value)} />
-              <button onClick={isLoginMode ? handleLogin : handleRegister} className="btn-black w-full py-3.5 rounded-xl font-bold text-lg tracking-wide">{isLoginMode ? 'GİRİŞ YAP' : 'KAYDOL'}</button>
-              <p className="text-center mt-6"> 
-                  <button onClick={() => setIsLoginMode(!isLoginMode)} className="text-emerald-400 hover:text-emerald-300 hover:underline transition-all">
+            {message && (<div className={`fixed top-4 left-1/2 -translate-x-1/2 p-3 px-5 rounded-xl shadow-lg z-50 text-xs sm:text-sm ${message.type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`}>{message.content}</div>)}
+            <div className="glass-panel p-7 rounded-2xl w-full max-w-sm text-center">
+              <BunkoLogo size="w-20 h-20" />
+              <h1 className="text-2xl font-bold font-montserrat neon-title-yellow mb-2">Bunko (文庫)</h1>
+              <p className="text-xs mb-5 leading-relaxed">
+                <span className="italic neon-turquoise">"Bir gün bir kitap okudum ve bütün hayatım değişti."</span>
+                <span className="block mt-1 font-medium neon-attribution not-italic">— Yeni Hayat, Orhan Pamuk</span>
+              </p>
+              <h2 className="text-base font-semibold text-gray-200 mb-4">{isLoginMode ? 'Giriş Yap' : 'Kaydol'}</h2>
+              {authError && <p className="text-red-400 text-center text-xs mb-3 font-medium">{authError}</p>}
+              <input type="email" placeholder="E-posta" className="input-dark w-full p-2.5 text-sm mb-3 rounded-lg" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <input type="password" placeholder="Şifre" className="input-dark w-full p-2.5 text-sm mb-5 rounded-lg" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <button onClick={isLoginMode ? handleLogin : handleRegister} className="btn-black w-full py-2.5 rounded-lg font-semibold text-sm tracking-wide">{isLoginMode ? 'GİRİŞ YAP' : 'KAYDOL'}</button>
+              <p className="text-center mt-5"> 
+                  <button onClick={() => setIsLoginMode(!isLoginMode)} className="text-emerald-400 hover:text-emerald-300 text-xs hover:underline transition-all">
                       {isLoginMode ? 'Hesabın yok mu? Yeni kayıt oluştur.' : 'Zaten hesabın var mı? Giriş yap.'}
                   </button> 
               </p>
@@ -1258,7 +1331,7 @@
       }
 
       return (
-        <div className="min-h-screen py-8 px-4 sm:px-6">
+        <div className="min-h-screen py-6 px-3 sm:px-6">
           <datalist id="publishers-datalist">
             {savedPublishers.map(pub => (
               <option key={pub} value={pub} />
@@ -1270,93 +1343,116 @@
             ))}
           </datalist>
 
-          {message && (<div className={`fixed top-4 left-1/2 -translate-x-1/2 p-4 px-6 rounded-xl shadow-2xl z-[100] font-medium ${message.type === 'success' ? 'bg-emerald-600' : message.type === 'info' ? 'bg-sky-600' : 'bg-rose-600'} text-white`}>{message.content}</div>)}
+          {message && (<div className={`fixed top-4 left-1/2 -translate-x-1/2 py-2.5 px-5 rounded-xl shadow-2xl z-[100] text-xs sm:text-sm font-medium ${message.type === 'success' ? 'bg-emerald-600' : message.type === 'info' ? 'bg-sky-600' : 'bg-rose-600'} text-white`}>{message.content}</div>)}
           
+          {/* TÜM EKLEME VE ÇIKARMA İŞLEMLERİ İÇİN ONAY MODALI */}
           {confirmation && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[80] p-4">
-                <div className="glass-panel p-8 rounded-2xl shadow-2xl w-full max-w-md text-center border-t-4 border-rose-500">
-                    <h3 className="text-xl font-bold text-white mb-8">{confirmation.message}</h3>
-                    <div className="flex justify-center gap-4">
-                        <button onClick={() => setConfirmation(null)} className="px-6 py-3 bg-gray-600 text-white font-semibold rounded-xl hover:bg-gray-500 transition-colors">İptal Et</button>
-                        <button onClick={() => { confirmation.onConfirm(); setConfirmation(null); }} className="px-6 py-3 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-500 shadow-[0_0_15px_rgba(225,29,72,0.4)] transition-all">Evet, Sil</button>
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[95] p-4">
+                <div className={`glass-panel p-6 sm:p-7 rounded-2xl shadow-2xl w-full max-w-sm text-center border-t-4 ${confirmation.danger ? 'border-rose-500' : 'border-emerald-500'}`}>
+                    <h3 className="text-sm sm:text-base font-medium text-white mb-6 leading-relaxed">{confirmation.message}</h3>
+                    <div className="flex justify-center gap-3">
+                        <button onClick={() => setConfirmation(null)} className="px-4 py-2 bg-gray-700 text-gray-200 text-xs sm:text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors">
+                          İptal Et
+                        </button>
+                        <button 
+                          onClick={() => { confirmation.onConfirm(); setConfirmation(null); }} 
+                          className={`px-5 py-2 text-white text-xs sm:text-sm font-semibold rounded-lg transition-all ${
+                            confirmation.danger 
+                              ? 'bg-rose-600 hover:bg-rose-500 shadow-[0_0_12px_rgba(225,29,72,0.4)]' 
+                              : 'bg-emerald-600 hover:bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]'
+                          }`}
+                        >
+                          {confirmation.confirmText || (confirmation.danger ? 'Evet, Sil' : 'Evet, Onayla')}
+                        </button>
                     </div>
                 </div>
             </div>
           )}
 
-          <div className="max-w-6xl mx-auto glass-panel p-5 sm:p-8 rounded-2xl relative shadow-2xl">
+          <div className="max-w-6xl mx-auto glass-panel p-4 sm:p-7 rounded-2xl relative shadow-2xl">
             
-            <div className="pt-2">
-              <BunkoLogo size="w-28 h-28 sm:w-32 sm:h-32" />
-              <h1 className="text-4xl sm:text-5xl font-extrabold text-center font-montserrat neon-title-yellow tracking-wide mb-3">
+            {/* ZARİF BAŞLIK VE İKİ TONLU ALINTI ALANI */}
+            <div className="pt-1">
+              <BunkoLogo size="w-20 h-20 sm:w-24 sm:h-24" />
+              <h1 className="text-2xl sm:text-3xl font-bold text-center font-montserrat neon-title-yellow tracking-wider mb-2">
                   Bunko (文庫)
               </h1>
-              <p className="text-center mb-8 text-[1.1rem] font-semibold italic tracking-wide neon-turquoise">
-                  "Bir gün bir kitap okudum ve bütün hayatım değişti." - Yeni Hayat, Orhan Pamuk
+              <p className="text-center mb-5 text-xs sm:text-sm tracking-wide leading-relaxed">
+                  <span className="italic font-normal neon-turquoise">
+                    "Bir gün bir kitap okudum ve bütün hayatım değişti."
+                  </span>
+                  <span className="ml-2 not-italic font-medium neon-attribution">
+                    — Yeni Hayat, Orhan Pamuk
+                  </span>
               </p>
             </div>
 
-            {(userName || userSurname) && (<p className="text-lg text-gray-400 text-center mb-8 font-medium">Hoş Geldin, <span className="text-white">{userName} {userSurname}</span></p>)}
+            {(userName || userSurname) && (
+              <p className="text-xs sm:text-sm text-gray-400 text-center mb-5 font-normal">
+                Hoş Geldin, <span className="text-gray-100 font-medium">{userName} {userSurname}</span>
+              </p>
+            )}
             
-            {/* ÜST SEKMELER - Standart beyaz, üzerine gelince (hover) sarı olur */}
-            <div className="flex flex-wrap justify-center gap-3 my-8 border-b border-emerald-900/40 pb-8">
-              <button onClick={() => setShowLibrary(true)} className="btn-black px-6 py-3 rounded-xl font-bold">
+            {/* KİBAR ÜST SEKMELER - Üzerine gelince (hover) sarı olur */}
+            <div className="flex flex-wrap justify-center gap-2.5 my-5 border-b border-emerald-900/40 pb-5">
+              <button onClick={() => setShowLibrary(true)} className="btn-black px-4 py-2 rounded-lg text-xs sm:text-sm font-medium">
                 Kütüphanem ({libraryBooks.length})
               </button>
-              <button onClick={() => setShowReadingList(true)} className="btn-black px-6 py-3 rounded-xl font-bold">
+              <button onClick={() => setShowReadingList(true)} className="btn-black px-4 py-2 rounded-lg text-xs sm:text-sm font-medium">
                 Okuma Listem ({readingListBooks.length})
               </button>
-              <button onClick={() => {setShowStats(true); setStatsTab('authors');}} className="btn-black px-6 py-3 rounded-xl font-bold">
+              <button onClick={() => {setShowStats(true); setStatsTab('authors');}} className="btn-black px-4 py-2 rounded-lg text-xs sm:text-sm font-medium">
                 İstatistikler
               </button>
-              <button onClick={() => setShowSettings(true)} className="btn-black px-6 py-3 rounded-xl font-bold">
+              <button onClick={() => setShowSettings(true)} className="btn-black px-4 py-2 rounded-lg text-xs sm:text-sm font-medium">
                 Ayarlar
               </button>
-              <button onClick={handleSignOut} className="btn-black px-6 py-3 rounded-xl font-bold text-gray-400">
+              <button onClick={handleSignOut} className="btn-black px-4 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-400">
                 Çıkış Yap
               </button>
             </div>
             
-            <div className="mb-10 bg-black/40 p-6 sm:p-8 rounded-2xl border border-emerald-900/30 shadow-inner">
-              <h2 className="text-2xl font-bold mb-5 text-white flex items-center gap-2">
-                  <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+            {/* YENİ KİTAP EKLEME PANELİ */}
+            <div className="mb-8 bg-black/40 p-4 sm:p-6 rounded-xl border border-emerald-900/30 shadow-inner">
+              <h2 className="text-base sm:text-lg font-semibold mb-3.5 text-gray-100 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
                   Yeni Kitap Ekle
               </h2>
-              <div className="flex flex-col md:flex-row gap-3">
+              <div className="flex flex-col md:flex-row gap-2.5">
                   <div className="relative flex-grow">
-                      <input type="text" className="input-dark w-full p-4 pr-12 rounded-xl text-lg font-medium h-full" placeholder="Kitap adı, yazar veya ISBN ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && searchBooks()} />
-                      {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-white text-xl">&times;</button>}
+                      <input type="text" className="input-dark w-full p-2.5 sm:p-3 pr-10 rounded-lg text-xs sm:text-sm font-normal h-full" placeholder="Kitap adı, yazar veya ISBN ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && searchBooks()} />
+                      {searchTerm && <button onClick={() => setSearchTerm('')} className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white text-base">&times;</button>}
                   </div>
-                  <button onClick={searchBooks} className="btn-black w-full md:w-auto px-8 py-4 rounded-xl font-extrabold text-lg" disabled={loading}>{loading ? 'Taranıyor...' : 'Kitap Ara'}</button>
-                  <button onClick={() => {resetManualBookForm(); setManualAddTarget('read');}} className="btn-black w-full md:w-auto px-6 py-4 rounded-xl font-extrabold text-base border-emerald-900 text-emerald-400 whitespace-nowrap">Manuel Ekle</button>
+                  <button onClick={searchBooks} className="btn-black w-full md:w-auto px-5 py-2.5 rounded-lg font-medium text-xs sm:text-sm" disabled={loading}>{loading ? 'Taranıyor...' : 'Kitap Ara'}</button>
+                  <button onClick={() => {resetManualBookForm(); setManualAddTarget('read');}} className="btn-black w-full md:w-auto px-5 py-2.5 rounded-lg font-medium text-xs sm:text-sm border-emerald-900 text-emerald-400 whitespace-nowrap">Manuel Ekle</button>
               </div>
             </div>
             
             {searchResults.length > 0 && (
-              <div className="relative mb-10 bg-black/40 p-6 sm:p-8 rounded-2xl border border-emerald-900/50 shadow-[0_0_20px_rgba(52,211,153,0.1)]">
-                <button onClick={() => setSearchResults([])} className="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-800 transition-colors">&times;</button>
+              <div className="relative mb-8 bg-black/40 p-4 sm:p-6 rounded-xl border border-emerald-900/50 shadow-[0_0_15px_rgba(52,211,153,0.08)]">
+                <button onClick={() => setSearchResults([])} className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-800 transition-colors">&times;</button>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pr-10">
-                  <h2 className="text-2xl font-bold text-emerald-400">Arama Sonuçları ({searchResults.length})</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pr-8">
+                  <h2 className="text-base sm:text-lg font-semibold text-emerald-400">Arama Sonuçları ({searchResults.length})</h2>
                   
-                  <label className="inline-flex items-center gap-2.5 cursor-pointer bg-black/60 px-4 py-2.5 rounded-xl border border-sky-800/60 hover:border-eab308 transition-colors select-none">
+                  <label className="inline-flex items-center gap-2 cursor-pointer bg-black/60 px-3 py-1.5 rounded-lg border border-sky-800/60 hover:border-eab308 transition-colors select-none">
                     <input 
                       type="checkbox" 
-                      className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                      className="w-3.5 h-3.5 accent-emerald-500 rounded cursor-pointer"
                       checked={searchAlsoAddToLibrary}
                       onChange={(e) => setSearchAlsoAddToLibrary(e.target.checked)}
                     />
-                    <span className="text-xs sm:text-sm font-bold text-sky-300">
+                    <span className="text-xs font-medium text-sky-300">
                       Okuduklarıma veya Okuma Listeme eklerken Kütüphaneme de ekle
                     </span>
                   </label>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {searchResults.map(book => (
-                    <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[360px]">
+                    <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[300px]">
                         {book.coverUrl ? (
-                          <div className="w-full h-48 bg-black/60 flex items-center justify-center p-2 pl-5 border-b border-emerald-900/40 relative">
+                          <div className="w-full h-40 bg-black/60 flex items-center justify-center p-2 pl-4 border-b border-emerald-900/40 relative">
                             <img 
                               src={book.coverUrl} 
                               alt={book.title} 
@@ -1364,32 +1460,32 @@
                               onError={(e) => { e.target.style.display = 'none'; }}
                             />
                             {book.sourceBadge && (
-                              <span className="absolute top-2 right-2 bg-black/80 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-700/50">
+                              <span className="absolute top-1.5 right-1.5 bg-black/80 text-emerald-400 text-[9px] font-medium px-1.5 py-0.5 rounded border border-emerald-700/50">
                                 {book.sourceBadge}
                               </span>
                             )}
                           </div>
                         ) : (
-                          <div className="w-full h-24 bg-black/30 flex items-center justify-center pl-4 border-b border-emerald-900/30">
-                            <span className="text-xs text-gray-500 italic">Kapak Görseli Yok</span>
+                          <div className="w-full h-20 bg-black/30 flex items-center justify-center pl-4 border-b border-emerald-900/30">
+                            <span className="text-[11px] text-gray-500 italic">Kapak Görseli Yok</span>
                           </div>
                         )}
-                        <div className="p-4 pl-6 flex-1 flex flex-col justify-between">
+                        <div className="p-3.5 pl-5 flex-1 flex flex-col justify-between">
                           <div>
-                              <h3 className="text-base font-bold text-white mb-1 leading-snug line-clamp-2">{book.title}</h3>
-                              <p className="text-xs font-semibold text-emerald-300 mb-2">{book.authors}</p>
+                              <h3 className="text-sm font-semibold text-white mb-1 leading-snug line-clamp-2">{book.title}</h3>
+                              <p className="text-xs font-medium text-emerald-300 mb-1.5">{book.authors}</p>
                               {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (
                                 <p className="text-[11px] text-gray-400 mb-2">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>
                               )}
                           </div>
-                          <div className="mt-3 flex flex-col gap-1.5">
-                              <button onClick={() => addBookToCollection(book, 'readBooks')} className="btn-black w-full py-2 rounded-lg text-xs font-bold border-emerald-800 text-emerald-300">
+                          <div className="mt-2 flex flex-col gap-1.5">
+                              <button onClick={() => addBookToCollection(book, 'readBooks')} className="btn-black w-full py-1.5 rounded-md text-[11px] font-medium border-emerald-800 text-emerald-300">
                                 + Okuduklarıma Ekle {searchAlsoAddToLibrary ? '(+ Kütüphanem)' : ''}
                               </button>
-                              <button onClick={() => addBookToCollection(book, 'readingListBooks')} className="btn-black w-full py-2 rounded-lg text-xs font-bold border-amber-800 text-amber-300">
+                              <button onClick={() => addBookToCollection(book, 'readingListBooks')} className="btn-black w-full py-1.5 rounded-md text-[11px] font-medium border-amber-800 text-amber-300">
                                 + Okuma Listeme Ekle {searchAlsoAddToLibrary ? '(+ Kütüphanem)' : ''}
                               </button>
-                              <button onClick={() => addBookToCollection(book, 'libraryBooks')} className="btn-black w-full py-2 rounded-lg text-xs font-bold border-sky-900 text-sky-300">
+                              <button onClick={() => addBookToCollection(book, 'libraryBooks')} className="btn-black w-full py-1.5 rounded-md text-[11px] font-medium border-sky-900 text-sky-300">
                                 + Sadece Kütüphaneme Ekle
                               </button>
                           </div>
@@ -1400,41 +1496,41 @@
               </div>
             )}
             
-            <div className="p-4 sm:p-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-emerald-900/40 pb-6">
-                  <div className="flex items-center gap-3 flex-wrap">
-                      <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Okuduğum Kitaplar</h2>
-                      <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-sm sm:text-lg px-3 py-0.5 rounded-full">{readBooks.length}</span>
+            <div className="p-2 sm:p-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 border-b border-emerald-900/40 pb-4">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                      <h2 className="text-lg sm:text-xl font-semibold text-white">Okuduğum Kitaplar</h2>
+                      <span className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">{readBooks.length}</span>
                   </div>
                   
-                  <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40 self-stretch sm:self-auto justify-center">
+                  <div className="flex bg-black/50 p-1 rounded-lg border border-emerald-900/40 self-stretch sm:self-auto justify-center">
                     <button 
                       onClick={() => setReadBooksViewMode('grid')} 
-                      className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${readBooksViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
+                      className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-xs font-medium transition-all ${readBooksViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
                     >
                       Kartlar
                     </button>
                     <button 
                       onClick={() => setReadBooksViewMode('list')} 
-                      className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${readBooksViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
+                      className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-xs font-medium transition-all ${readBooksViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
                     >
                       Düz Liste
                     </button>
                   </div>
               </div>
               
-              <div className="flex flex-col md:flex-row gap-3 mb-8">
+              <div className="flex flex-col md:flex-row gap-2.5 mb-6">
                 <div className="relative flex-grow">
-                    <input type="text" className="input-dark w-full p-3.5 pr-10 rounded-xl" placeholder="Okuduklarımda kitap veya yazar ara..." value={readBooksFilterTerm} onChange={(e) => setReadBooksFilterTerm(e.target.value)} />
-                    {readBooksFilterTerm && <button onClick={() => setReadBooksFilterTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white">&times;</button>}
+                    <input type="text" className="input-dark w-full p-2.5 pr-9 rounded-lg text-xs sm:text-sm" placeholder="Okuduklarımda kitap veya yazar ara..." value={readBooksFilterTerm} onChange={(e) => setReadBooksFilterTerm(e.target.value)} />
+                    {readBooksFilterTerm && <button onClick={() => setReadBooksFilterTerm('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white">&times;</button>}
                 </div>
                 
-                <select className="input-dark rounded-xl p-3.5 font-medium w-full md:w-48 appearance-none" value={readBooksGenreFilter} onChange={(e) => setReadBooksGenreFilter(e.target.value)}>
+                <select className="input-dark rounded-lg p-2.5 text-xs sm:text-sm font-normal w-full md:w-44 appearance-none" value={readBooksGenreFilter} onChange={(e) => setReadBooksGenreFilter(e.target.value)}>
                     <option value="">Tüm Türler</option>
                     {availableReadGenres.map(g => <option key={g} value={g}>{g}</option>)}
                 </select>
                 
-                <select className="input-dark rounded-xl p-3.5 font-medium w-full md:w-56 appearance-none" value={readBooksSortBy} onChange={(e) => setReadBooksSortBy(e.target.value)}>
+                <select className="input-dark rounded-lg p-2.5 text-xs sm:text-sm font-normal w-full md:w-52 appearance-none" value={readBooksSortBy} onChange={(e) => setReadBooksSortBy(e.target.value)}>
                     <option value="dateDesc">Sırala: Tarih (Yeni - Eski)</option>
                     <option value="dateAsc">Sırala: Tarih (Eski - Yeni)</option>
                     <option value="author">Sırala: Yazar (A-Z)</option>
@@ -1446,55 +1542,55 @@
 
               {sortedReadBooks.length > 0 ? (
                 readBooksViewMode === 'grid' ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {sortedReadBooks.map(book => {
                       const isInLibrary = libraryBooks.some(lb => isSameBookIdentity(lb, book));
                       return (
-                        <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[280px]">
+                        <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[240px]">
                           {book.coverUrl && (
-                            <div className="w-full h-52 bg-black/60 flex items-center justify-center p-2 pl-5 border-b border-emerald-900/40">
+                            <div className="w-full h-44 bg-black/60 flex items-center justify-center p-2 pl-4 border-b border-emerald-900/40">
                               <img 
                                 src={book.coverUrl} 
                                 alt={book.title} 
-                                className="max-h-full max-w-full object-contain rounded shadow-lg"
+                                className="max-h-full max-w-full object-contain rounded shadow-md"
                                 loading="lazy"
                                 onError={(e) => { e.target.parentElement.style.display = 'none'; }}
                               />
                             </div>
                           )}
-                          <div className="p-5 pl-6 flex-1 flex flex-col justify-between">
+                          <div className="p-4 pl-5 flex-1 flex flex-col justify-between">
                             <div>
-                              <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
-                              <p className="text-sm font-semibold text-emerald-400 mb-2.5 drop-shadow">{book.authors}</p>
-                              <div className="flex flex-wrap gap-2 mb-2">
-                                  {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
+                              <h3 className="text-sm sm:text-base font-semibold text-white mb-1 leading-snug drop-shadow-sm">{book.title}</h3>
+                              <p className="text-xs font-medium text-emerald-400 mb-2">{book.authors}</p>
+                              <div className="flex flex-wrap gap-1.5 mb-2">
+                                  {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[9px] font-medium bg-black/60 text-gray-300 px-2 py-0.5 rounded border border-gray-700 uppercase tracking-wider">{book.genre}</span>}
                               </div>
                             </div>
-                            <div className="mt-auto pt-3 flex flex-col gap-1.5">
-                              {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
+                            <div className="mt-auto pt-2 flex flex-col gap-1">
+                              {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-[11px] text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
                               {book.readDate && (
-                                  <p className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-900/20 w-fit px-2 py-1 rounded border border-emerald-800/50 mt-1">
-                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                  <p className="text-[11px] text-emerald-400 font-medium flex items-center gap-1 bg-emerald-900/20 w-fit px-2 py-0.5 rounded border border-emerald-800/40 mt-0.5">
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                       {formatDisplayDate(book.readDate)}
                                   </p>
                               )}
-                              <div className="flex justify-between items-center gap-2 mt-3 pt-3 border-t border-emerald-900/40">
+                              <div className="flex justify-between items-center gap-2 mt-2.5 pt-2.5 border-t border-emerald-900/40">
                                 {!isInLibrary ? (
                                   <button 
                                     onClick={() => handleQuickAddToLibrary(book)} 
-                                    className="btn-black px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-sky-800 text-sky-300"
+                                    className="btn-black px-2 py-1 rounded-md text-[10px] font-medium border-sky-800 text-sky-300"
                                     title="Bu kitabı Kütüphaneme de ekle"
                                   >
                                     + Kütüphaneme Ekle
                                   </button>
                                 ) : (
-                                  <span className="text-[11px] font-bold text-sky-400/90 bg-sky-950/40 px-2.5 py-1 rounded-lg border border-sky-800/40">
+                                  <span className="text-[10px] font-medium text-sky-400/90 bg-sky-950/40 px-2 py-0.5 rounded-md border border-sky-800/40">
                                     ✓ Kütüphanede
                                   </span>
                                 )}
                                 <div className="flex gap-1.5">
-                                  <button onClick={() => openEditModal(book, 'read')} className="btn-black p-2 rounded-full" aria-label="Düzenle" title="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                                  <button onClick={() => removeBook(book.id, 'read')} className="btn-black p-2 rounded-full border-rose-900/50" aria-label="Sil" title="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                  <button onClick={() => openEditModal(book, 'read')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle" title="Düzenle"><svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                  <button onClick={() => removeBook(book.id, 'read')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil" title="Sil"><svg className="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                 </div>
                               </div>
                             </div>
@@ -1504,42 +1600,42 @@
                     })}
                   </div>
                 ) : (
-                  <div className="bg-black/40 rounded-2xl border border-emerald-900/30 overflow-hidden">
+                  <div className="bg-black/40 rounded-xl border border-emerald-900/30 overflow-hidden">
                     <div className="divide-y divide-emerald-900/30">
                       {sortedReadBooks.map(book => {
                         const isInLibrary = libraryBooks.some(lb => isSameBookIdentity(lb, book));
                         return (
-                          <div key={book.id} className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-emerald-950/20 transition-colors">
-                            <div className="flex items-center gap-4">
+                          <div key={book.id} className="p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-emerald-950/20 transition-colors">
+                            <div className="flex items-center gap-3.5">
                               {book.coverUrl ? (
-                                <img src={book.coverUrl} alt={book.title} className="w-12 h-16 object-cover rounded border border-white/40 flex-shrink-0" />
+                                <img src={book.coverUrl} alt={book.title} className="w-10 h-14 object-cover rounded border border-white/30 flex-shrink-0" />
                               ) : (
-                                <div className="w-12 h-16 bg-black/50 rounded border border-gray-700 flex items-center justify-center text-[9px] text-gray-500 text-center p-1 flex-shrink-0">Kapak Yok</div>
+                                <div className="w-10 h-14 bg-black/50 rounded border border-gray-700 flex items-center justify-center text-[8px] text-gray-500 text-center p-1 flex-shrink-0">Kapak Yok</div>
                               )}
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-3 flex-wrap">
-                                  <h3 className="text-lg font-bold text-white">{book.title}</h3>
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h3 className="text-sm sm:text-base font-semibold text-white">{book.title}</h3>
                                   {book.genre && book.genre !== 'Bilinmiyor' && (
-                                    <span className="text-[10px] font-bold bg-black/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/40 uppercase tracking-wider">{book.genre}</span>
+                                    <span className="text-[9px] font-medium bg-black/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/40 uppercase tracking-wider">{book.genre}</span>
                                   )}
                                   {isInLibrary && (
-                                    <span className="text-[10px] font-bold bg-sky-950/60 text-sky-400 px-2 py-0.5 rounded border border-sky-800/50">✓ Kütüphanede</span>
+                                    <span className="text-[9px] font-medium bg-sky-950/60 text-sky-400 px-2 py-0.5 rounded border border-sky-800/50">✓ Kütüphanede</span>
                                   )}
                                 </div>
-                                <p className="text-sm font-semibold text-gray-300">{book.authors} {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' ? `• ${book.publisher}` : ''}</p>
+                                <p className="text-xs font-medium text-gray-300">{book.authors} {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' ? `• ${book.publisher}` : ''}</p>
                                 {book.readDate && (
-                                  <p className="text-xs text-emerald-400 font-medium">Okuma Tarihi: {formatDisplayDate(book.readDate)}</p>
+                                  <p className="text-[11px] text-emerald-400">Okuma Tarihi: {formatDisplayDate(book.readDate)}</p>
                                 )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 self-end sm:self-center flex-wrap">
+                            <div className="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
                               {!isInLibrary && (
-                                <button onClick={() => handleQuickAddToLibrary(book)} className="btn-black px-3 py-2 rounded-xl text-xs font-bold text-sky-300 border-sky-800/60">
+                                <button onClick={() => handleQuickAddToLibrary(book)} className="btn-black px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-sky-300 border-sky-800/60">
                                   + Kütüphaneme Ekle
                                 </button>
                               )}
-                              <button onClick={() => openEditModal(book, 'read')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Düzenle</button>
-                              <button onClick={() => removeBook(book.id, 'read')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-rose-400 border-rose-900/50">Sil</button>
+                              <button onClick={() => openEditModal(book, 'read')} className="btn-black px-3 py-1.5 rounded-lg text-[11px] font-medium text-emerald-400 border-emerald-800/50">Düzenle</button>
+                              <button onClick={() => removeBook(book.id, 'read')} className="btn-black px-3 py-1.5 rounded-lg text-[11px] font-medium text-rose-400 border-rose-900/50">Sil</button>
                             </div>
                           </div>
                         );
@@ -1548,8 +1644,8 @@
                   </div>
                 )
               ) : (
-                <div className="text-center py-16 bg-black/20 rounded-2xl border border-dashed border-emerald-900/50">
-                    <p className="text-gray-400 text-lg font-medium">Bu arama veya filtreye uygun okuduğunuz bir kitap bulunamadı.</p>
+                <div className="text-center py-12 bg-black/20 rounded-xl border border-dashed border-emerald-900/50">
+                    <p className="text-gray-400 text-sm font-normal">Bu arama veya filtreye uygun okuduğunuz bir kitap bulunamadı.</p>
                 </div>
               )}
             </div>
@@ -1557,46 +1653,46 @@
           
           {/* KÜTÜPHANEM SEKMESİ / MODALI */}
           {showLibrary && (
-            <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-3 sm:p-6 lg:p-10">
-                <div className="glass-panel p-4 sm:p-8 rounded-3xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-7xl mx-auto border-t border-emerald-900/50">
+            <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-3 sm:p-6 lg:p-8">
+                <div className="glass-panel p-4 sm:p-6 rounded-2xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-6xl mx-auto border-t border-emerald-900/50">
                     
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-emerald-900/40 pb-4">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">Kütüphanem</h2>
-                          <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-sm sm:text-xl px-3 py-0.5 rounded-full">{filteredLibraryBooks.length}</span>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3 border-b border-emerald-900/40 pb-3.5">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <h2 className="text-lg sm:text-2xl font-semibold text-white">Kütüphanem</h2>
+                          <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs sm:text-sm font-semibold px-2.5 py-0.5 rounded-full">{filteredLibraryBooks.length}</span>
                         </div>
 
-                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                          <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40 flex-1 sm:flex-none justify-center">
+                        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+                          <div className="flex bg-black/50 p-1 rounded-lg border border-emerald-900/40 flex-1 sm:flex-none justify-center">
                             <button 
                               onClick={() => setLibraryViewMode('grid')} 
-                              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${libraryViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
+                              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-xs font-medium transition-all ${libraryViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
                             >
                               Kartlar
                             </button>
                             <button 
                               onClick={() => setLibraryViewMode('list')} 
-                              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${libraryViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
+                              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-xs font-medium transition-all ${libraryViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
                             >
                               Düz Liste
                             </button>
                           </div>
-                          <button onClick={() => setShowLibrary(false)} className="btn-black w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-2xl pb-1 transition-colors flex-shrink-0">&times;</button>
+                          <button onClick={() => setShowLibrary(false)} className="btn-black w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-lg pb-0.5 transition-colors flex-shrink-0">&times;</button>
                         </div>
                     </div>
                     
-                    <div className="flex flex-col lg:flex-row gap-3 mb-8">
+                    <div className="flex flex-col lg:flex-row gap-2.5 mb-6">
                         <div className="relative flex-grow">
-                            <input type="text" className="input-dark w-full p-4 pr-12 rounded-xl text-lg" placeholder="Kütüphanemde ara..." value={libraryFilterTerm} onChange={(e) => setLibraryFilterTerm(e.target.value)} />
-                            {libraryFilterTerm && <button onClick={() => setLibraryFilterTerm('')} className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-white text-xl">&times;</button>}
+                            <input type="text" className="input-dark w-full p-2.5 sm:p-3 pr-10 rounded-lg text-xs sm:text-sm" placeholder="Kütüphanemde ara..." value={libraryFilterTerm} onChange={(e) => setLibraryFilterTerm(e.target.value)} />
+                            {libraryFilterTerm && <button onClick={() => setLibraryFilterTerm('')} className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white text-base">&times;</button>}
                         </div>
                         
-                        <select className="input-dark rounded-xl p-4 font-medium w-full lg:w-48 appearance-none" value={libraryGenreFilter} onChange={(e) => setLibraryGenreFilter(e.target.value)}>
+                        <select className="input-dark rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm font-normal w-full lg:w-44 appearance-none" value={libraryGenreFilter} onChange={(e) => setLibraryGenreFilter(e.target.value)}>
                             <option value="">Tüm Türler</option>
                             {availableLibraryGenres.map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                         
-                        <select className="input-dark rounded-xl p-4 font-medium w-full lg:w-64 appearance-none" value={librarySortBy} onChange={(e) => setLibrarySortBy(e.target.value)}>
+                        <select className="input-dark rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm font-normal w-full lg:w-56 appearance-none" value={librarySortBy} onChange={(e) => setLibrarySortBy(e.target.value)}>
                             <option value="author">Sırala: Yazar (A-Z)</option>
                             <option value="title">Sırala: Kitap Adı (A-Z)</option>
                             <option value="publisher">Sırala: Yayınevi (A-Z)</option>
@@ -1605,52 +1701,52 @@
                             <option value="onlyUnread">Sadece Okunmayanlar</option>
                         </select>
                         
-                        <button onClick={() => {resetManualBookForm(); setManualAddTarget('library');}} className="btn-black px-8 py-4 rounded-xl font-bold text-lg whitespace-nowrap">Manuel Ekle</button>
+                        <button onClick={() => {resetManualBookForm(); setManualAddTarget('library');}} className="btn-black px-5 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-sm whitespace-nowrap">Manuel Ekle</button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto modal-scroll pr-3 pb-6">
+                    <div className="flex-1 overflow-y-auto modal-scroll pr-2 pb-4">
                         {sortedLibraryBooks.length > 0 ? (
                             libraryViewMode === 'grid' ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                     {sortedLibraryBooks.map(book => {
                                         const isBookRead = readBooks.some(rb => isSameBookIdentity(rb, book));
                                         return (
-                                            <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[280px]">
+                                            <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[240px]">
                                                 {book.coverUrl && (
-                                                  <div className="w-full h-52 bg-black/60 flex items-center justify-center p-2 pl-5 border-b border-emerald-900/40">
+                                                  <div className="w-full h-44 bg-black/60 flex items-center justify-center p-2 pl-4 border-b border-emerald-900/40">
                                                     <img 
                                                       src={book.coverUrl} 
                                                       alt={book.title} 
-                                                      className="max-h-full max-w-full object-contain rounded shadow-lg"
+                                                      className="max-h-full max-w-full object-contain rounded shadow-md"
                                                       loading="lazy"
                                                       onError={(e) => { e.target.parentElement.style.display = 'none'; }}
                                                     />
                                                   </div>
                                                 )}
-                                                <div className="p-5 pl-6 flex-1 flex flex-col justify-between">
+                                                <div className="p-4 pl-5 flex-1 flex flex-col justify-between">
                                                     <div>
-                                                        <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
-                                                        <p className="text-sm font-semibold text-emerald-400 mb-2.5 drop-shadow">{book.authors}</p>
-                                                        <div className="flex flex-wrap gap-2 mb-2">
-                                                            {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
+                                                        <h3 className="text-sm sm:text-base font-semibold text-white mb-1 leading-snug drop-shadow-sm">{book.title}</h3>
+                                                        <p className="text-xs font-medium text-emerald-400 mb-2">{book.authors}</p>
+                                                        <div className="flex flex-wrap gap-1.5 mb-2">
+                                                            {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[9px] font-medium bg-black/60 text-gray-300 px-2 py-0.5 rounded border border-gray-700 uppercase tracking-wider">{book.genre}</span>}
                                                         </div>
                                                     </div>
-                                                    <div className="mt-auto pt-3 flex flex-col gap-2">
-                                                        {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
+                                                    <div className="mt-auto pt-2 flex flex-col gap-1.5">
+                                                        {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-[11px] text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
                                                         
-                                                        <div className="flex justify-between items-center mt-3 pt-3 border-t border-emerald-900/40">
+                                                        <div className="flex justify-between items-center mt-2.5 pt-2.5 border-t border-emerald-900/40">
                                                             {!isBookRead ? (
-                                                                <button onClick={() => markAsRead(book, 'library')} className="btn-black px-3 py-1.5 rounded-lg text-xs font-bold border-emerald-800 text-emerald-400 flex items-center gap-1.5">
-                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Okudum
+                                                                <button onClick={() => markAsRead(book, 'library')} className="btn-black px-2.5 py-1 rounded-md text-[11px] font-medium border-emerald-800 text-emerald-400 flex items-center gap-1">
+                                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Okudum
                                                                 </button>
                                                             ) : (
-                                                                <div className="flex items-center gap-1.5 text-yellow-400 text-xs font-bold px-2 py-1.5 bg-yellow-900/20 rounded-lg border border-yellow-700/30">
-                                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Okundu
+                                                                <div className="flex items-center gap-1 text-yellow-400 text-[11px] font-medium px-2 py-1 bg-yellow-900/20 rounded-md border border-yellow-700/30">
+                                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Okundu
                                                                 </div>
                                                             )}
                                                             <div className="flex gap-1.5">
-                                                                <button onClick={() => openEditModal(book, 'library')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle" title="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                                                                <button onClick={() => removeBook(book.id, 'library')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil" title="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                                                <button onClick={() => openEditModal(book, 'library')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle" title="Düzenle"><svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                                                <button onClick={() => removeBook(book.id, 'library')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil" title="Sil"><svg className="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1660,37 +1756,37 @@
                                     })}
                                 </div>
                             ) : (
-                                <div className="bg-black/40 rounded-2xl border border-emerald-900/30 overflow-hidden">
+                                <div className="bg-black/40 rounded-xl border border-emerald-900/30 overflow-hidden">
                                   <div className="divide-y divide-emerald-900/30">
                                     {sortedLibraryBooks.map(book => {
                                       const isBookRead = readBooks.some(rb => isSameBookIdentity(rb, book));
                                       return (
-                                        <div key={book.id} className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-emerald-950/20 transition-colors">
-                                          <div className="flex items-center gap-4">
+                                        <div key={book.id} className="p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-emerald-950/20 transition-colors">
+                                          <div className="flex items-center gap-3.5">
                                             {book.coverUrl ? (
-                                              <img src={book.coverUrl} alt={book.title} className="w-12 h-16 object-cover rounded border border-white/40 flex-shrink-0" />
+                                              <img src={book.coverUrl} alt={book.title} className="w-10 h-14 object-cover rounded border border-white/30 flex-shrink-0" />
                                             ) : (
-                                              <div className="w-12 h-16 bg-black/50 rounded border border-gray-700 flex items-center justify-center text-[9px] text-gray-500 text-center p-1 flex-shrink-0">Kapak Yok</div>
+                                              <div className="w-10 h-14 bg-black/50 rounded border border-gray-700 flex items-center justify-center text-[8px] text-gray-500 text-center p-1 flex-shrink-0">Kapak Yok</div>
                                             )}
-                                            <div className="space-y-1">
-                                              <div className="flex items-center gap-3 flex-wrap">
-                                                <h3 className="text-lg font-bold text-white">{book.title}</h3>
+                                            <div className="space-y-0.5">
+                                              <div className="flex items-center gap-2 flex-wrap">
+                                                <h3 className="text-sm sm:text-base font-semibold text-white">{book.title}</h3>
                                                 {book.genre && book.genre !== 'Bilinmiyor' && (
-                                                  <span className="text-[10px] font-bold bg-black/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/40 uppercase tracking-wider">{book.genre}</span>
+                                                  <span className="text-[9px] font-medium bg-black/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/40 uppercase tracking-wider">{book.genre}</span>
                                                 )}
                                                 {isBookRead && (
-                                                  <span className="text-[10px] font-bold bg-yellow-900/30 text-yellow-400 px-2 py-0.5 rounded border border-yellow-700/40">Okundu</span>
+                                                  <span className="text-[9px] font-medium bg-yellow-900/30 text-yellow-400 px-2 py-0.5 rounded border border-yellow-700/40">Okundu</span>
                                                 )}
                                               </div>
-                                              <p className="text-sm font-semibold text-gray-300">{book.authors} {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' ? `• ${book.publisher}` : ''}</p>
+                                              <p className="text-xs font-medium text-gray-300">{book.authors} {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' ? `• ${book.publisher}` : ''}</p>
                                             </div>
                                           </div>
-                                          <div className="flex items-center gap-2 self-end sm:self-center">
+                                          <div className="flex items-center gap-1.5 self-end sm:self-center">
                                             {!isBookRead && (
-                                              <button onClick={() => markAsRead(book, 'library')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Okudum</button>
+                                              <button onClick={() => markAsRead(book, 'library')} className="btn-black px-3 py-1.5 rounded-lg text-[11px] font-medium text-emerald-400 border-emerald-800/50">Okudum</button>
                                             )}
-                                            <button onClick={() => openEditModal(book, 'library')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Düzenle</button>
-                                            <button onClick={() => removeBook(book.id, 'library')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-rose-400 border-rose-900/50">Sil</button>
+                                            <button onClick={() => openEditModal(book, 'library')} className="btn-black px-3 py-1.5 rounded-lg text-[11px] font-medium text-emerald-400 border-emerald-800/50">Düzenle</button>
+                                            <button onClick={() => removeBook(book.id, 'library')} className="btn-black px-3 py-1.5 rounded-lg text-[11px] font-medium text-rose-400 border-rose-900/50">Sil</button>
                                           </div>
                                         </div>
                                       );
@@ -1699,8 +1795,8 @@
                                 </div>
                             )
                         ) : (
-                            <div className="text-center py-20 bg-black/20 rounded-3xl border border-dashed border-emerald-900/50">
-                                <p className="text-gray-400 text-xl font-medium">Bu arama veya filtreye uygun kütüphane kaydı bulunamadı.</p>
+                            <div className="text-center py-14 bg-black/20 rounded-2xl border border-dashed border-emerald-900/50">
+                                <p className="text-gray-400 text-sm font-normal">Bu arama veya filtreye uygun kütüphane kaydı bulunamadı.</p>
                             </div>
                         )}
                     </div>
@@ -1710,106 +1806,106 @@
 
           {/* OKUMA LİSTEM SEKMESİ / MODALI */}
           {showReadingList && (
-            <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-3 sm:p-6 lg:p-10">
-                <div className="glass-panel p-4 sm:p-8 rounded-3xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-7xl mx-auto border-t border-emerald-900/50">
+            <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-3 sm:p-6 lg:p-8">
+                <div className="glass-panel p-4 sm:p-6 rounded-2xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-6xl mx-auto border-t border-emerald-900/50">
                     
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-emerald-900/40 pb-4">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <h2 className="text-2xl sm:text-4xl font-extrabold text-white">Okuma Listem</h2>
-                          <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-sm sm:text-xl px-3 py-0.5 rounded-full">{filteredReadingListBooks.length}</span>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3 border-b border-emerald-900/40 pb-3.5">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                          <h2 className="text-lg sm:text-2xl font-semibold text-white">Okuma Listem</h2>
+                          <span className="bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-xs sm:text-sm font-semibold px-2.5 py-0.5 rounded-full">{filteredReadingListBooks.length}</span>
                         </div>
 
-                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-                          <div className="flex bg-black/50 p-1 rounded-xl border border-emerald-900/40 flex-1 sm:flex-none justify-center">
+                        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+                          <div className="flex bg-black/50 p-1 rounded-lg border border-emerald-900/40 flex-1 sm:flex-none justify-center">
                             <button 
                               onClick={() => setReadingListViewMode('grid')} 
-                              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${readingListViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
+                              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-xs font-medium transition-all ${readingListViewMode === 'grid' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
                             >
                               Kartlar
                             </button>
                             <button 
                               onClick={() => setReadingListViewMode('list')} 
-                              className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${readingListViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
+                              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-xs font-medium transition-all ${readingListViewMode === 'list' ? 'bg-emerald-600 text-white shadow' : 'text-gray-400 hover:text-yellow-400'}`}
                             >
                               Düz Liste
                             </button>
                           </div>
-                          <button onClick={() => setShowReadingList(false)} className="btn-black w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-2xl pb-1 transition-colors flex-shrink-0">&times;</button>
+                          <button onClick={() => setShowReadingList(false)} className="btn-black w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-lg pb-0.5 transition-colors flex-shrink-0">&times;</button>
                         </div>
                     </div>
                     
-                    <div className="flex flex-col lg:flex-row gap-3 mb-8">
+                    <div className="flex flex-col lg:flex-row gap-2.5 mb-6">
                         <div className="relative flex-grow">
-                            <input type="text" className="input-dark w-full p-4 pr-12 rounded-xl text-lg" placeholder="Okuma listemde ara..." value={readingListFilterTerm} onChange={(e) => setReadingListFilterTerm(e.target.value)} />
-                            {readingListFilterTerm && <button onClick={() => setReadingListFilterTerm('')} className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-white text-xl">&times;</button>}
+                            <input type="text" className="input-dark w-full p-2.5 sm:p-3 pr-10 rounded-lg text-xs sm:text-sm" placeholder="Okuma listemde ara..." value={readingListFilterTerm} onChange={(e) => setReadingListFilterTerm(e.target.value)} />
+                            {readingListFilterTerm && <button onClick={() => setReadingListFilterTerm('')} className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white text-base">&times;</button>}
                         </div>
                         
-                        <select className="input-dark rounded-xl p-4 font-medium w-full lg:w-48 appearance-none" value={readingListGenreFilter} onChange={(e) => setReadingListGenreFilter(e.target.value)}>
+                        <select className="input-dark rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm font-normal w-full lg:w-44 appearance-none" value={readingListGenreFilter} onChange={(e) => setReadingListGenreFilter(e.target.value)}>
                             <option value="">Tüm Türler</option>
                             {availableReadingListGenres.map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                         
-                        <select className="input-dark rounded-xl p-4 font-medium w-full lg:w-64 appearance-none" value={readingListSortBy} onChange={(e) => setReadingListSortBy(e.target.value)}>
+                        <select className="input-dark rounded-lg p-2.5 sm:p-3 text-xs sm:text-sm font-normal w-full lg:w-56 appearance-none" value={readingListSortBy} onChange={(e) => setReadingListSortBy(e.target.value)}>
                             <option value="author">Sırala: Yazar (A-Z)</option>
                             <option value="title">Sırala: Kitap Adı (A-Z)</option>
                             <option value="publisher">Sırala: Yayınevi (A-Z)</option>
                             <option value="genre">Sırala: Tür (A-Z)</option>
                         </select>
                         
-                        <button onClick={() => {resetManualBookForm(); setManualAddTarget('readingList');}} className="btn-black px-8 py-4 rounded-xl font-bold text-lg whitespace-nowrap">Listeye Kitap Ekle</button>
+                        <button onClick={() => {resetManualBookForm(); setManualAddTarget('readingList');}} className="btn-black px-5 py-2.5 sm:py-3 rounded-lg font-medium text-xs sm:text-sm whitespace-nowrap">Listeye Kitap Ekle</button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto modal-scroll pr-3 pb-6">
+                    <div className="flex-1 overflow-y-auto modal-scroll pr-2 pb-4">
                         {sortedReadingListBooks.length > 0 ? (
                             readingListViewMode === 'grid' ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                     {sortedReadingListBooks.map(book => {
                                         const isInLibrary = libraryBooks.some(lb => isSameBookIdentity(lb, book));
                                         return (
-                                            <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[280px]">
+                                            <div key={book.id} className="book-cover-card flex flex-col justify-between book-spine min-h-[240px]">
                                                 {book.coverUrl && (
-                                                  <div className="w-full h-52 bg-black/60 flex items-center justify-center p-2 pl-5 border-b border-emerald-900/40">
+                                                  <div className="w-full h-44 bg-black/60 flex items-center justify-center p-2 pl-4 border-b border-emerald-900/40">
                                                     <img 
                                                       src={book.coverUrl} 
                                                       alt={book.title} 
-                                                      className="max-h-full max-w-full object-contain rounded shadow-lg"
+                                                      className="max-h-full max-w-full object-contain rounded shadow-md"
                                                       loading="lazy"
                                                       onError={(e) => { e.target.parentElement.style.display = 'none'; }}
                                                     />
                                                   </div>
                                                 )}
-                                                <div className="p-5 pl-6 flex-1 flex flex-col justify-between">
+                                                <div className="p-4 pl-5 flex-1 flex flex-col justify-between">
                                                     <div>
-                                                        <h3 className="text-xl font-bold text-white mb-2 leading-tight drop-shadow-md">{book.title}</h3>
-                                                        <p className="text-sm font-semibold text-emerald-400 mb-2.5 drop-shadow">{book.authors}</p>
-                                                        <div className="flex flex-wrap gap-2 mb-2">
-                                                            {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[10px] font-bold bg-black/60 text-gray-300 px-2 py-1 rounded border border-gray-600 uppercase tracking-wider">{book.genre}</span>}
+                                                        <h3 className="text-sm sm:text-base font-semibold text-white mb-1 leading-snug drop-shadow-sm">{book.title}</h3>
+                                                        <p className="text-xs font-medium text-emerald-400 mb-2">{book.authors}</p>
+                                                        <div className="flex flex-wrap gap-1.5 mb-2">
+                                                            {book.genre && book.genre !== 'Bilinmiyor' && <span className="text-[9px] font-medium bg-black/60 text-gray-300 px-2 py-0.5 rounded border border-gray-700 uppercase tracking-wider">{book.genre}</span>}
                                                         </div>
                                                     </div>
-                                                    <div className="mt-auto pt-3 flex flex-col gap-2">
-                                                        {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-xs text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
+                                                    <div className="mt-auto pt-2 flex flex-col gap-1.5">
+                                                        {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' && (<p className="text-[11px] text-gray-400">Yayınevi: <span className="text-gray-200">{book.publisher}</span></p>)}
                                                         
-                                                        <div className="flex flex-wrap justify-between items-center gap-2 mt-2">
-                                                            <button onClick={() => markAsRead(book, 'readingList')} className="btn-black px-3 py-1.5 rounded-lg text-xs font-bold border-emerald-800 text-emerald-400 flex items-center gap-1">
-                                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Okudum
+                                                        <div className="flex flex-wrap justify-between items-center gap-1.5 mt-1.5">
+                                                            <button onClick={() => markAsRead(book, 'readingList')} className="btn-black px-2.5 py-1 rounded-md text-[11px] font-medium border-emerald-800 text-emerald-400 flex items-center gap-1">
+                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg> Okudum
                                                             </button>
                                                             {!isInLibrary ? (
                                                               <button 
                                                                 onClick={() => handleQuickAddToLibrary(book)} 
-                                                                className="btn-black px-2.5 py-1.5 rounded-lg text-[11px] font-bold border-sky-800 text-sky-300"
+                                                                className="btn-black px-2 py-1 rounded-md text-[10px] font-medium border-sky-800 text-sky-300"
                                                               >
                                                                 + Kütüphaneme Ekle
                                                               </button>
                                                             ) : (
-                                                              <span className="text-[11px] font-bold text-sky-400/90 bg-sky-950/40 px-2 py-1 rounded-lg border border-sky-800/40">
+                                                              <span className="text-[10px] font-medium text-sky-400/90 bg-sky-950/40 px-2 py-0.5 rounded-md border border-sky-800/40">
                                                                 ✓ Kütüphanede
                                                               </span>
                                                             )}
                                                         </div>
 
-                                                        <div className="flex justify-end items-center gap-1.5 mt-2 pt-2 border-t border-emerald-900/40">
-                                                            <button onClick={() => openEditModal(book, 'readingList')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle" title="Düzenle"><svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                                                            <button onClick={() => removeBook(book.id, 'readingList')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil" title="Sil"><svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                                        <div className="flex justify-end items-center gap-1.5 mt-1.5 pt-2 border-t border-emerald-900/40">
+                                                            <button onClick={() => openEditModal(book, 'readingList')} className="btn-black p-1.5 rounded-full" aria-label="Düzenle" title="Düzenle"><svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                                            <button onClick={() => removeBook(book.id, 'readingList')} className="btn-black p-1.5 rounded-full border-rose-900/50" aria-label="Sil" title="Sil"><svg className="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1818,40 +1914,40 @@
                                     })}
                                 </div>
                             ) : (
-                                <div className="bg-black/40 rounded-2xl border border-emerald-900/30 overflow-hidden">
+                                <div className="bg-black/40 rounded-xl border border-emerald-900/30 overflow-hidden">
                                   <div className="divide-y divide-emerald-900/30">
                                     {sortedReadingListBooks.map(book => {
                                         const isInLibrary = libraryBooks.some(lb => isSameBookIdentity(lb, book));
                                         return (
-                                          <div key={book.id} className="p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-emerald-950/20 transition-colors">
-                                            <div className="flex items-center gap-4">
+                                          <div key={book.id} className="p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-emerald-950/20 transition-colors">
+                                            <div className="flex items-center gap-3.5">
                                               {book.coverUrl ? (
-                                                <img src={book.coverUrl} alt={book.title} className="w-12 h-16 object-cover rounded border border-white/40 flex-shrink-0" />
+                                                <img src={book.coverUrl} alt={book.title} className="w-10 h-14 object-cover rounded border border-white/30 flex-shrink-0" />
                                               ) : (
-                                                <div className="w-12 h-16 bg-black/50 rounded border border-gray-700 flex items-center justify-center text-[9px] text-gray-500 text-center p-1 flex-shrink-0">Kapak Yok</div>
+                                                <div className="w-10 h-14 bg-black/50 rounded border border-gray-700 flex items-center justify-center text-[8px] text-gray-500 text-center p-1 flex-shrink-0">Kapak Yok</div>
                                               )}
-                                              <div className="space-y-1">
-                                                <div className="flex items-center gap-3 flex-wrap">
-                                                  <h3 className="text-lg font-bold text-white">{book.title}</h3>
+                                              <div className="space-y-0.5">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                  <h3 className="text-sm sm:text-base font-semibold text-white">{book.title}</h3>
                                                   {book.genre && book.genre !== 'Bilinmiyor' && (
-                                                    <span className="text-[10px] font-bold bg-black/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/40 uppercase tracking-wider">{book.genre}</span>
+                                                    <span className="text-[9px] font-medium bg-black/60 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800/40 uppercase tracking-wider">{book.genre}</span>
                                                   )}
                                                   {isInLibrary && (
-                                                    <span className="text-[10px] font-bold bg-sky-950/60 text-sky-400 px-2 py-0.5 rounded border border-sky-800/50">✓ Kütüphanede</span>
+                                                    <span className="text-[9px] font-medium bg-sky-950/60 text-sky-400 px-2 py-0.5 rounded border border-sky-800/50">✓ Kütüphanede</span>
                                                   )}
                                                 </div>
-                                                <p className="text-sm font-semibold text-gray-300">{book.authors} {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' ? `• ${book.publisher}` : ''}</p>
+                                                <p className="text-xs font-medium text-gray-300">{book.authors} {book.publisher && book.publisher !== 'Yayınevi Bilgisi Yok' ? `• ${book.publisher}` : ''}</p>
                                               </div>
                                             </div>
-                                            <div className="flex items-center gap-2 self-end sm:self-center flex-wrap">
-                                              <button onClick={() => markAsRead(book, 'readingList')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Okudum</button>
+                                            <div className="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
+                                              <button onClick={() => markAsRead(book, 'readingList')} className="btn-black px-3 py-1.5 rounded-lg text-[11px] font-medium text-emerald-400 border-emerald-800/50">Okudum</button>
                                               {!isInLibrary && (
-                                                <button onClick={() => handleQuickAddToLibrary(book)} className="btn-black px-3 py-2 rounded-xl text-xs font-bold text-sky-300 border-sky-800/60">
+                                                <button onClick={() => handleQuickAddToLibrary(book)} className="btn-black px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-sky-300 border-sky-800/60">
                                                   + Kütüphaneme Ekle
                                                 </button>
                                               )}
-                                              <button onClick={() => openEditModal(book, 'readingList')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-emerald-400 border-emerald-800/50">Düzenle</button>
-                                              <button onClick={() => removeBook(book.id, 'readingList')} className="btn-black px-3.5 py-2 rounded-xl text-xs font-bold text-rose-400 border-rose-900/50">Sil</button>
+                                              <button onClick={() => openEditModal(book, 'readingList')} className="btn-black px-3 py-1.5 rounded-lg text-[11px] font-medium text-emerald-400 border-emerald-800/50">Düzenle</button>
+                                              <button onClick={() => removeBook(book.id, 'readingList')} className="btn-black px-3 py-1.5 rounded-lg text-[11px] font-medium text-rose-400 border-rose-900/50">Sil</button>
                                             </div>
                                           </div>
                                         );
@@ -1860,8 +1956,8 @@
                                 </div>
                             )
                         ) : (
-                            <div className="text-center py-20 bg-black/20 rounded-3xl border border-dashed border-emerald-900/50">
-                                <p className="text-gray-400 text-xl font-medium">Okuma listenizde henüz kitap bulunmuyor.</p>
+                            <div className="text-center py-14 bg-black/20 rounded-2xl border border-dashed border-emerald-900/50">
+                                <p className="text-gray-400 text-sm font-normal">Okuma listenizde henüz kitap bulunmuyor.</p>
                             </div>
                         )}
                     </div>
@@ -1874,55 +1970,54 @@
               className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto"
               onClick={(e) => { if (e.target === e.currentTarget && !isAutoScanning) setShowSettings(false); }}
             >
-                <div className="glass-panel p-6 sm:p-8 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll border-t border-emerald-900/50 my-auto">
-                    <div className="sticky top-0 bg-[#0d1f17]/95 backdrop-blur-md z-20 flex justify-between items-center pb-4 mb-6 border-b border-emerald-900/40">
-                        <h2 className="text-2xl sm:text-3xl font-bold text-white neon-title-yellow">Ayarlar</h2>
-                        <button onClick={() => setShowSettings(false)} className="btn-black w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 flex-shrink-0" title="Kapat">&times;</button>
+                <div className="glass-panel p-5 sm:p-7 rounded-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto modal-scroll border-t border-emerald-900/50 my-auto">
+                    <div className="sticky top-0 bg-[#0d1f17]/95 backdrop-blur-md z-20 flex justify-between items-center pb-3 mb-5 border-b border-emerald-900/40">
+                        <h2 className="text-lg sm:text-xl font-semibold text-white neon-title-yellow">Ayarlar</h2>
+                        <button onClick={() => setShowSettings(false)} className="btn-black w-8 h-8 rounded-full flex items-center justify-center text-lg pb-0.5 flex-shrink-0" title="Kapat">&times;</button>
                     </div>
 
-                    {/* SES EFEKTİ AYARI */}
-                    <div className="p-4 bg-black/40 rounded-2xl border border-emerald-900/40 mb-6 flex items-center justify-between">
+                    <div className="p-3.5 bg-black/40 rounded-xl border border-emerald-900/40 mb-5 flex items-center justify-between">
                       <div>
-                        <h3 className="text-sm font-bold text-white">Tıklama (Klik) Sesi</h3>
-                        <p className="text-xs text-gray-400">Butonlara ve sekmelere basıldığında ses çalar</p>
+                        <h3 className="text-xs sm:text-sm font-semibold text-white">Tıklama (Klik) Sesi</h3>
+                        <p className="text-[11px] text-gray-400">Butonlara ve sekmelere basıldığında ses çalar</p>
                       </div>
                       <button 
                         onClick={toggleSoundMute} 
-                        className={`btn-black px-4 py-2 rounded-xl text-xs font-bold ${!soundMuted ? 'border-emerald-600 text-emerald-400' : 'border-gray-700 text-gray-400'}`}
+                        className={`btn-black px-3.5 py-1.5 rounded-lg text-xs font-medium ${!soundMuted ? 'border-emerald-600 text-emerald-400' : 'border-gray-700 text-gray-400'}`}
                       >
                         {!soundMuted ? '🔊 Açık' : '🔇 Kapalı'}
                       </button>
                     </div>
 
-                    <div className="p-5 bg-black/50 rounded-2xl border border-emerald-900/40 shadow-inner mb-8">
-                        <h3 className="text-lg font-bold mb-2 text-emerald-400 flex items-center gap-2">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <div className="p-4 bg-black/50 rounded-xl border border-emerald-900/40 shadow-inner mb-6">
+                        <h3 className="text-sm font-semibold mb-1.5 text-emerald-400 flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                           Eksik Kapak Tamamlayıcı
                         </h3>
-                        <p className="text-xs text-gray-300 mb-4 leading-relaxed">
+                        <p className="text-[11px] text-gray-300 mb-3.5 leading-relaxed">
                           Mevcut kapaklarınıza ve sizin eklediğiniz resimlere <strong>kesinlikle dokunmaz</strong>. Sadece kapağı tamamen boş olan kitaplar için arama yapar.
                           <br/>
-                          <span className="text-amber-300 font-semibold">
+                          <span className="text-amber-300 font-medium">
                             Kapağı Boş Olanlar: Okunanlar ({missingReadCoversCount}) • Kütüphanem ({missingLibraryCoversCount}) • Okuma Listem ({missingReadingListCoversCount})
                           </span>
                         </p>
 
                         {isAutoScanning ? (
-                          <div className="space-y-3 bg-black/60 p-4 rounded-xl border border-emerald-800/50">
-                            <div className="flex justify-between text-xs font-bold text-emerald-400">
+                          <div className="space-y-2.5 bg-black/60 p-3.5 rounded-lg border border-emerald-800/50">
+                            <div className="flex justify-between text-[11px] font-semibold text-emerald-400">
                               <span>Taranıyor: {scanProgress.current} / {scanProgress.total}</span>
                               <span>Bulunan: {scanProgress.updated}</span>
                             </div>
-                            <div className="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+                            <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
                               <div 
                                 className="bg-emerald-500 h-full transition-all duration-300" 
                                 style={{ width: `${scanProgress.total ? (scanProgress.current / scanProgress.total) * 100 : 0}%` }}
                               ></div>
                             </div>
-                            <p className="text-xs text-gray-300 truncate">{scanProgress.currentTitle}</p>
+                            <p className="text-[11px] text-gray-300 truncate">{scanProgress.currentTitle}</p>
                             <button 
                               onClick={() => { stopScanRef.current = true; }} 
-                              className="btn-black w-full py-2.5 rounded-xl text-xs font-bold text-rose-400 border-rose-800"
+                              className="btn-black w-full py-2 rounded-lg text-xs font-medium text-rose-400 border-rose-800"
                             >
                               Taramayı Durdur
                             </button>
@@ -1930,48 +2025,48 @@
                         ) : (
                           <button 
                             onClick={handleBatchAutoScanMissingCovers} 
-                            className="btn-black w-full py-3.5 rounded-xl font-bold text-emerald-300 border-emerald-800/70 text-sm"
+                            className="btn-black w-full py-2.5 rounded-lg font-medium text-emerald-300 border-emerald-800/70 text-xs"
                           >
                             Sadece Kapağı Boş Olanları Tara ({totalMissingCovers})
                           </button>
                         )}
                     </div>
                     
-                    <div className="space-y-4 mb-8">
+                    <div className="space-y-3 mb-6">
                         <div>
-                            <label className="block text-sm font-semibold mb-2 text-gray-300">Adınız:</label>
-                            <input type="text" className="input-dark w-full p-3.5 rounded-xl" value={userName} onChange={(e) => setUserName(e.target.value)} />
+                            <label className="block text-xs font-medium mb-1.5 text-gray-300">Adınız:</label>
+                            <input type="text" className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" value={userName} onChange={(e) => setUserName(e.target.value)} />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold mb-2 text-gray-300">Soyadınız:</label>
-                            <input type="text" className="input-dark w-full p-3.5 rounded-xl" value={userSurname} onChange={(e) => setUserSurname(e.target.value)} />
+                            <label className="block text-xs font-medium mb-1.5 text-gray-300">Soyadınız:</label>
+                            <input type="text" className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" value={userSurname} onChange={(e) => setUserSurname(e.target.value)} />
                         </div>
-                        <button onClick={saveUserProfile} className="btn-black w-full py-3.5 rounded-xl font-bold border-emerald-800 text-emerald-300">Bilgileri Kaydet</button>
+                        <button onClick={saveUserProfile} className="btn-black w-full py-2.5 rounded-lg font-medium text-xs sm:text-sm border-emerald-800 text-emerald-300">Bilgileri Kaydet</button>
                     </div>
 
-                    <div className="p-5 bg-black/40 rounded-2xl border border-emerald-900/40 shadow-inner mb-8">
-                        <h3 className="text-lg font-bold mb-3 text-emerald-400">Tür Yönetimi (Yeni Tür Ekle)</h3>
+                    <div className="p-4 bg-black/40 rounded-xl border border-emerald-900/40 shadow-inner mb-6">
+                        <h3 className="text-sm font-semibold mb-2.5 text-emerald-400">Tür Yönetimi (Yeni Tür Ekle)</h3>
                         <div className="flex flex-col sm:flex-row gap-2">
                             <input 
                                 type="text" 
-                                className="input-dark flex-grow p-3 rounded-xl text-sm" 
+                                className="input-dark flex-grow p-2.5 rounded-lg text-xs" 
                                 placeholder="Ör: Edebiyat Kuramı, Mitoloji..." 
                                 value={newGenreInput} 
                                 onChange={(e) => setNewGenreInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleAddCustomGenre()}
                             />
-                            <button onClick={handleAddCustomGenre} className="btn-black px-5 py-3 rounded-xl font-bold text-emerald-400 border-emerald-800 text-sm whitespace-nowrap w-full sm:w-auto">
+                            <button onClick={handleAddCustomGenre} className="btn-black px-4 py-2.5 rounded-lg font-medium text-emerald-400 border-emerald-800 text-xs whitespace-nowrap w-full sm:w-auto">
                                 Tür Ekle
                             </button>
                         </div>
                         {customGenres.length > 0 && (
-                            <div className="mt-4">
-                                <p className="text-xs text-gray-400 mb-2">Eklediğiniz Özel Türler:</p>
-                                <div className="flex flex-wrap gap-2">
+                            <div className="mt-3.5">
+                                <p className="text-[11px] text-gray-400 mb-2">Eklediğiniz Özel Türler:</p>
+                                <div className="flex flex-wrap gap-1.5">
                                     {customGenres.map(g => (
-                                        <span key={g} className="inline-flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-700/60 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full">
+                                        <span key={g} className="inline-flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-700/60 text-emerald-300 text-[11px] font-medium px-2.5 py-0.5 rounded-full">
                                             {g}
-                                            <button onClick={() => handleRemoveCustomGenre(g)} className="text-gray-400 hover:text-rose-400 font-bold text-sm leading-none" title="Bu türü kaldır">&times;</button>
+                                            <button onClick={() => handleRemoveCustomGenre(g)} className="text-gray-400 hover:text-rose-400 font-bold text-xs leading-none" title="Bu türü kaldır">&times;</button>
                                         </span>
                                     ))}
                                 </div>
@@ -1979,19 +2074,19 @@
                         )}
                     </div>
 
-                    <div className="space-y-3 pt-4 border-t border-emerald-900/40 mb-8">
-                        <button onClick={exportData} className="btn-black w-full py-3.5 rounded-xl font-bold text-emerald-400 border-emerald-900/50">Okunanları Dışa Aktar (.txt)</button>
-                        <button onClick={exportLibraryData} className="btn-black w-full py-3.5 rounded-xl font-bold text-teal-400 border-teal-900/50">Kütüphaneyi Dışa Aktar (.txt)</button>
-                        <button onClick={exportReadingListData} className="btn-black w-full py-3.5 rounded-xl font-bold text-amber-400 border-amber-900/50">Okuma Listemi Dışa Aktar (.txt)</button>
+                    <div className="space-y-2.5 pt-3 border-t border-emerald-900/40 mb-6">
+                        <button onClick={exportData} className="btn-black w-full py-2.5 rounded-lg font-medium text-xs text-emerald-400 border-emerald-900/50">Okunanları Dışa Aktar (.txt)</button>
+                        <button onClick={exportLibraryData} className="btn-black w-full py-2.5 rounded-lg font-medium text-xs text-teal-400 border-teal-900/50">Kütüphaneyi Dışa Aktar (.txt)</button>
+                        <button onClick={exportReadingListData} className="btn-black w-full py-2.5 rounded-lg font-medium text-xs text-amber-400 border-amber-900/50">Okuma Listemi Dışa Aktar (.txt)</button>
                     </div>
                     
-                    <div className="p-5 bg-black/40 rounded-2xl border border-emerald-900/40 shadow-inner">
-                        <h3 className="text-lg font-bold mb-3 text-purple-400">Toplu Ekle (Okunanlar)</h3>
-                        <textarea className="input-dark w-full p-4 rounded-xl min-h-[110px] text-sm" value={plainTextImportList} onChange={(e) => setPlainTextImportList(e.target.value)} placeholder="Her satıra bir kitap...&#10;Ör: Yabancı - Albert Camus"></textarea>
-                        <button onClick={handlePlainTextImport} className="btn-black w-full mt-3 py-3.5 rounded-xl font-bold text-purple-400 border-purple-900/50">Listeyi İçe Aktar</button>
+                    <div className="p-4 bg-black/40 rounded-xl border border-emerald-900/40 shadow-inner">
+                        <h3 className="text-sm font-semibold mb-2 text-purple-400">Toplu Ekle (Okunanlar)</h3>
+                        <textarea className="input-dark w-full p-3 rounded-lg min-h-[90px] text-xs" value={plainTextImportList} onChange={(e) => setPlainTextImportList(e.target.value)} placeholder="Her satıra bir kitap...&#10;Ör: Yabancı - Albert Camus"></textarea>
+                        <button onClick={handlePlainTextImport} className="btn-black w-full mt-2.5 py-2.5 rounded-lg font-medium text-xs text-purple-400 border-purple-900/50">Listeyi İçe Aktar</button>
                     </div>
 
-                    <button onClick={() => setShowSettings(false)} className="btn-black w-full mt-6 py-3.5 rounded-xl font-bold text-gray-300 border-gray-600">
+                    <button onClick={() => setShowSettings(false)} className="btn-black w-full mt-5 py-2.5 rounded-lg font-medium text-xs text-gray-300 border-gray-600">
                         Ayarları Kapat
                     </button>
                 </div>
@@ -2003,77 +2098,77 @@
               className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto"
               onClick={(e) => { if (e.target === e.currentTarget) closeEditModal(); }}
             >
-              <div className="glass-panel p-6 sm:p-10 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll pr-3 border-t border-emerald-900/50 my-auto">
-                <button onClick={closeEditModal} className="btn-black absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 flex-shrink-0">&times;</button>
-                <h2 className="text-3xl font-bold mb-2 text-center text-white neon-title-yellow">Kitabı Düzenle</h2>
-                <p className="text-xs text-center text-emerald-400 mb-6">Burada yaptığınız değişiklikler Kütüphanem ve Okuma Listem ile otomatik eşitlenir.</p>
-                <div className="space-y-5">
+              <div className="glass-panel p-5 sm:p-7 rounded-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto modal-scroll pr-2 border-t border-emerald-900/50 my-auto">
+                <button onClick={closeEditModal} className="btn-black absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-lg pb-0.5 flex-shrink-0">&times;</button>
+                <h2 className="text-lg sm:text-xl font-semibold mb-1.5 text-center text-white neon-title-yellow">Kitabı Düzenle</h2>
+                <p className="text-[11px] text-center text-emerald-400 mb-5">Burada yaptığınız değişiklikler Kütüphanem ve Okuma Listem ile otomatik eşitlenir.</p>
+                <div className="space-y-3.5">
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Başlık:</label>
-                      <input type="text" className="input-dark w-full p-3.5 rounded-xl" value={editingBook.title} onChange={(e) => setEditingBook({...editingBook, title: e.target.value})} />
+                      <label className="block text-xs font-medium mb-1.5 text-gray-300">Başlık:</label>
+                      <input type="text" className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" value={editingBook.title} onChange={(e) => setEditingBook({...editingBook, title: e.target.value})} />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Yazar:</label>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-300">Yazar:</label>
                       <input 
                         type="text" 
                         list="authors-datalist"
                         placeholder="Yazar seçin veya yazın..."
-                        className="input-dark w-full p-3.5 rounded-xl" 
+                        className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" 
                         value={editingBook.authors} 
                         onChange={(e) => setEditingBook({...editingBook, authors: e.target.value})} 
                       />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold mb-2 text-gray-300">Tür:</label>
-                        <select className="input-dark w-full p-3.5 rounded-xl appearance-none" value={editingBook.genre || 'Bilinmiyor'} onChange={(e) => setEditingBook({...editingBook, genre: e.target.value})}>
+                        <label className="block text-xs font-medium mb-1.5 text-gray-300">Tür:</label>
+                        <select className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm appearance-none" value={editingBook.genre || 'Bilinmiyor'} onChange={(e) => setEditingBook({...editingBook, genre: e.target.value})}>
                             <option value="Bilinmiyor">Tür Seçiniz...</option>
                             {allGenres.map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Yayınevi:</label>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-300">Yayınevi:</label>
                       <input 
                         type="text" 
                         list="publishers-datalist"
                         placeholder="Yayınevi seçin veya yazın..."
-                        className="input-dark w-full p-3.5 rounded-xl" 
+                        className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" 
                         value={editingBook.publisher === 'Yayınevi Bilgisi Yok' ? '' : editingBook.publisher} 
                         onChange={(e) => setEditingBook({...editingBook, publisher: e.target.value})} 
                       />
                     </div>
                     <div>
-                      <div className="flex flex-wrap justify-between items-center gap-2 mb-2">
-                        <label className="block text-sm font-semibold text-gray-300">Kapak Resmi URL:</label>
-                        <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap justify-between items-center gap-2 mb-1.5">
+                        <label className="block text-xs font-medium text-gray-300">Kapak Resmi URL:</label>
+                        <div className="flex items-center gap-2.5">
                           <button 
                             type="button"
                             onClick={() => loadCandidateCoversForModal(editingBook.title, editingBook.authors)}
-                            className="text-xs font-bold text-amber-400 hover:underline"
+                            className="text-[11px] font-medium text-amber-400 hover:underline"
                           >
-                            {loadingCandidates ? 'Aranıyor...' : '🖼️ Alternatif Kapakları Göster'}
+                            {loadingCandidates ? 'Aranıyor...' : '🖼️ Alternatif Kapaklar'}
                           </button>
                           <a 
                             href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(editingBook.title + ' ' + editingBook.authors + ' kitap kapağı')}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs font-bold text-sky-400 hover:underline"
+                            className="text-[11px] font-medium text-sky-400 hover:underline"
                           >
-                            🔍 Google Görseller'de Aç
+                            🔍 Google Görseller
                           </a>
                         </div>
                       </div>
                       <input 
                         type="text" 
                         placeholder="Resim adresini (URL) buraya yapıştırın..."
-                        className="input-dark w-full p-3.5 rounded-xl text-sm" 
+                        className="input-dark w-full p-2.5 rounded-lg text-xs" 
                         value={editingBook.coverUrl || ''} 
                         onChange={(e) => setEditingBook({...editingBook, coverUrl: e.target.value})} 
                       />
 
                       {candidateCovers.length > 0 && (
-                        <div className="mt-3 p-3 bg-black/60 rounded-xl border border-emerald-900/50">
-                          <p className="text-xs text-gray-400 mb-2">Seçmek istediğiniz kapağa tıklayın:</p>
-                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto modal-scroll p-1">
+                        <div className="mt-2.5 p-2.5 bg-black/60 rounded-lg border border-emerald-900/50">
+                          <p className="text-[11px] text-gray-400 mb-2">Seçmek istediğiniz kapağa tıklayın:</p>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-44 overflow-y-auto modal-scroll p-1">
                             {candidateCovers.map((c, idx) => (
                               <div 
                                 key={idx} 
@@ -2082,10 +2177,10 @@
                                   coverUrl: c.coverUrl,
                                   publisher: (!editingBook.publisher || editingBook.publisher === 'Yayınevi Bilgisi Yok') && c.publisher !== 'Yayınevi Bilgisi Yok' ? c.publisher : editingBook.publisher
                                 })}
-                                className={`cursor-pointer p-1 rounded border-2 transition-all flex flex-col items-center bg-black/40 ${editingBook.coverUrl === c.coverUrl ? 'border-amber-400 scale-105' : 'border-transparent hover:border-emerald-500'}`}
+                                className={`cursor-pointer p-1 rounded border transition-all flex flex-col items-center bg-black/40 ${editingBook.coverUrl === c.coverUrl ? 'border-amber-400 scale-105' : 'border-transparent hover:border-emerald-500'}`}
                               >
-                                <img src={c.coverUrl} alt="" className="h-20 object-contain rounded" />
-                                <span className="text-[9px] text-gray-400 mt-1 truncate w-full text-center">{c.sourceBadge}</span>
+                                <img src={c.coverUrl} alt="" className="h-16 object-contain rounded" />
+                                <span className="text-[8px] text-gray-400 mt-1 truncate w-full text-center">{c.sourceBadge}</span>
                               </div>
                             ))}
                           </div>
@@ -2094,30 +2189,30 @@
                     </div>
                     {editingBook.source === 'read' && (
                       <div>
-                        <label className="block text-sm font-semibold mb-2 text-gray-300">Okuma Tarihi:</label>
-                        <input type="date" className="input-dark w-full p-3.5 rounded-xl" value={editingBook.readDate || ''} onChange={(e) => setEditingBook({...editingBook, readDate: e.target.value})} />
+                        <label className="block text-xs font-medium mb-1.5 text-gray-300">Okuma Tarihi:</label>
+                        <input type="date" className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" value={editingBook.readDate || ''} onChange={(e) => setEditingBook({...editingBook, readDate: e.target.value})} />
                       </div>
                     )}
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Notlar:</label>
-                      <textarea className="input-dark w-full p-4 rounded-xl min-h-[120px]" value={editingBook.notes || ''} onChange={(e) => setEditingBook({...editingBook, notes: e.target.value})}></textarea>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-300">Notlar:</label>
+                      <textarea className="input-dark w-full p-3 rounded-lg min-h-[90px] text-xs sm:text-sm" value={editingBook.notes || ''} onChange={(e) => setEditingBook({...editingBook, notes: e.target.value})}></textarea>
                     </div>
 
                     {editingBook.source !== 'library' && (
-                      <label className="flex items-center gap-3 p-3.5 bg-black/50 rounded-xl border border-sky-800/60 cursor-pointer hover:border-eab308 transition-colors select-none">
+                      <label className="flex items-center gap-2.5 p-3 bg-black/50 rounded-lg border border-sky-800/60 cursor-pointer hover:border-eab308 transition-colors select-none">
                         <input 
                           type="checkbox" 
-                          className="w-5 h-5 accent-emerald-500 rounded cursor-pointer"
+                          className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
                           checked={editAlsoAddToLibrary}
                           onChange={(e) => setEditAlsoAddToLibrary(e.target.checked)}
                         />
-                        <span className="text-sm font-bold text-sky-300">
+                        <span className="text-xs font-medium text-sky-300">
                           Bu kitabı Kütüphaneme de ekle (Kütüphanemde bulunsun)
                         </span>
                       </label>
                     )}
 
-                    <button onClick={saveEditedBook} className="btn-black w-full py-4 rounded-xl font-bold border-emerald-800 text-emerald-400 mt-4">Değişiklikleri Kaydet</button>
+                    <button onClick={saveEditedBook} className="btn-black w-full py-3 rounded-lg font-medium text-xs sm:text-sm border-emerald-800 text-emerald-400 mt-2">Değişiklikleri Kaydet</button>
                 </div>
               </div>
             </div>
@@ -2128,54 +2223,54 @@
               className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto"
               onClick={(e) => { if (e.target === e.currentTarget) { setManualAddTarget(null); resetManualBookForm(); } }}
             >
-              <div className="glass-panel p-8 sm:p-10 rounded-3xl w-full max-w-lg relative max-h-[90vh] overflow-y-auto modal-scroll pr-3 border-t border-emerald-900/50 my-auto">
-                <button onClick={() => { setManualAddTarget(null); resetManualBookForm(); }} className="btn-black absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center text-2xl pb-1 flex-shrink-0">&times;</button>
-                <h2 className="text-3xl font-bold mb-8 text-center text-white neon-title-yellow">
+              <div className="glass-panel p-5 sm:p-7 rounded-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto modal-scroll pr-2 border-t border-emerald-900/50 my-auto">
+                <button onClick={() => { setManualAddTarget(null); resetManualBookForm(); }} className="btn-black absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-lg pb-0.5 flex-shrink-0">&times;</button>
+                <h2 className="text-lg sm:text-xl font-semibold mb-5 text-center text-white neon-title-yellow">
                     {manualAddTarget === 'read' ? 'Okuduğum Kitap Ekle' : manualAddTarget === 'library' ? 'Kütüphaneye Ekle' : 'Okuma Listeme Ekle'}
                 </h2>
-                <div className="space-y-5">
+                <div className="space-y-3.5">
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Başlık *</label>
-                      <input type="text" className="input-dark w-full p-3.5 rounded-xl" value={manualBook.title} onChange={(e) => setManualBook({ ...manualBook, title: e.target.value })} />
+                      <label className="block text-xs font-medium mb-1.5 text-gray-300">Başlık *</label>
+                      <input type="text" className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" value={manualBook.title} onChange={(e) => setManualBook({ ...manualBook, title: e.target.value })} />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Yazar *</label>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-300">Yazar *</label>
                       <input 
                         type="text" 
                         list="authors-datalist"
                         placeholder="Yazar seçin veya yazın..."
-                        className="input-dark w-full p-3.5 rounded-xl" 
+                        className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" 
                         value={manualBook.authors} 
                         onChange={(e) => setManualBook({ ...manualBook, authors: e.target.value })} 
                       />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold mb-2 text-gray-300">Tür:</label>
-                        <select className="input-dark w-full p-3.5 rounded-xl appearance-none" value={manualBook.genre} onChange={(e) => setManualBook({ ...manualBook, genre: e.target.value })}>
+                        <label className="block text-xs font-medium mb-1.5 text-gray-300">Tür:</label>
+                        <select className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm appearance-none" value={manualBook.genre} onChange={(e) => setManualBook({ ...manualBook, genre: e.target.value })}>
                             <option value="Bilinmiyor">Tür Seçiniz...</option>
                             {allGenres.map(g => <option key={g} value={g}>{g}</option>)}
                         </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Yayınevi:</label>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-300">Yayınevi:</label>
                       <input 
                         type="text" 
                         list="publishers-datalist"
                         placeholder="Yayınevi seçin veya yazın..."
-                        className="input-dark w-full p-3.5 rounded-xl" 
+                        className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" 
                         value={manualBook.publisher} 
                         onChange={(e) => setManualBook({ ...manualBook, publisher: e.target.value })} 
                       />
                     </div>
                     <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <label className="block text-sm font-semibold text-gray-300">Kapak Resmi URL (İsteğe Bağlı):</label>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="block text-xs font-medium text-gray-300">Kapak Resmi URL (İsteğe Bağlı):</label>
                         {manualBook.title && (
                           <a 
                             href={`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(manualBook.title + ' ' + manualBook.authors + ' kitap kapağı')}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs font-bold text-sky-400 hover:underline"
+                            className="text-[11px] font-medium text-sky-400 hover:underline"
                           >
                             🔍 Google Görseller'de Ara
                           </a>
@@ -2184,85 +2279,85 @@
                       <input 
                         type="text" 
                         placeholder="https://... (Sadece sizin yapıştırdığınız resim kaydedilir)"
-                        className="input-dark w-full p-3.5 rounded-xl text-sm" 
+                        className="input-dark w-full p-2.5 rounded-lg text-xs" 
                         value={manualBook.coverUrl || ''} 
                         onChange={(e) => setManualBook({ ...manualBook, coverUrl: e.target.value })} 
                       />
                     </div>
                     {manualAddTarget === 'read' && (
                       <div>
-                        <label className="block text-sm font-semibold mb-2 text-gray-300">Okuma Tarihi:</label>
-                        <input type="date" className="input-dark w-full p-3.5 rounded-xl" value={manualBook.readDate || ''} onChange={(e) => setManualBook({ ...manualBook, readDate: e.target.value })} />
+                        <label className="block text-xs font-medium mb-1.5 text-gray-300">Okuma Tarihi:</label>
+                        <input type="date" className="input-dark w-full p-2.5 rounded-lg text-xs sm:text-sm" value={manualBook.readDate || ''} onChange={(e) => setManualBook({ ...manualBook, readDate: e.target.value })} />
                       </div>
                     )}
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-300">Notlar:</label>
-                      <textarea className="input-dark w-full p-4 rounded-xl min-h-[120px]" value={manualBook.notes} onChange={(e) => setManualBook({ ...manualBook, notes: e.target.value})}></textarea>
+                      <label className="block text-xs font-medium mb-1.5 text-gray-300">Notlar:</label>
+                      <textarea className="input-dark w-full p-3 rounded-lg min-h-[90px] text-xs sm:text-sm" value={manualBook.notes} onChange={(e) => setManualBook({ ...manualBook, notes: e.target.value})}></textarea>
                     </div>
 
                     {manualAddTarget !== 'library' && (
-                      <label className="flex items-center gap-3 p-3.5 bg-black/50 rounded-xl border border-sky-800/60 cursor-pointer hover:border-eab308 transition-colors select-none">
+                      <label className="flex items-center gap-2.5 p-3 bg-black/50 rounded-lg border border-sky-800/60 cursor-pointer hover:border-eab308 transition-colors select-none">
                         <input 
                           type="checkbox" 
-                          className="w-5 h-5 accent-emerald-500 rounded cursor-pointer"
+                          className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
                           checked={manualAlsoAddToLibrary}
                           onChange={(e) => setManualAlsoAddToLibrary(e.target.checked)}
                         />
-                        <span className="text-sm font-bold text-sky-300">
+                        <span className="text-xs font-medium text-sky-300">
                           Bu kitabı aynı zamanda Kütüphaneme de ekle
                         </span>
                       </label>
                     )}
 
-                    <button onClick={() => handleManualAddBook(manualAddTarget)} className="btn-black w-full py-4 rounded-xl font-bold border-emerald-800 text-emerald-400 mt-4">Kaydet ve Ekle</button>
+                    <button onClick={() => handleManualAddBook(manualAddTarget)} className="btn-black w-full py-3 rounded-lg font-medium text-xs sm:text-sm border-emerald-800 text-emerald-400 mt-2">Kaydet ve Ekle</button>
                 </div>
               </div>
             </div>
           )}
           
           {showStats && (
-            <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-4 sm:p-6 lg:p-10">
-              <div className="glass-panel p-6 sm:p-10 rounded-3xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-7xl mx-auto border-t border-emerald-900/50">
+            <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex flex-col z-50 p-3 sm:p-6 lg:p-8">
+              <div className="glass-panel p-4 sm:p-7 rounded-2xl shadow-2xl flex-1 flex flex-col min-h-0 w-full max-w-6xl mx-auto border-t border-emerald-900/50">
                 
-                <div className="flex justify-between items-center mb-6 border-b border-emerald-900/40 pb-5">
-                  <h2 className="text-3xl sm:text-4xl font-extrabold text-white neon-title-yellow">İstatistikler</h2>
-                  <button onClick={() => { setShowStats(false); setSelectedAuthorName(''); setSelectedPublisherName(''); setSelectedGenreName(''); setStatsSearchTerm(''); setSelectedBookDetails(null); }} className="btn-black w-12 h-12 rounded-full flex items-center justify-center text-2xl pb-1">&times;</button>
+                <div className="flex justify-between items-center mb-5 border-b border-emerald-900/40 pb-3.5">
+                  <h2 className="text-lg sm:text-2xl font-semibold text-white neon-title-yellow">İstatistikler</h2>
+                  <button onClick={() => { setShowStats(false); setSelectedAuthorName(''); setSelectedPublisherName(''); setSelectedGenreName(''); setStatsSearchTerm(''); setSelectedBookDetails(null); }} className="btn-black w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-lg pb-0.5">&times;</button>
                 </div>
                 
                 {selectedBookDetails ? (
                   <div className="flex-1 flex flex-col min-h-0 items-center justify-center relative">
-                    <button onClick={() => setSelectedBookDetails(null)} className="btn-black absolute top-0 right-0 p-3 rounded-xl border-gray-600" aria-label="Geri Dön">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <button onClick={() => setSelectedBookDetails(null)} className="btn-black absolute top-0 right-0 p-2 rounded-lg border-gray-600" aria-label="Geri Dön">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
-                    <div className="w-full max-w-2xl">
-                        <h3 className="text-3xl font-bold mb-8 text-white pr-16 border-b border-emerald-900/40 pb-4">Eser Detayları</h3>
-                        <div className="book-cover-card p-8 flex flex-col sm:flex-row gap-6 book-spine min-h-[300px]">
+                    <div className="w-full max-w-xl">
+                        <h3 className="text-lg font-semibold mb-5 text-white pr-12 border-b border-emerald-900/40 pb-3">Eser Detayları</h3>
+                        <div className="book-cover-card p-6 flex flex-col sm:flex-row gap-5 book-spine min-h-[250px]">
                             {selectedBookDetails.coverUrl && (
-                              <img src={selectedBookDetails.coverUrl} alt={selectedBookDetails.title} className="w-36 h-52 object-contain rounded shadow-lg self-center sm:self-start" />
+                              <img src={selectedBookDetails.coverUrl} alt={selectedBookDetails.title} className="w-32 h-44 object-contain rounded shadow-md self-center sm:self-start" />
                             )}
                             <div className="flex-1 flex flex-col justify-between">
                                 <div>
-                                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-2 leading-tight drop-shadow-lg">{selectedBookDetails.title}</h3>
-                                  <p className="text-lg font-bold text-emerald-400 mb-6 drop-shadow">{selectedBookDetails.authors}</p>
-                                  <div className="grid grid-cols-2 gap-4 bg-black/40 p-4 rounded-xl border border-emerald-900/40">
+                                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-1.5 leading-snug">{selectedBookDetails.title}</h3>
+                                  <p className="text-sm font-medium text-emerald-400 mb-4">{selectedBookDetails.authors}</p>
+                                  <div className="grid grid-cols-2 gap-3 bg-black/40 p-3.5 rounded-lg border border-emerald-900/40">
                                       <div>
-                                          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Tür</p>
-                                          <p className="text-base text-gray-200 font-medium">{selectedBookDetails.genre || '-'}</p>
+                                          <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider mb-0.5">Tür</p>
+                                          <p className="text-xs sm:text-sm text-gray-200 font-normal">{selectedBookDetails.genre || '-'}</p>
                                       </div>
                                       <div>
-                                          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Yayınevi</p>
-                                          <p className="text-base text-gray-200 font-medium">{selectedBookDetails.publisher && selectedBookDetails.publisher !== 'Yayınevi Bilgisi Yok' ? selectedBookDetails.publisher : '-'}</p>
+                                          <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider mb-0.5">Yayınevi</p>
+                                          <p className="text-xs sm:text-sm text-gray-200 font-normal">{selectedBookDetails.publisher && selectedBookDetails.publisher !== 'Yayınevi Bilgisi Yok' ? selectedBookDetails.publisher : '-'}</p>
                                       </div>
-                                      <div className="col-span-2 pt-3 border-t border-emerald-900/40">
-                                          <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Okuma Tarihi</p>
-                                          <p className="text-base text-emerald-400 font-bold flex items-center gap-2">
+                                      <div className="col-span-2 pt-2.5 border-t border-emerald-900/40">
+                                          <p className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider mb-0.5">Okuma Tarihi</p>
+                                          <p className="text-xs sm:text-sm text-emerald-400 font-medium flex items-center gap-1.5">
                                               {selectedBookDetails.readDate ? formatDisplayDate(selectedBookDetails.readDate) : 'Tarih Belirtilmemiş'}
                                           </p>
                                       </div>
                                   </div>
                                 </div>
-                                <div className="mt-6 pt-4 border-t border-emerald-900/40 flex justify-end">
-                                    <button onClick={() => { openEditModal(selectedBookDetails, 'read'); setShowStats(false); }} className="btn-black px-6 py-2.5 rounded-xl font-bold border-emerald-800 text-emerald-400 flex items-center gap-2 text-sm">
+                                <div className="mt-4 pt-3 border-t border-emerald-900/40 flex justify-end">
+                                    <button onClick={() => { openEditModal(selectedBookDetails, 'read'); setShowStats(false); }} className="btn-black px-4 py-2 rounded-lg font-medium border-emerald-800 text-emerald-400 flex items-center gap-1.5 text-xs">
                                       Bilgileri Düzenle
                                     </button>
                                 </div>
@@ -2272,21 +2367,21 @@
                   </div>
                 ) : selectedAuthorName ? (
                   <div className="flex-1 flex flex-col min-h-0 relative">
-                    <div className="flex items-center justify-between mb-8 border-b border-emerald-900/40 pb-4 pr-16">
-                        <h3 className="text-3xl font-bold text-white flex items-center gap-4">
+                    <div className="flex items-center justify-between mb-5 border-b border-emerald-900/40 pb-3 pr-12">
+                        <h3 className="text-lg sm:text-xl font-semibold text-white flex items-center gap-3">
                             {selectedAuthorName} 
-                            <span className="bg-emerald-500/20 text-emerald-400 text-lg px-4 py-1 rounded-full border border-emerald-500/30">{selectedAuthorBooks.length} Kitap</span>
+                            <span className="bg-emerald-500/20 text-emerald-400 text-xs px-3 py-0.5 rounded-full border border-emerald-500/30">{selectedAuthorBooks.length} Kitap</span>
                         </h3>
                     </div>
-                    <button onClick={() => {setSelectedAuthorName(''); setSelectedAuthorBooks([]);}} className="btn-black absolute top-0 right-0 p-3 rounded-xl border-gray-600" aria-label="Geri Dön">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <button onClick={() => {setSelectedAuthorName(''); setSelectedAuthorBooks([]);}} className="btn-black absolute top-0 right-0 p-2 rounded-lg border-gray-600" aria-label="Geri Dön">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
-                    <div className="overflow-y-auto max-h-[60vh] modal-scroll pr-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
+                    <div className="overflow-y-auto max-h-[65vh] modal-scroll pr-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5">
                             {selectedAuthorBooks.map((title, i) => (
-                                <div key={i} onClick={() => handleBookClickInStats(title)} className="bg-black/60 p-6 rounded-xl border border-emerald-900/40 cursor-pointer hover:border-yellow-500 hover:bg-black/80 transition-all flex items-center justify-between group shadow-lg">
-                                    <span className="font-bold text-gray-200 group-hover:text-yellow-400 text-lg">{title}</span>
-                                    <svg className="w-6 h-6 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                <div key={i} onClick={() => handleBookClickInStats(title)} className="bg-black/60 p-4 rounded-xl border border-emerald-900/40 cursor-pointer hover:border-yellow-500 hover:bg-black/80 transition-all flex items-center justify-between group shadow">
+                                    <span className="font-medium text-gray-200 group-hover:text-yellow-400 text-xs sm:text-sm">{title}</span>
+                                    <svg className="w-4 h-4 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             ))}
                         </div>
@@ -2294,21 +2389,21 @@
                   </div>
                 ) : selectedPublisherName ? (
                   <div className="flex-1 flex flex-col min-h-0 relative">
-                    <div className="flex items-center justify-between mb-8 border-b border-emerald-900/40 pb-4 pr-16">
-                        <h3 className="text-3xl font-bold text-white flex items-center gap-4">
+                    <div className="flex items-center justify-between mb-5 border-b border-emerald-900/40 pb-3 pr-12">
+                        <h3 className="text-lg sm:text-xl font-semibold text-white flex items-center gap-3">
                             {selectedPublisherName} 
-                            <span className="bg-emerald-500/20 text-emerald-400 text-lg px-4 py-1 rounded-full border border-emerald-500/30">{selectedPublisherBooks.length} Kitap</span>
+                            <span className="bg-emerald-500/20 text-emerald-400 text-xs px-3 py-0.5 rounded-full border border-emerald-500/30">{selectedPublisherBooks.length} Kitap</span>
                         </h3>
                     </div>
-                    <button onClick={() => {setSelectedPublisherName(''); setSelectedPublisherBooks([]);}} className="btn-black absolute top-0 right-0 p-3 rounded-xl border-gray-600" aria-label="Geri Dön">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <button onClick={() => {setSelectedPublisherName(''); setSelectedPublisherBooks([]);}} className="btn-black absolute top-0 right-0 p-2 rounded-lg border-gray-600" aria-label="Geri Dön">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
-                    <div className="overflow-y-auto max-h-[60vh] modal-scroll pr-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
+                    <div className="overflow-y-auto max-h-[65vh] modal-scroll pr-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5">
                             {selectedPublisherBooks.map((title, i) => (
-                                <div key={i} onClick={() => handleBookClickInStats(title)} className="bg-black/60 p-6 rounded-xl border border-emerald-900/40 cursor-pointer hover:border-yellow-500 hover:bg-black/80 transition-all flex items-center justify-between group shadow-lg">
-                                    <span className="font-bold text-gray-200 group-hover:text-yellow-400 text-lg">{title}</span>
-                                    <svg className="w-6 h-6 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                <div key={i} onClick={() => handleBookClickInStats(title)} className="bg-black/60 p-4 rounded-xl border border-emerald-900/40 cursor-pointer hover:border-yellow-500 hover:bg-black/80 transition-all flex items-center justify-between group shadow">
+                                    <span className="font-medium text-gray-200 group-hover:text-yellow-400 text-xs sm:text-sm">{title}</span>
+                                    <svg className="w-4 h-4 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             ))}
                         </div>
@@ -2316,21 +2411,21 @@
                   </div>
                 ) : selectedGenreName ? (
                   <div className="flex-1 flex flex-col min-h-0 relative">
-                    <div className="flex items-center justify-between mb-8 border-b border-emerald-900/40 pb-4 pr-16">
-                        <h3 className="text-3xl font-bold text-white flex items-center gap-4">
+                    <div className="flex items-center justify-between mb-5 border-b border-emerald-900/40 pb-3 pr-12">
+                        <h3 className="text-lg sm:text-xl font-semibold text-white flex items-center gap-3">
                             {selectedGenreName} 
-                            <span className="bg-emerald-500/20 text-emerald-400 text-lg px-4 py-1 rounded-full border border-emerald-500/30">{selectedGenreBooks.length} Kitap</span>
+                            <span className="bg-emerald-500/20 text-emerald-400 text-xs px-3 py-0.5 rounded-full border border-emerald-500/30">{selectedGenreBooks.length} Kitap</span>
                         </h3>
                     </div>
-                    <button onClick={() => {setSelectedGenreName(''); setSelectedGenreBooks([]);}} className="btn-black absolute top-0 right-0 p-3 rounded-xl border-gray-600" aria-label="Geri Dön">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <button onClick={() => {setSelectedGenreName(''); setSelectedGenreBooks([]);}} className="btn-black absolute top-0 right-0 p-2 rounded-lg border-gray-600" aria-label="Geri Dön">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
-                    <div className="overflow-y-auto max-h-[60vh] modal-scroll pr-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
+                    <div className="overflow-y-auto max-h-[65vh] modal-scroll pr-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5">
                             {selectedGenreBooks.map((title, i) => (
-                                <div key={i} onClick={() => handleBookClickInStats(title)} className="bg-black/60 p-6 rounded-xl border border-emerald-900/40 cursor-pointer hover:border-yellow-500 hover:bg-black/80 transition-all flex items-center justify-between group shadow-lg">
-                                    <span className="font-bold text-gray-200 group-hover:text-yellow-400 text-lg">{title}</span>
-                                    <svg className="w-6 h-6 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                <div key={i} onClick={() => handleBookClickInStats(title)} className="bg-black/60 p-4 rounded-xl border border-emerald-900/40 cursor-pointer hover:border-yellow-500 hover:bg-black/80 transition-all flex items-center justify-between group shadow">
+                                    <span className="font-medium text-gray-200 group-hover:text-yellow-400 text-xs sm:text-sm">{title}</span>
+                                    <svg className="w-4 h-4 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             ))}
                         </div>
@@ -2338,53 +2433,53 @@
                   </div>
                 ) : (
                   <>
-                    <div className="border-b border-emerald-900/40 mb-8">
-                      <nav className="-mb-px flex gap-2 sm:gap-6 overflow-x-auto pb-2">
-                        <button onClick={() => setStatsTab('authors')} className={`shrink-0 border-b-2 px-4 py-3 text-lg font-bold transition-all ${statsTab === 'authors' ? 'border-emerald-500 text-emerald-400 bg-emerald-900/20 rounded-t-xl' : 'border-transparent text-gray-400 hover:text-yellow-400'}`}>Yazarlar</button>
-                        <button onClick={() => setStatsTab('publishers')} className={`shrink-0 border-b-2 px-4 py-3 text-lg font-bold transition-all ${statsTab === 'publishers' ? 'border-emerald-500 text-emerald-400 bg-emerald-900/20 rounded-t-xl' : 'border-transparent text-gray-400 hover:text-yellow-400'}`}>Yayınevleri</button>
-                        <button onClick={() => setStatsTab('genres')} className={`shrink-0 border-b-2 px-4 py-3 text-lg font-bold transition-all ${statsTab === 'genres' ? 'border-emerald-500 text-emerald-400 bg-emerald-900/20 rounded-t-xl' : 'border-transparent text-gray-400 hover:text-yellow-400'}`}>Türler</button>
+                    <div className="border-b border-emerald-900/40 mb-5">
+                      <nav className="-mb-px flex gap-2 sm:gap-4 overflow-x-auto pb-1.5">
+                        <button onClick={() => setStatsTab('authors')} className={`shrink-0 border-b-2 px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all ${statsTab === 'authors' ? 'border-emerald-500 text-emerald-400 bg-emerald-900/20 rounded-t-lg' : 'border-transparent text-gray-400 hover:text-yellow-400'}`}>Yazarlar</button>
+                        <button onClick={() => setStatsTab('publishers')} className={`shrink-0 border-b-2 px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all ${statsTab === 'publishers' ? 'border-emerald-500 text-emerald-400 bg-emerald-900/20 rounded-t-lg' : 'border-transparent text-gray-400 hover:text-yellow-400'}`}>Yayınevleri</button>
+                        <button onClick={() => setStatsTab('genres')} className={`shrink-0 border-b-2 px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all ${statsTab === 'genres' ? 'border-emerald-500 text-emerald-400 bg-emerald-900/20 rounded-t-lg' : 'border-transparent text-gray-400 hover:text-yellow-400'}`}>Türler</button>
                       </nav>
                     </div>
                     <div className="flex-1 flex flex-col min-h-0">
-                      <div className="relative mb-8">
-                        <input type="text" placeholder={`${statsTab === 'authors' ? 'Yazar' : statsTab === 'publishers' ? 'Yayınevi' : 'Tür'} ara...`} className="input-dark w-full p-4 pr-12 rounded-xl text-lg" value={statsSearchTerm} onChange={(e) => setStatsSearchTerm(e.target.value)} />
-                        {statsSearchTerm && <button onClick={() => setStatsSearchTerm('')} className="absolute inset-y-0 right-4 flex items-center text-gray-400 hover:text-white text-xl">&times;</button>}
+                      <div className="relative mb-5">
+                        <input type="text" placeholder={`${statsTab === 'authors' ? 'Yazar' : statsTab === 'publishers' ? 'Yayınevi' : 'Tür'} ara...`} className="input-dark w-full p-2.5 sm:p-3 pr-10 rounded-lg text-xs sm:text-sm" value={statsSearchTerm} onChange={(e) => setStatsSearchTerm(e.target.value)} />
+                        {statsSearchTerm && <button onClick={() => setStatsSearchTerm('')} className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-white text-base">&times;</button>}
                       </div>
-                      <div className="flex-1 overflow-y-auto modal-scroll pr-3">
-                        {statsTab === 'authors' && (getAuthorStats().length === 0 ? (<div className="flex justify-center p-12 bg-black/20 rounded-3xl border border-dashed border-emerald-900/50"><p className="text-gray-400 text-xl font-medium">Yazar istatistiği bulunamadı.</p></div>) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                      <div className="flex-1 overflow-y-auto modal-scroll pr-2">
+                        {statsTab === 'authors' && (getAuthorStats().length === 0 ? (<div className="flex justify-center p-10 bg-black/20 rounded-2xl border border-dashed border-emerald-900/50"><p className="text-gray-400 text-sm">Yazar istatistiği bulunamadı.</p></div>) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {getAuthorStats().map(([authorName, data]) => (
-                                    <div key={authorName} onClick={() => {setSelectedAuthorName(authorName); setSelectedAuthorBooks(data.books);}} className="bg-black/40 p-6 rounded-2xl border border-emerald-900/40 hover:border-yellow-500 hover:bg-black/60 cursor-pointer transition-all flex flex-col justify-between group shadow-xl">
-                                        <span className="text-xl font-bold text-white mb-6 group-hover:text-yellow-400 transition-colors leading-tight">{authorName}</span>
+                                    <div key={authorName} onClick={() => {setSelectedAuthorName(authorName); setSelectedAuthorBooks(data.books);}} className="bg-black/40 p-4 rounded-xl border border-emerald-900/40 hover:border-yellow-500 hover:bg-black/60 cursor-pointer transition-all flex flex-col justify-between group shadow">
+                                        <span className="text-sm sm:text-base font-semibold text-white mb-4 group-hover:text-yellow-400 transition-colors leading-snug">{authorName}</span>
                                         <div className="flex justify-between items-center mt-auto">
-                                            <span className="px-4 py-1.5 bg-emerald-900/30 text-emerald-400 text-sm font-bold rounded-lg border border-emerald-800/50">{data.count} Eser</span>
-                                            <svg className="w-6 h-6 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                            <span className="px-2.5 py-1 bg-emerald-900/30 text-emerald-400 text-xs font-medium rounded-md border border-emerald-800/50">{data.count} Eser</span>
+                                            <svg className="w-4 h-4 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ))}
-                        {statsTab === 'publishers' && (getPublisherStats().length === 0 ? (<div className="flex justify-center p-12 bg-black/20 rounded-3xl border border-dashed border-emerald-900/50"><p className="text-gray-400 text-xl font-medium">Yayınevi istatistiği bulunamadı.</p></div>) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {statsTab === 'publishers' && (getPublisherStats().length === 0 ? (<div className="flex justify-center p-10 bg-black/20 rounded-2xl border border-dashed border-emerald-900/50"><p className="text-gray-400 text-sm">Yayınevi istatistiği bulunamadı.</p></div>) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {getPublisherStats().map(([publisherName, data]) => (
-                                    <div key={publisherName} onClick={() => {setSelectedPublisherName(publisherName); setSelectedPublisherBooks(data.books);}} className="bg-black/40 p-6 rounded-2xl border border-emerald-900/40 hover:border-yellow-500 hover:bg-black/60 cursor-pointer transition-all flex flex-col justify-between group shadow-xl">
-                                        <span className="text-xl font-bold text-white mb-6 group-hover:text-yellow-400 transition-colors leading-tight">{publisherName}</span>
+                                    <div key={publisherName} onClick={() => {setSelectedPublisherName(publisherName); setSelectedPublisherBooks(data.books);}} className="bg-black/40 p-4 rounded-xl border border-emerald-900/40 hover:border-yellow-500 hover:bg-black/60 cursor-pointer transition-all flex flex-col justify-between group shadow">
+                                        <span className="text-sm sm:text-base font-semibold text-white mb-4 group-hover:text-yellow-400 transition-colors leading-snug">{publisherName}</span>
                                         <div className="flex justify-between items-center mt-auto">
-                                            <span className="px-4 py-1.5 bg-emerald-900/30 text-emerald-400 text-sm font-bold rounded-lg border border-emerald-800/50">{data.count} Eser</span>
-                                            <svg className="w-6 h-6 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                            <span className="px-2.5 py-1 bg-emerald-900/30 text-emerald-400 text-xs font-medium rounded-md border border-emerald-800/50">{data.count} Eser</span>
+                                            <svg className="w-4 h-4 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ))}
-                        {statsTab === 'genres' && (getGenreStats().length === 0 ? (<div className="flex justify-center p-12 bg-black/20 rounded-3xl border border-dashed border-emerald-900/50"><p className="text-gray-400 text-xl font-medium">Tür istatistiği bulunamadı.</p></div>) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {statsTab === 'genres' && (getGenreStats().length === 0 ? (<div className="flex justify-center p-10 bg-black/20 rounded-2xl border border-dashed border-emerald-900/50"><p className="text-gray-400 text-sm">Tür istatistiği bulunamadı.</p></div>) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {getGenreStats().map(([genreName, data]) => (
-                                    <div key={genreName} onClick={() => {setSelectedGenreName(genreName); setSelectedGenreBooks(data.books);}} className="bg-black/40 p-6 rounded-2xl border border-emerald-900/40 hover:border-yellow-500 hover:bg-black/60 cursor-pointer transition-all flex flex-col justify-between group shadow-xl">
-                                        <span className="text-xl font-bold text-white mb-6 group-hover:text-yellow-400 transition-colors leading-tight">{genreName}</span>
+                                    <div key={genreName} onClick={() => {setSelectedGenreName(genreName); setSelectedGenreBooks(data.books);}} className="bg-black/40 p-4 rounded-xl border border-emerald-900/40 hover:border-yellow-500 hover:bg-black/60 cursor-pointer transition-all flex flex-col justify-between group shadow">
+                                        <span className="text-sm sm:text-base font-semibold text-white mb-4 group-hover:text-yellow-400 transition-colors leading-snug">{genreName}</span>
                                         <div className="flex justify-between items-center mt-auto">
-                                            <span className="px-4 py-1.5 bg-emerald-900/30 text-emerald-400 text-sm font-bold rounded-lg border border-emerald-800/50">{data.count} Eser</span>
-                                            <svg className="w-6 h-6 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                            <span className="px-2.5 py-1 bg-emerald-900/30 text-emerald-400 text-xs font-medium rounded-md border border-emerald-800/50">{data.count} Eser</span>
+                                            <svg className="w-4 h-4 text-gray-600 group-hover:text-yellow-400 transition-all transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                                         </div>
                                     </div>
                                 ))}
